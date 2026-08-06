@@ -3,54 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Famiglia Ceni — Home</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Famiglia Ceni — Portale</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        html, body { height: 100%; }
-        body {
-            margin: 0;
-            font-family: 'Inter', system-ui, sans-serif;
-            color: #2f3436;
-            background: #f2efe8;
-            background-image: radial-gradient(#e7e4dc 1px, transparent 1px);
-            background-size: 32px 32px;
-            display: flex; align-items: center; justify-content: center;
+        :root{
+            --bg:#f2efe8; --dot:#e7e4dc; --paper:#ffffff; --paper-2:#fbfaf6;
+            --ink:#2f3436; --ink-soft:#6b7168; --line:#e6e2d8;
+            --salvia:#7c9070; --salvia-deep:#5f7154; --terra:#c17a5b; --terra-deep:#a55f3e;
+            --shadow:0 10px 30px rgba(58,54,47,.08);
+            --serif:'Fraunces',Georgia,'Times New Roman',serif;
+            --sans:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
         }
-        h1, .serif { font-family: 'Fraunces', Georgia, serif; }
+        *{box-sizing:border-box;}
+        html,body{margin:0;min-height:100%;}
+        body{
+            background:var(--bg);
+            background-image:radial-gradient(var(--dot) 1px,transparent 1px);
+            background-size:32px 32px;
+            color:var(--ink);
+            font-family:var(--sans);
+            padding:clamp(1.5rem,4vw,4rem) clamp(1.25rem,5vw,3rem) 3rem;
+        }
+        .inner{max-width:960px;margin:0 auto;}
+
+        .masthead{display:flex;align-items:center;gap:1rem;}
+        .monogram{
+            width:56px;height:56px;flex:none;border-radius:16px;
+            display:flex;align-items:center;justify-content:center;
+            color:#fff;font-family:var(--serif);font-weight:600;font-size:1.5rem;
+            background:linear-gradient(135deg,var(--salvia),var(--terra));
+            box-shadow:0 8px 20px rgba(124,144,112,.28);
+        }
+        .titles .kicker{
+            font-size:.72rem;text-transform:uppercase;letter-spacing:.18em;
+            color:var(--salvia-deep);font-weight:600;margin:0 0 .35rem;
+        }
+        .titles h1{
+            font-family:var(--serif);font-weight:600;letter-spacing:-.3px;
+            font-size:clamp(1.7rem,4vw,2.3rem);line-height:1.05;margin:0;
+        }
+        .rule{height:1px;background:var(--line);margin:1.6rem 0 .2rem;}
+        .lede{color:var(--ink-soft);font-size:.98rem;line-height:1.6;max-width:52ch;margin:1rem 0 2rem;}
+
+        .grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));}
+        .card{
+            position:relative;display:flex;flex-direction:column;
+            background:var(--paper);border:1px solid var(--line);
+            border-radius:20px;padding:1.5rem;min-height:190px;
+            text-decoration:none;color:inherit;
+            transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease;
+        }
+        .card .ico{
+            width:46px;height:46px;border-radius:13px;
+            display:flex;align-items:center;justify-content:center;
+            color:#fff;font-size:1.15rem;margin-bottom:1rem;
+        }
+        .card h2{font-family:var(--serif);font-weight:600;font-size:1.28rem;margin:0 0 .35rem;letter-spacing:-.2px;}
+        .card p{color:var(--ink-soft);font-size:.9rem;line-height:1.5;margin:0;}
+        .card .foot{margin-top:auto;padding-top:1.1rem;display:flex;align-items:center;gap:.5rem;font-size:.85rem;font-weight:600;}
+
+        .card.active{cursor:pointer;box-shadow:var(--shadow);}
+        .card.active .ico{background:linear-gradient(135deg,var(--salvia),var(--salvia-deep));}
+        .card.active .foot{color:var(--salvia-deep);}
+        .card.active:hover{transform:translateY(-4px);border-color:var(--salvia);}
+        .card.active:hover .arrow{transform:translateX(4px);}
+        .card.active:focus-visible{outline:2px solid var(--salvia);outline-offset:3px;}
+        .arrow{transition:transform .25s ease;}
+
+        .card.soon{background:var(--paper-2);}
+        .card.soon .ico{background:var(--line);color:var(--ink-soft);}
+        .pill{
+            display:inline-flex;align-items:center;gap:.4rem;
+            font-size:.7rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+            padding:.28rem .6rem;border-radius:999px;
+            background:rgba(193,122,91,.14);color:var(--terra-deep);
+        }
+        .badge-lock{position:absolute;top:1.2rem;right:1.2rem;font-size:.72rem;color:var(--ink-soft);display:flex;align-items:center;gap:.35rem;}
+
+        .foot-row{
+            display:flex;flex-wrap:wrap;gap:1.4rem;align-items:center;
+            margin-top:2.2rem;padding-top:1.3rem;border-top:1px solid var(--line);
+            color:var(--ink-soft);font-size:.8rem;
+        }
+        .foot-row .chip{display:flex;align-items:center;gap:.45rem;}
+        .foot-row .chip i{color:var(--salvia);}
+        .foot-row .chip.b i{color:var(--terra);}
+        .credit{color:var(--ink-soft);font-size:.72rem;margin-top:1.4rem;opacity:.8;}
+
+        @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
     </style>
 </head>
 <body>
-    <main class="w-[92%] max-w-xl">
-        <div class="bg-white/90 backdrop-blur border border-[#e6e2d8] rounded-3xl shadow-xl p-8 sm:p-12 text-center">
-            <div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg"
-                 style="background: linear-gradient(135deg,#7c9070,#c17a5b); box-shadow: 0 8px 20px rgba(124,144,112,.25);">
-                <i class="fa-solid fa-tree"></i>
+    <div class="inner">
+        <header class="masthead">
+            <div class="monogram">C</div>
+            <div class="titles">
+                <p class="kicker">Portale di famiglia</p>
+                <h1>Famiglia Ceni</h1>
             </div>
+        </header>
+        <div class="rule"></div>
+        <p class="lede">
+            Uno spazio raccolto per le cose di famiglia: l'albero genealogico, e — via via —
+            i documenti, le foto e altro. La consultazione è libera; per le sezioni riservate serve l'accesso.
+        </p>
 
-            <h1 class="mt-6 text-3xl sm:text-4xl font-semibold text-[#2f3436] leading-tight">Albero Genealogico</h1>
-            <p class="serif text-2xl sm:text-3xl text-[#7c9070] -mt-1">Famiglia Ceni</p>
-
-            <p class="mt-5 text-sm sm:text-base text-slate-500 leading-relaxed">
-                Esplora le generazioni della famiglia, i rami e le parentele.
-                La consultazione è libera; per aggiungere o modificare persone serve l'accesso.
-            </p>
-
-            <a href="albero.html"
-               class="mt-8 inline-flex items-center gap-2.5 px-6 py-3 rounded-xl text-white text-sm sm:text-base font-semibold shadow-md transition hover:opacity-90"
-               style="background: linear-gradient(135deg,#7c9070,#67795c);">
-                <i class="fa-solid fa-sitemap"></i> Apri Albero Genealogico
+        <div class="grid">
+            <a class="card active" href="albero.html">
+                <div class="ico"><i class="fa-solid fa-sitemap" aria-hidden="true"></i></div>
+                <h2>Albero genealogico</h2>
+                <p>Generazioni, rami e parentele della famiglia, in un grafo esplorabile.</p>
+                <div class="foot"><span>Apri</span> <i class="fa-solid fa-arrow-right arrow" aria-hidden="true"></i></div>
             </a>
 
-            <div class="mt-8 pt-5 border-t border-slate-100 flex items-center justify-center gap-6 text-xs text-slate-400">
-                <span class="flex items-center gap-1.5"><i class="fa-solid fa-cloud text-[#7c9070]"></i> Dati sincronizzati</span>
-                <span class="flex items-center gap-1.5"><i class="fa-solid fa-mobile-screen text-[#c17a5b]"></i> PC e cellulare</span>
-                <span class="flex items-center gap-1.5"><i class="fa-solid fa-lock text-slate-400"></i> Modifica protetta</span>
+            <div class="card soon">
+                <span class="badge-lock"><i class="fa-solid fa-lock" aria-hidden="true"></i> Riservato</span>
+                <div class="ico"><i class="fa-solid fa-id-card" aria-hidden="true"></i></div>
+                <h2>Curriculum</h2>
+                <p>Il mio percorso professionale, visibile solo dopo l'accesso.</p>
+                <div class="foot"><span class="pill">Prossimamente</span></div>
+            </div>
+
+            <div class="card soon">
+                <div class="ico"><i class="fa-solid fa-images" aria-hidden="true"></i></div>
+                <h2>Foto</h2>
+                <p>Album e ricordi condivisi, organizzati per anni ed eventi.</p>
+                <div class="foot"><span class="pill">Prossimamente</span></div>
+            </div>
+
+            <div class="card soon">
+                <div class="ico"><i class="fa-solid fa-folder-open" aria-hidden="true"></i></div>
+                <h2>Documenti</h2>
+                <p>Un archivio ordinato di documenti utili alla famiglia.</p>
+                <div class="foot"><span class="pill">Prossimamente</span></div>
             </div>
         </div>
-        <p class="text-center text-[11px] text-slate-400 mt-4">Progetto privato di famiglia</p>
-    </main>
+
+        <div class="foot-row">
+            <span class="chip"><i class="fa-solid fa-cloud" aria-hidden="true"></i> Dati sincronizzati</span>
+            <span class="chip b"><i class="fa-solid fa-mobile-screen" aria-hidden="true"></i> PC e cellulare</span>
+            <span class="chip"><i class="fa-solid fa-lock" aria-hidden="true"></i> Modifica protetta</span>
+        </div>
+        <p class="credit">Progetto privato di famiglia</p>
+    </div>
 </body>
 </html>
