@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Famiglia Ceni — Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html, body { height: 100%; }
+        body {
+            margin: 0;
+            font-family: 'Inter', system-ui, sans-serif;
+            color: #2f3436;
+            background: #f2efe8;
+            background-image: radial-gradient(#e7e4dc 1px, transparent 1px);
+            background-size: 32px 32px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        h1, .serif { font-family: 'Fraunces', Georgia, serif; }
+    </style>
+</head>
+<body>
+    <main class="w-[92%] max-w-xl">
+        <div class="bg-white/90 backdrop-blur border border-[#e6e2d8] rounded-3xl shadow-xl p-8 sm:p-12 text-center">
+            <div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg"
+                 style="background: linear-gradient(135deg,#7c9070,#c17a5b); box-shadow: 0 8px 20px rgba(124,144,112,.25);">
+                <i class="fa-solid fa-tree"></i>
+            </div>
+
+            <h1 class="mt-6 text-3xl sm:text-4xl font-semibold text-[#2f3436] leading-tight">Albero Genealogico</h1>
+            <p class="serif text-2xl sm:text-3xl text-[#7c9070] -mt-1">Famiglia Ceni</p>
+
+            <p class="mt-5 text-sm sm:text-base text-slate-500 leading-relaxed">
+                Esplora le generazioni della famiglia, i rami e le parentele.
+                La consultazione è libera; per aggiungere o modificare persone serve l'accesso.
+            </p>
+
+            <a href="albero.html"
+               class="mt-8 inline-flex items-center gap-2.5 px-6 py-3 rounded-xl text-white text-sm sm:text-base font-semibold shadow-md transition hover:opacity-90"
+               style="background: linear-gradient(135deg,#7c9070,#67795c);">
+                <i class="fa-solid fa-sitemap"></i> Apri Albero Genealogico
+            </a>
+
+            <div class="mt-8 pt-5 border-t border-slate-100 flex items-center justify-center gap-6 text-xs text-slate-400">
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-cloud text-[#7c9070]"></i> Dati sincronizzati</span>
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-mobile-screen text-[#c17a5b]"></i> PC e cellulare</span>
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-lock text-slate-400"></i> Modifica protetta</span>
+            </div>
+        </div>
+        <p class="text-center text-[11px] text-slate-400 mt-4">Progetto privato di famiglia</p>
+    </main>
+</body>
+</html>

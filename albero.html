@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Albero Genealogico Ceni</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f8fafc;
+        }
+
+        #app-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        #network-container {
+            flex: 1;
+            height: 100%;
+            width: 100%;
+            background-color: #f1f5f9;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        #sidebar {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-closed {
+            transform: translateX(100%);
+        }
+
+        .sidebar-open {
+            transform: translateX(0);
+        }
+
+        /* Custom scrollbar for sidebar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style id="theme">
+:root{--accent:#7c9070;--accent-h:#67795c;}
+html,body{background:#eceae2!important;font-family:'Inter',system-ui,sans-serif!important;color:#2f3436!important;}
+#network-container{background-color:#faf9f6!important;background-image:radial-gradient(#e7e4dc 1px,transparent 1px)!important;background-size:32px 32px!important;}
+header{background:#fffefb!important;border-bottom:1px solid #e6e2d8!important;box-shadow:0 1px 2px rgba(0,0,0,.03)!important;}
+header h1{font-family:'Fraunces',Georgia,serif!important;font-weight:600!important;color:#2f3436!important;font-size:1.4rem!important;letter-spacing:-.2px;}
+header p{color:#8a8f88!important;}
+#sidebar{background:#fffefb!important;border-left:1px solid #e6e2d8!important;}
+#sidebar .bg-slate-50{background:#f5f3ec!important;}
+h2,h3{font-family:'Fraunces',serif!important;}
+.bg-indigo-600{background-color:var(--accent)!important;}
+.hover\:bg-indigo-700:hover{background-color:var(--accent-h)!important;}
+.text-indigo-600,.text-indigo-500{color:#c17a5b!important;}
+.shadow-indigo-200{--tw-shadow-color:#dfe4da!important;}
+.bg-emerald-600{background-color:#c17a5b!important;}
+.hover\:bg-emerald-700:hover{background-color:#a9694d!important;}
+.w-10.h-10.rounded-xl.bg-indigo-600{background:linear-gradient(135deg,#7c9070,#c17a5b)!important;box-shadow:0 4px 10px rgba(124,144,112,.22)!important;}
+</style>
+
+    <!-- Firebase (Cloud Firestore + Autenticazione) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+</head>
+<body class="text-slate-800">
+
+    <div id="app-container">
+        <!-- Main Area with Topbar & Network Canvas -->
+        <div class="flex-1 flex flex-col h-full relative overflow-hidden">
+            
+            <!-- Header Toolbar -->
+            <header class="bg-white/90 backdrop-blur border-b border-slate-200 px-4 py-3 flex flex-wrap items-center justify-between gap-3 z-10 shadow-sm">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xl shadow-md shadow-indigo-200">
+                        <i class="fa-solid fa-sitemap"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-slate-800 text-lg leading-tight">Albero Genealogico</h1>
+                        <p class="text-xs text-slate-500">Esplora, modifica e aggiungi i tuoi antenati</p>
+                    </div>
+                </div>
+
+                <!-- Control Actions -->
+                <div class="flex items-center flex-wrap gap-2">
+                    <!-- Search Input -->
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input type="text" id="searchInput" oninput="filterGraph()" placeholder="Cerca persona..." 
+                            class="pl-9 pr-3 py-1.5 text-sm bg-slate-100 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white w-44 md:w-56 transition">
+                    </div>
+
+                    <!-- Branch Filter Dropdown -->
+                    <select id="branchSelect" onchange="filterGraph()" class="py-1.5 px-3 text-sm bg-slate-100 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700">
+                        <option value="">Tutti i rami</option>
+                    </select>
+
+                    <!-- Layout Mode Selector -->
+                    <select id="layoutSelect" onchange="changeLayout(this.value)" class="py-1.5 px-3 text-sm bg-slate-100 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700" title="Cambia struttura grafica">
+                        <option value="hierarchical-UD">🌳 Albero Gerarchico (Dall'alto)</option>
+                        <option value="hierarchical-LR">➡️ Linea del Tempo (Orizzontale)</option>
+                        <option value="free">🕸️ Vista Libera / Mappa</option>
+                    </select>
+
+                    <!-- Color Scheme Selector -->
+                    <select id="colorSchemeSelect" onchange="changeColorScheme(this.value)" class="py-1.5 px-3 text-sm bg-slate-100 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700" title="Cambia modalità colore">
+                        <option value="branch">🎨 Colora per Ramo</option>
+                        <option value="gender">⚧ Colora per Sesso</option>
+                    </select>
+
+                    <div class="h-6 w-[1px] bg-slate-200 mx-1 hidden sm:block"></div>
+
+                    <!-- Action Buttons -->
+                    <button onclick="createNewPerson()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-plus"></i> <span class="hidden sm:inline">Nuovo</span>
+                    </button>
+                    
+                    <button onclick="openFileWithPicker()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg transition flex items-center gap-1.5" title="Apri e collega il file albero-genealogico-ceni.json">
+                        <i class="fa-solid fa-folder-open text-indigo-600"></i> <span class="hidden sm:inline">Apri File</span>
+                    </button>
+                    <input type="file" id="fileInput" accept=".json" class="hidden" onchange="handleFileImport(event)">
+
+                    <button onclick="saveTree()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg shadow-sm transition flex items-center gap-1.5" title="Salva le modifiche">
+                        <i class="fa-solid fa-floppy-disk"></i> <span class="hidden sm:inline">Salva</span>
+                    </button>
+
+                    <button onclick="exportJSON()" class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition" title="Esporta una copia del file JSON (backup)">
+                        <i class="fa-solid fa-download"></i>
+                    </button>
+
+                    <!-- Stato accesso (solo in modalità cloud) -->
+                    <button id="authBtn" onclick="toggleAuth()" class="hidden px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg transition items-center gap-1.5" title="Accedi per poter modificare">
+                        <i class="fa-solid fa-right-to-bracket"></i> <span id="authBtnLabel" class="hidden sm:inline">Accedi</span>
+                    </button>
+
+                    <button id="reloadCloudBtn" onclick="reloadFromCloud()" class="hidden p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition" title="Aggiorna dal cloud (scarta le modifiche locali non salvate)">
+                        <i class="fa-solid fa-cloud-arrow-down"></i>
+                    </button>
+
+                    <button onclick="resetLayout()" class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition" title="Ripristina Vista">
+                        <i class="fa-solid fa-compress-arrows-alt"></i>
+                    </button>
+
+                    <button onclick="resetNodePositions()" class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition" title="Reimposta le posizioni spostate manualmente">
+                        <i class="fa-solid fa-arrows-to-dot"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Network Visualization Container -->
+            <main id="network-container"></main>
+
+            <!-- Legenda e Istruzioni Overlay -->
+            <div id="legendBox" class="absolute bottom-4 left-4 z-10 bg-white/90 backdrop-blur border border-slate-200 p-3 rounded-xl text-xs text-slate-700 shadow-lg max-w-xs space-y-2">
+                <div class="font-bold text-slate-800 flex items-center justify-between gap-3">
+                    <span>Legenda Simboli</span>
+                    <button onclick="toggleLegend()" title="Comprimi legenda" class="text-slate-400 hover:text-slate-700 transition"><i class="fa-solid fa-chevron-down"></i></button>
+                </div>
+                <div id="legendBody" class="space-y-2">
+                    <div class="grid grid-cols-2 gap-1.5 text-[11px]">
+                        <div class="flex items-center gap-1.5"><span class="w-4 h-0.5 bg-slate-600 inline-block"></span> Genitore ➔ Figlio</div>
+                        <div class="flex items-center gap-1.5"><span class="w-4 h-0.5 bg-amber-400 border-b border-dashed border-amber-500 inline-block"></span> Coniugi / Partner</div>
+                    </div>
+                    <div id="branchLegendPills" class="flex flex-wrap gap-1 pt-1 border-t border-slate-100"></div>
+                    <div class="text-[10px] text-slate-400 pt-1">Clicca su una persona per evidenziarne la parentela. Trascina un riquadro per spostarlo: la posizione resta salvata.</div>
+                </div>
+            </div>
+            <!-- Bottone compatto per riaprire la legenda -->
+            <button id="legendReopen" onclick="toggleLegend()" title="Mostra legenda" class="hidden absolute bottom-4 left-4 z-10 bg-white/90 backdrop-blur border border-slate-200 w-9 h-9 rounded-xl text-slate-500 hover:text-slate-800 shadow-lg items-center justify-center">
+                <i class="fa-solid fa-layer-group"></i>
+            </button>
+        </div>
+
+        <!-- Sidebar Panel for Viewing & Editing Data -->
+        <aside id="sidebar" class="sidebar-closed absolute right-0 top-0 h-full w-full sm:w-[420px] bg-white border-l border-slate-200 shadow-2xl z-20 flex flex-col">
+            <!-- Sidebar Header -->
+            <div class="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center gap-2">
+                    <span id="genderBadge" class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-user"></i>
+                    </span>
+                    <div>
+                        <h2 id="panelTitle" class="font-bold text-slate-800 text-base leading-snug">Dettagli Persona</h2>
+                        <span id="panelSubtitle" class="text-xs text-slate-500">ID: -</span>
+                    </div>
+                </div>
+                <button onclick="closeSidebar()" class="w-8 h-8 rounded-lg hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Sidebar Form & Relations Body -->
+            <div class="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar">
+                
+                <!-- Personal Info Form -->
+                <form id="personForm" class="space-y-4" onsubmit="event.preventDefault();">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Nome</label>
+                            <input type="text" id="field_firstName" oninput="saveCurrentPersonDetails()" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Cognome</label>
+                            <input type="text" id="field_lastName" oninput="saveCurrentPersonDetails()" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Genere</label>
+                            <select id="field_gender" onchange="saveCurrentPersonDetails()" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                <option value="M">Maschio (M)</option>
+                                <option value="F">Femmina (F)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Ramo (Branch)</label>
+                            <input type="text" id="field_branch" oninput="saveCurrentPersonDetails()" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="es. ceni">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Data / Nascita</label>
+                        <input type="text" id="field_nato" oninput="saveCurrentPersonDetails()" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="es. n. 27/11/1974">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Note</label>
+                        <textarea id="field_note" oninput="saveCurrentPersonDetails()" rows="3" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="Annotazioni o dettagli storici..."></textarea>
+                    </div>
+                </form>
+
+                <hr class="border-slate-200">
+
+                <!-- Relationships Management -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-600 flex items-center gap-1.5">
+                        <i class="fa-solid fa-people-arrows"></i> Relazioni Familiari
+                    </h3>
+
+                    <!-- Genitori -->
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                        <span class="text-xs font-bold text-slate-600 uppercase block">Genitori</span>
+                        <ul id="list_parents" class="space-y-1.5"></ul>
+                        <div class="flex gap-2 pt-1">
+                            <select id="select_add_parent" class="flex-1 text-xs py-1.5 px-2 border border-slate-200 rounded-lg bg-white"></select>
+                            <button onclick="addRelation('parents')" class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium transition">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Coniugi -->
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                        <span class="text-xs font-bold text-slate-600 uppercase block">Coniuge / Partner</span>
+                        <ul id="list_spouses" class="space-y-1.5"></ul>
+                        <div class="flex gap-2 pt-1">
+                            <select id="select_add_spouse" class="flex-1 text-xs py-1.5 px-2 border border-slate-200 rounded-lg bg-white"></select>
+                            <button onclick="addRelation('spouses')" class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium transition">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Figli -->
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                        <span class="text-xs font-bold text-slate-600 uppercase block">Figli</span>
+                        <ul id="list_children" class="space-y-1.5"></ul>
+                        <div class="flex gap-2 pt-1">
+                            <select id="select_add_child" class="flex-1 text-xs py-1.5 px-2 border border-slate-200 rounded-lg bg-white"></select>
+                            <button onclick="addRelation('children')" class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium transition">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Footer / Actions -->
+            <div class="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+                <button onclick="deleteCurrentPerson()" class="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-semibold rounded-lg transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-trash"></i> Elimina Persona
+                </button>
+                <button onclick="closeSidebar()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg transition">
+                    Chiudi
+                </button>
+            </div>
+        </aside>
+
+        <!-- Toast Notification Box (Alternative to alert) -->
+        <div id="toast" class="fixed top-20 right-6 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl transform translate-y-[-100px] opacity-0 transition-all duration-300 z-50 flex items-center gap-2 text-sm pointer-events-none">
+            <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+            <span id="toastMessage">Operazione completata</span>
+        </div>
+
+        <!-- Finestra di accesso (email/password) -->
+        <div id="authModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/40 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl shadow-2xl w-[92%] max-w-sm p-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="font-bold text-slate-800 text-lg">Accedi per modificare</h2>
+                    <button onclick="closeAuthModal()" class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <p class="text-xs text-slate-500">L'albero è visibile a tutti; per salvare le modifiche serve il tuo account.</p>
+                <div class="space-y-3">
+                    <input id="authEmail" type="email" placeholder="Email" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <input id="authPass" type="password" placeholder="Password" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" onkeydown="if(event.key==='Enter') doLogin()">
+                    <div id="authError" class="hidden text-xs text-red-600"></div>
+                    <button onclick="doLogin()" class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition">Accedi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initial Dataset embedded directly from albero-genealogico-ceni.json
+        const initialData = [
+            {"id":"remo_ceni","data":{"gender":"M","first name":"Remo","last name":"Ceni","nato":"","note":"","branch":"ceni"},"rels":{"parents":[],"spouses":["angelina_mattioni"],"children":["luigi_ceni"]}},
+            {"id":"angelina_mattioni","data":{"gender":"F","first name":"Angelina","last name":"Mattioni","nato":"","note":"","branch":"ceni"},"rels":{"parents":["mattioni_sr","binda_sr"],"spouses":["remo_ceni"],"children":["luigi_ceni"]}},
+            {"id":"mattioni_sr","data":{"gender":"M","first name":"Sconosciuto","last name":"Mattioni","nato":"","note":"Antenato noto solo per cognome","branch":"ceni"},"rels":{"parents":[],"spouses":["binda_sr"],"children":["angelina_mattioni"]}},
+            {"id":"binda_sr","data":{"gender":"F","first name":"Sconosciuta","last name":"Binda","nato":"","note":"Antenata nota solo per cognome","branch":"ceni"},"rels":{"parents":[],"spouses":["mattioni_sr"],"children":["angelina_mattioni"]}},
+            {"id":"luigi_ceni","data":{"gender":"M","first name":"Luigi","last name":"Ceni","nato":"n. 1936","note":"Sposato nel 1971 con Maria Luigia Vanoli","branch":"ceni"},"rels":{"parents":["remo_ceni","angelina_mattioni"],"spouses":["maria_luigia_vanoli"],"children":["lanfranco_ceni","remolo"]}},
+            {"id":"maria_luigia_vanoli","data":{"gender":"F","first name":"Maria Luigia","last name":"Vanoli","nato":"","note":"Sposata nel 1971 con Luigi Ceni","branch":"vanoli"},"rels":{"parents":["franco_vanoli","rosa_elisa_nespoli"],"spouses":["luigi_ceni"],"children":["lanfranco_ceni","remolo"]}},
+            {"id":"francesco_vanoli_fig","data":{"gender":"M","first name":"Francesco","last name":"Vanoli","nato":"","note":"Fratello di Maria Luigia Vanoli","branch":"vanoli"},"rels":{"parents":["franco_vanoli","rosa_elisa_nespoli"],"spouses":[],"children":[]}},
+            {"id":"franco_vanoli","data":{"gender":"M","first name":"Franco","last name":"Vanoli","nato":"","note":"","branch":"vanoli"},"rels":{"parents":["francesco_vanoli_sr","luigia_pellegrini"],"spouses":["rosa_elisa_nespoli"],"children":["maria_luigia_vanoli","francesco_vanoli_fig"]}},
+            {"id":"rosa_elisa_nespoli","data":{"gender":"F","first name":"Rosa Elisa","last name":"Nespoli","nato":"","note":"","branch":"vanoli"},"rels":{"parents":["pietro_nespoli","maria_brava"],"spouses":["franco_vanoli"],"children":["maria_luigia_vanoli","francesco_vanoli_fig"]}},
+            {"id":"francesco_vanoli_sr","data":{"gender":"M","first name":"Francesco","last name":"Vanoli (nonno)","nato":"","note":"Padre di Franco Vanoli","branch":"vanoli"},"rels":{"parents":[],"spouses":["luigia_pellegrini"],"children":["franco_vanoli"]}},
+            {"id":"luigia_pellegrini","data":{"gender":"F","first name":"Luigia","last name":"Pellegrini","nato":"","note":"Madre di Franco Vanoli","branch":"vanoli"},"rels":{"parents":[],"spouses":["francesco_vanoli_sr"],"children":["franco_vanoli"]}},
+            {"id":"pietro_nespoli","data":{"gender":"M","first name":"Pietro","last name":"Nespoli","nato":"","note":"","branch":"vanoli"},"rels":{"parents":[],"spouses":["maria_brava"],"children":["rosa_elisa_nespoli"]}},
+            {"id":"maria_brava","data":{"gender":"F","first name":"Maria","last name":"Brava","nato":"","note":"Cognome da verificare: Brava (file) / Bravo (immagine)","branch":"vanoli"},"rels":{"parents":["carlo_brava","carolina"],"spouses":["pietro_nespoli"],"children":["rosa_elisa_nespoli"]}},
+            {"id":"carlo_brava","data":{"gender":"M","first name":"Carlo","last name":"Brava","nato":"","note":"Cognome da verificare: Brava / Bravo","branch":"vanoli"},"rels":{"parents":[],"spouses":["carolina"],"children":["maria_brava"]}},
+            {"id":"carolina","data":{"gender":"F","first name":"Carolina","last name":"(?)","nato":"","note":"Cognome da verificare","branch":"vanoli"},"rels":{"parents":[],"spouses":["carlo_brava"],"children":["maria_brava"]}},
+            {"id":"lanfranco_ceni","data":{"gender":"M","first name":"Lanfranco","last name":"Ceni","nato":"n. 09/09/1972","note":"","branch":"ceni"},"rels":{"parents":["luigi_ceni","maria_luigia_vanoli"],"spouses":["simonetta_zocchi"],"children":[]}},
+            {"id":"simonetta_zocchi","data":{"gender":"F","first name":"Simonetta","last name":"Zocchi","nato":"","note":"","branch":"zocchi"},"rels":{"parents":[],"spouses":["lanfranco_ceni"],"children":[]}},
+            {"id":"remolo","data":{"gender":"M","first name":"Remolo Rossano","last name":"Ceni","nato":"n. 27/11/1974","note":"Persona di riferimento","branch":"ceni"},"rels":{"parents":["luigi_ceni","maria_luigia_vanoli"],"spouses":["chiara_marcheselli"],"children":["eleonora","nicolo"]}},
+            {"id":"chiara_marcheselli","data":{"gender":"F","first name":"Chiara","last name":"Marcheselli","nato":"n. 29/05/1981","note":"","branch":"marcheselli"},"rels":{"parents":["giovanni_marcheselli","marilisa_chiaravalli"],"spouses":["remolo"],"children":["eleonora","nicolo"]}},
+            {"id":"eleonora","data":{"gender":"F","first name":"Eleonora","last name":"Ceni","nato":"n. 06/06/2010","note":"","branch":"ceni"},"rels":{"parents":["remolo","chiara_marcheselli"],"spouses":[],"children":[]}},
+            {"id":"nicolo","data":{"gender":"M","first name":"Nicolò","last name":"Ceni","nato":"n. 08/09/2014","note":"","branch":"ceni"},"rels":{"parents":["remolo","chiara_marcheselli"],"spouses":[],"children":[]}},
+            {"id":"giovanni_marcheselli","data":{"gender":"M","first name":"Giovanni","last name":"Marcheselli","nato":"","note":"","branch":"marcheselli"},"rels":{"parents":[],"spouses":["marilisa_chiaravalli"],"children":["chiara_marcheselli","ilaria_marcheselli"]}},
+            {"id":"marilisa_chiaravalli","data":{"gender":"F","first name":"Marilisa","last name":"Chiaravalli","nato":"","note":"","branch":"chiaravalli"},"rels":{"parents":["chiaravalli_padre","chiaravalli_madre"],"spouses":["giovanni_marcheselli"],"children":["chiara_marcheselli","ilaria_marcheselli"]}},
+            {"id":"angelo_chiaravalli","data":{"gender":"M","first name":"Angelo","last name":"Chiaravalli","nato":"","note":"Fratello di Marilisa","branch":"chiaravalli"},"rels":{"parents":["chiaravalli_padre","chiaravalli_madre"],"spouses":[],"children":[]}},
+            {"id":"chiaravalli_padre","data":{"gender":"M","first name":"Sconosciuto","last name":"Chiaravalli","nato":"","note":"Genitore di Marilisa e Angelo (da ricostruire)","branch":"chiaravalli"},"rels":{"parents":[],"spouses":["chiaravalli_madre"],"children":["marilisa_chiaravalli","angelo_chiaravalli"]}},
+            {"id":"chiaravalli_madre","data":{"gender":"F","first name":"Sconosciuta","last name":"","nato":"","note":"Genitore di Marilisa e Angelo (da ricostruire)","branch":"chiaravalli"},"rels":{"parents":[],"spouses":["chiaravalli_padre"],"children":["marilisa_chiaravalli","angelo_chiaravalli"]}},
+            {"id":"ilaria_marcheselli","data":{"gender":"F","first name":"Ilaria","last name":"Marcheselli","nato":"","note":"Sorella di Chiara","branch":"marcheselli"},"rels":{"parents":["giovanni_marcheselli","marilisa_chiaravalli"],"spouses":["costantino_piccinelli"],"children":["aurora_piccinelli","beatrice_piccinelli"]}},
+            {"id":"costantino_piccinelli","data":{"gender":"M","first name":"Costantino","last name":"Piccinelli","nato":"","note":"","branch":"piccinelli"},"rels":{"parents":["erminio_piccinelli","clelia"],"spouses":["ilaria_marcheselli"],"children":["aurora_piccinelli","beatrice_piccinelli"]}},
+            {"id":"aurora_piccinelli","data":{"gender":"F","first name":"Aurora","last name":"Piccinelli","nato":"","note":"","branch":"piccinelli"},"rels":{"parents":["costantino_piccinelli","ilaria_marcheselli"],"spouses":[],"children":[]}},
+            {"id":"beatrice_piccinelli","data":{"gender":"F","first name":"Beatrice","last name":"Piccinelli","nato":"","note":"","branch":"piccinelli"},"rels":{"parents":["costantino_piccinelli","ilaria_marcheselli"],"spouses":[],"children":[]}},
+            {"id":"erminio_piccinelli","data":{"gender":"M","first name":"Erminio","last name":"Piccinelli","nato":"","note":"","branch":"piccinelli"},"rels":{"parents":[],"spouses":["clelia"],"children":["costantino_piccinelli","catia_piccinelli","cinzia_piccinelli"]}},
+            {"id":"clelia","data":{"gender":"F","first name":"Clelia","last name":"(?)","nato":"","note":"Cognome da verificare","branch":"piccinelli"},"rels":{"parents":[],"spouses":["erminio_piccinelli"],"children":["costantino_piccinelli","catia_piccinelli","cinzia_piccinelli"]}},
+            {"id":"catia_piccinelli","data":{"gender":"F","first name":"Catia","last name":"Piccinelli","nato":"","note":"Sorella di Costantino","branch":"piccinelli"},"rels":{"parents":["erminio_piccinelli","clelia"],"spouses":[],"children":[]}},
+            {"id":"cinzia_piccinelli","data":{"gender":"F","first name":"Cinzia","last name":"Piccinelli","nato":"","note":"Sorella di Costantino","branch":"piccinelli"},"rels":{"parents":["erminio_piccinelli","clelia"],"spouses":[],"children":[]}}
+        ];
+
+        let rawData = [];
+        let network = null;
+        let nodesDataset = new vis.DataSet();
+        let edgesDataset = new vis.DataSet();
+        let currentSelectedId = null;
+        let fileHandle = null;
+
+        // ========================================================================
+        // CONFIGURAZIONE FIREBASE  —  incolla qui i dati del TUO progetto Firebase
+        // (Console Firebase > Impostazioni progetto > "Le tue app" > Configurazione SDK)
+        // Finché resta con i "___" l'app funziona in modalità solo-file locale.
+        // ========================================================================
+        const FIREBASE_CONFIG = {
+            apiKey: "AIzaSyBXM0o09kuJfqt5ekSqazZoTzDFKCR2WxM",
+            authDomain: "albero-ceni.firebaseapp.com",
+            projectId: "albero-ceni",
+            storageBucket: "albero-ceni.firebasestorage.app",
+            messagingSenderId: "1075803947573",
+            appId: "1:1075803947573:web:2deac571fb99e497c0a77c"
+        };
+        const TREE_PATH = { collection: "alberi", doc: "ceni" };
+        const FIREBASE_ENABLED = FIREBASE_CONFIG.projectId && FIREBASE_CONFIG.projectId.indexOf("___") === -1;
+
+        let db = null, fbAuth = null, currentUser = null;
+        let cloudActive = false;      // true quando i dati vengono dal cloud
+        let suppressSnapshot = false; // evita di ricaricare durante un nostro salvataggio
+        let isDirty = false;          // modifiche locali non ancora salvate
+
+        // Visual Layout & Display Options
+        let currentLayoutMode = 'hierarchical-UD'; // 'hierarchical-UD', 'hierarchical-LR', 'free'
+        let currentColorScheme = 'branch'; // 'branch', 'gender'
+
+        // Palette color map for branches
+        const branchColors = {
+            'ceni': { bg: '#e8efe3', border: '#7c9070', label: 'Ceni' },
+            'vanoli': { bg: '#f4e7de', border: '#c17a5b', label: 'Vanoli' },
+            'marcheselli': { bg: '#e6edf3', border: '#6b7f99', label: 'Marcheselli' },
+            'chiaravalli': { bg: '#f4ecd9', border: '#b89150', label: 'Chiaravalli' },
+            'piccinelli': { bg: '#f0e5ec', border: '#9d6b84', label: 'Piccinelli' },
+            'zocchi': { bg: '#e2edeb', border: '#5f8a86', label: 'Zocchi' }
+        };
+
+        // --- Persistenza del collegamento al file JSON (IndexedDB) ---
+        function idbHandle(action, value) {
+            return new Promise((resolve) => {
+                try {
+                    const req = indexedDB.open('albero_ceni_db', 1);
+                    req.onupgradeneeded = () => req.result.createObjectStore('handles');
+                    req.onsuccess = () => {
+                        const db = req.result;
+                        const store = db.transaction('handles', 'readwrite').objectStore('handles');
+                        const r = (action === 'get') ? store.get('fileHandle') : store.put(value, 'fileHandle');
+                        r.onsuccess = () => resolve(action === 'get' ? r.result : true);
+                        r.onerror = () => resolve(null);
+                    };
+                    req.onerror = () => resolve(null);
+                } catch (e) { resolve(null); }
+            });
+        }
+
+        async function verifyPermission(handle) {
+            const opts = { mode: 'readwrite' };
+            if ((await handle.queryPermission(opts)) === 'granted') return true;
+            if ((await handle.requestPermission(opts)) === 'granted') return true;
+            return false;
+        }
+
+        // Window load listener to start render safely
+        window.onload = async function() {
+            // === Modalità CLOUD (Firebase/Firestore): è la fonte dati primaria se configurata ===
+            if (FIREBASE_ENABLED) {
+                if (initFirebase()) {
+                    try {
+                        await loadFromCloud();
+                        return;
+                    } catch (e) {
+                        console.error('Cloud non raggiungibile:', e);
+                        showToast('Cloud non raggiungibile, uso i dati locali', true);
+                    }
+                }
+            }
+
+            // 0. Ripristina il collegamento al file scelto in precedenza (File System Access API)
+            try {
+                const saved = await idbHandle('get');
+                if (saved && 'queryPermission' in saved) {
+                    fileHandle = saved; // conservato: al primo Salva chiederà una volta il permesso
+                    if ((await saved.queryPermission({ mode: 'readwrite' })) === 'granted') {
+                        const f = await saved.getFile();
+                        loadInitialTreeData(JSON.parse(await f.text()));
+                        showToast('Collegato automaticamente a ' + f.name);
+                        return;
+                    }
+                }
+            } catch (e) {}
+
+            // 1. Prova a caricare automaticamente dal file albero-genealogico-ceni.json presente nella stessa cartella
+            try {
+                const response = await fetch('./albero-genealogico-ceni.json', { cache: 'no-store' });
+                if (response.ok) {
+                    const json = await response.json();
+                    loadInitialTreeData(json);
+                    showToast("Caricato automaticamente albero-genealogico-ceni.json");
+                    return;
+                }
+            } catch (e) {
+                // Se aperto direttamente da doppio clic sul file HTML (file://), fetch locale potrebbe essere bloccato dal browser
+            }
+
+            // 2. Prova a ripristinare dalla memoria locale del browser (LocalStorage)
+            const localSaved = localStorage.getItem('albero_ceni_cache');
+            if (localSaved) {
+                try {
+                    const json = JSON.parse(localSaved);
+                    loadInitialTreeData(json);
+                    showToast("Dati ripristinati dalla memoria locale");
+                    return;
+                } catch(e) {}
+            }
+
+            // 3. Fallback ai dati iniziali integrati nel codice
+            loadInitialTreeData(initialData);
+        };
+
+        function saveToLocalStorage() {
+            isDirty = true;   // c'è una modifica locale da salvare
+            try {
+                localStorage.setItem('albero_ceni_cache', JSON.stringify(rawData));
+            } catch(e) {}
+        }
+
+        // ===================== FIREBASE / CLOUD FIRESTORE =====================
+        function initFirebase() {
+            try {
+                firebase.initializeApp(FIREBASE_CONFIG);
+                db = firebase.firestore();
+                fbAuth = firebase.auth();
+                fbAuth.onAuthStateChanged(function (u) { currentUser = u; updateAuthUI(); });
+                const btn = document.getElementById('authBtn');
+                if (btn) { btn.classList.remove('hidden'); btn.classList.add('flex'); }
+                const rl = document.getElementById('reloadCloudBtn');
+                if (rl) { rl.classList.remove('hidden'); }
+                return true;
+            } catch (e) {
+                console.error('Errore init Firebase:', e);
+                return false;
+            }
+        }
+
+        async function loadFromCloud() {
+            const ref = db.collection(TREE_PATH.collection).doc(TREE_PATH.doc);
+            const snap = await ref.get();
+            if (snap.exists && snap.data() && Array.isArray(snap.data().people)) {
+                loadInitialTreeData(snap.data().people);
+                isDirty = false;
+                showToast('Albero caricato dal cloud');
+            } else {
+                // Nessun documento ancora: mostro i dati iniziali; verranno creati al primo salvataggio
+                loadInitialTreeData(initialData);
+                showToast('Nessun albero sul cloud: accedi e premi Salva per crearlo');
+            }
+            cloudActive = true;
+            // Sincronizzazione in tempo reale tra dispositivi
+            ref.onSnapshot(function (doc) {
+                if (suppressSnapshot) return;
+                if (!doc.exists || !doc.data() || !Array.isArray(doc.data().people)) return;
+                if (isDirty) { showToast('Nuova versione disponibile sul cloud (premi Aggiorna dal cloud)'); return; }
+                loadInitialTreeData(doc.data().people);
+            });
+        }
+
+        async function saveToCloud() {
+            if (!currentUser) { openAuthModal(); return; }
+            try {
+                suppressSnapshot = true;
+                await db.collection(TREE_PATH.collection).doc(TREE_PATH.doc).set({
+                    people: rawData,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedBy: currentUser.email || currentUser.uid
+                });
+                isDirty = false;
+                showToast('Salvato sul cloud');
+            } catch (e) {
+                console.error(e);
+                showToast('Errore salvataggio cloud: ' + e.message, true);
+            } finally {
+                setTimeout(function () { suppressSnapshot = false; }, 1000);
+            }
+        }
+
+        // Ricarica manualmente dal cloud (scarta le modifiche locali non salvate)
+        async function reloadFromCloud() {
+            if (!cloudActive) return;
+            try {
+                const snap = await db.collection(TREE_PATH.collection).doc(TREE_PATH.doc).get();
+                if (snap.exists && Array.isArray(snap.data().people)) {
+                    loadInitialTreeData(snap.data().people);
+                    isDirty = false;
+                    showToast('Aggiornato dal cloud');
+                }
+            } catch (e) { showToast('Errore aggiornamento: ' + e.message, true); }
+        }
+
+        // Pulsante "Salva": cloud se configurato, altrimenti file locale
+        function saveTree() {
+            try { localStorage.setItem('albero_ceni_cache', JSON.stringify(rawData)); } catch (e) {}
+            if (FIREBASE_ENABLED && cloudActive) {
+                saveToCloud();
+            } else {
+                saveDirectToFile();
+            }
+        }
+
+        // ---- Autenticazione ----
+        function updateAuthUI() {
+            const label = document.getElementById('authBtnLabel');
+            const btn = document.getElementById('authBtn');
+            if (!label || !btn) return;
+            if (currentUser) {
+                label.textContent = 'Esci';
+                btn.title = 'Connesso come ' + (currentUser.email || 'utente') + ' — esci';
+            } else {
+                label.textContent = 'Accedi';
+                btn.title = 'Accedi per poter modificare';
+            }
+        }
+        function toggleAuth() {
+            if (currentUser) { fbAuth.signOut().then(function () { showToast('Disconnesso'); }); }
+            else { openAuthModal(); }
+        }
+        function openAuthModal() {
+            if (!FIREBASE_ENABLED) { showToast('Modalità cloud non configurata', true); return; }
+            const m = document.getElementById('authModal');
+            m.classList.remove('hidden'); m.classList.add('flex');
+            document.getElementById('authError').classList.add('hidden');
+            const em = document.getElementById('authEmail'); if (em) em.focus();
+        }
+        function closeAuthModal() {
+            const m = document.getElementById('authModal');
+            m.classList.add('hidden'); m.classList.remove('flex');
+        }
+        async function doLogin() {
+            const email = document.getElementById('authEmail').value.trim();
+            const pass = document.getElementById('authPass').value;
+            const err = document.getElementById('authError');
+            err.classList.add('hidden');
+            try {
+                await fbAuth.signInWithEmailAndPassword(email, pass);
+                closeAuthModal();
+                document.getElementById('authPass').value = '';
+                showToast('Accesso effettuato: ora puoi salvare');
+            } catch (e) {
+                err.textContent = 'Accesso non riuscito: ' + (e.code || e.message);
+                err.classList.remove('hidden');
+            }
+        }
+
+        function sanitizeJSON(jsonArray) {
+            return jsonArray.map(item => {
+                if (!item.data) item.data = {};
+                if (!item.rels) item.rels = {};
+                if (!Array.isArray(item.rels.parents)) item.rels.parents = [];
+                if (!Array.isArray(item.rels.spouses)) item.rels.spouses = [];
+                if (!Array.isArray(item.rels.children)) item.rels.children = [];
+                // Migrazione: vecchio formato posizione unica -> posizione per vista gerarchica
+                if (item.data && item.data._pos && typeof item.data._pos.x === 'number') {
+                    item.data._pos = { 'hierarchical-UD': { x: item.data._pos.x, y: item.data._pos.y } };
+                }
+                return item;
+            });
+        }
+
+        // Calcola i livelli generazionali per la disposizione ad albero ordinato
+        function calculateGenerationalLevels() {
+            const levels = {};
+            rawData.forEach(p => levels[p.id] = 0);
+
+            // Trova i nodi radice (senza genitori nel dataset)
+            const roots = rawData.filter(p => !p.rels.parents || p.rels.parents.length === 0);
+            const queue = roots.map(r => ({ id: r.id, level: 0 }));
+
+            let head = 0;
+            while(head < queue.length) {
+                const { id, level } = queue[head++];
+                if (levels[id] < level) levels[id] = level;
+
+                const person = rawData.find(p => p.id === id);
+                if (!person) continue;
+
+                // Stesso livello per i coniugi
+                (person.rels.spouses || []).forEach(spouseId => {
+                    if (levels[spouseId] < level) {
+                        levels[spouseId] = level;
+                        queue.push({ id: spouseId, level: level });
+                    }
+                });
+
+                // Livello successivo per i figli
+                (person.rels.children || []).forEach(childId => {
+                    if (levels[childId] < level + 1) {
+                        levels[childId] = level + 1;
+                        queue.push({ id: childId, level: level + 1 });
+                    }
+                });
+            }
+
+            return levels;
+        }
+
+        function loadInitialTreeData(json) {
+            rawData = sanitizeJSON(json);
+            populateBranchFilterOptions();
+            updateLegendPills();
+            renderGraph();
+        }
+
+        function renderGraph() {
+            const container = document.getElementById('network-container');
+            const nodes = [];
+            const edges = [];
+            const edgeKeys = new Set();
+            const existingIds = new Set(rawData.map(p => p.id));
+            const genLevels = calculateGenerationalLevels();
+
+            rawData.forEach(person => {
+                const firstName = person.data['first name'] || '';
+                const lastName = person.data['last name'] || '';
+                const nato = person.data.nato ? `\n${person.data.nato}` : '';
+                const branch = (person.data.branch || '').toLowerCase();
+                const isFemale = person.data.gender === 'F';
+
+                // Colore del nodo in base alla modalità selezionata
+                let bgColor, borderColor;
+                if (currentColorScheme === 'gender') {
+                    bgColor = isFemale ? '#f0e5ec' : '#e6edf3';
+                    borderColor = isFemale ? '#9d6b84' : '#6b7f99';
+                } else {
+                    const colorConfig = branchColors[branch] || (isFemale ? { bg: '#f0e5ec', border: '#9d6b84' } : { bg: '#e6edf3', border: '#6b7f99' });
+                    bgColor = colorConfig.bg;
+                    borderColor = colorConfig.border;
+                }
+
+                // Etichetta del nodo
+                const labelText = `<b>${firstName} ${lastName}</b>${nato}`;
+
+                nodes.push({
+                    id: person.id,
+                    label: `${firstName} ${lastName}${nato}`,
+                    level: (genLevels[person.id] || 0) * 2,
+                    shape: 'box',
+                    margin: { top: 10, right: 14, bottom: 10, left: 14 },
+                    borderWidth: 2,
+                    borderRadius: 10,
+                    color: {
+                        background: bgColor,
+                        border: borderColor,
+                        highlight: { background: '#fbe6c2', border: '#d99a4e' }
+                    },
+                    font: { color: '#2f3436', size: 13, face: "Inter, sans-serif" },
+                    shadow: { enabled: true, color: 'rgba(60,70,60,0.10)', size: 12, x: 0, y: 6 }
+                });
+
+                // (Gli archi genitore ➔ figlio sono costruiti dopo il ciclo, con giunzione a "T")
+
+                // Archi Coniugi
+                person.rels.spouses.forEach(spouseId => {
+                    if (existingIds.has(spouseId)) {
+                        const pair = [person.id, spouseId].sort().join('<->');
+                        const key = `spouse:${pair}`;
+                        if (!edgeKeys.has(key)) {
+                            edges.push({
+                                from: person.id,
+                                to: spouseId,
+                                dashes: [5, 5],
+                                arrows: { to: { enabled: false } },
+                                color: { color: '#c9a15b', highlight: '#a9694d' },
+                                width: 2,
+                                smooth: { enabled: false },   // linea coniugi sempre dritta (niente arco)
+                                title: 'Coniugi'
+                            });
+                            edgeKeys.add(key);
+                        }
+                    }
+                });
+            });
+
+            // --- Archi genitore/figlio: UNA sola freccia dai due genitori al figlio (via giunzione a "T") ---
+            const ARROW = 0.45;                 // frecce di parentela più piccole ma ben visibili
+            const EDGE_COL = { color: '#c4c9c1', highlight: '#c17a5b' };
+            // In Vista libera i legami sono dritti (evita archi lunghi); nelle viste ad albero restano morbidi
+            const SMOOTH = (currentLayoutMode === 'free')
+                ? { enabled: false }
+                : { enabled: true, type: 'cubicBezier', roundness: 0.45 };
+            const couples = {};
+            rawData.forEach(child => {
+                const par = (child.rels.parents || []).filter(id => existingIds.has(id));
+                if (par.length >= 2) {
+                    // Raggruppa i figli per coppia di genitori
+                    const p2 = par.slice(0, 2).sort();
+                    const ckey = p2.join('&');
+                    if (!couples[ckey]) couples[ckey] = { parents: p2, children: [] };
+                    couples[ckey].children.push(child.id);
+                } else if (par.length === 1) {
+                    // Un solo genitore noto: freccia diretta
+                    edges.push({
+                        from: par[0], to: child.id,
+                        arrows: { to: { enabled: true, scaleFactor: ARROW } },
+                        color: EDGE_COL, width: 1.5,
+                        smooth: SMOOTH,
+                        title: 'Genitore di'
+                    });
+                }
+            });
+            Object.keys(couples).forEach(ckey => {
+                const grp = couples[ckey];
+                const jId = `j_${ckey}`;
+                const pLevel = Math.min(...grp.parents.map(id => (genLevels[id] || 0)));
+                // Nodo di giunzione invisibile posto tra i genitori e i figli
+                nodes.push({
+                    id: jId,
+                    level: pLevel * 2 + 1,
+                    shape: 'dot', size: 1,
+                    color: { background: 'rgba(0,0,0,0)', border: 'rgba(0,0,0,0)' },
+                    physics: false, chosen: false, _junction: true
+                });
+                // Linee dai due genitori alla giunzione (senza freccia)
+                grp.parents.forEach(pid => {
+                    edges.push({
+                        from: pid, to: jId,
+                        arrows: { to: { enabled: false } },
+                        color: EDGE_COL, width: 1.5,
+                        smooth: SMOOTH
+                    });
+                });
+                // Una sola freccia dalla giunzione a ciascun figlio
+                grp.children.forEach(cid => {
+                    edges.push({
+                        from: jId, to: cid,
+                        arrows: { to: { enabled: true, scaleFactor: ARROW } },
+                        color: EDGE_COL, width: 1.5,
+                        smooth: SMOOTH,
+                        title: 'Genitori di'
+                    });
+                });
+            });
+
+            // --- Vista libera: assegna posizioni iniziali statiche (seed a "griglia per generazioni") ---
+            if (currentLayoutMode === 'free') {
+                const seedPos = {};
+                const byLevel = {};
+                rawData.forEach(p => { const L = genLevels[p.id] || 0; (byLevel[L] = byLevel[L] || []).push(p.id); });
+                Object.keys(byLevel).forEach(L => {
+                    const arr = byLevel[L];
+                    arr.forEach((id, i) => { seedPos[id] = { x: (i - (arr.length - 1) / 2) * 230, y: Number(L) * 170 }; });
+                });
+                // Persone: usa la posizione salvata per la Vista libera, altrimenti il seed
+                nodes.forEach(n => {
+                    if (n._junction) return;
+                    const p = rawData.find(x => x.id === n.id);
+                    const c = savedPosOf(p) || seedPos[n.id] || { x: 0, y: 0 };
+                    n.x = c.x; n.y = c.y;
+                });
+                // Giunzioni: punto medio tra i due genitori
+                nodes.forEach(n => {
+                    if (!n._junction) return;
+                    const par = String(n.id).slice(2).split('&');
+                    const cs = par.map(id => { const q = rawData.find(x => x.id === id); return savedPosOf(q) || seedPos[id]; }).filter(Boolean);
+                    if (cs.length) { n.x = cs.reduce((a, b) => a + b.x, 0) / cs.length; n.y = Math.max(...cs.map(v => v.y)) + 80; }
+                });
+            }
+
+            nodesDataset.clear();
+            edgesDataset.clear();
+            nodesDataset.add(nodes);
+            edgesDataset.add(edges);
+
+            // Configurazione Opzioni di Layout Vis.js
+            let layoutConfig = {};
+            let physicsConfig = {};
+
+            if (currentLayoutMode === 'hierarchical-UD') {
+                layoutConfig = {
+                    hierarchical: {
+                        enabled: true,
+                        direction: 'UD',
+                        sortMethod: 'directed',
+                        nodeSpacing: 150,
+                        levelSeparation: 55,        // generazioni più vicine in verticale
+                        treeSpacing: 150,
+                        blockShifting: true,
+                        edgeMinimization: true,
+                        parentCentralization: true
+                    }
+                };
+                physicsConfig = { enabled: false };
+            } else if (currentLayoutMode === 'hierarchical-LR') {
+                layoutConfig = {
+                    hierarchical: {
+                        enabled: true,
+                        direction: 'LR',
+                        sortMethod: 'directed',
+                        nodeSpacing: 90,
+                        levelSeparation: 110,       // generazioni più vicine in orizzontale
+                        treeSpacing: 150,
+                        blockShifting: true,
+                        edgeMinimization: true,
+                        parentCentralization: true
+                    }
+                };
+                physicsConfig = { enabled: false };
+            } else {
+                // Vista libera: statica (nessuna fisica/animazione), posizioni scelte dall'utente
+                layoutConfig = { hierarchical: { enabled: false }, improvedLayout: false };
+                physicsConfig = { enabled: false };
+            }
+
+            const options = {
+                layout: layoutConfig,
+                physics: physicsConfig,
+                interaction: {
+                    hover: true,
+                    tooltipDelay: 150,
+                    zoomView: true
+                }
+            };
+
+            if (network) {
+                network.destroy();
+                network = null;
+            }
+
+            network = new vis.Network(container, { nodes: nodesDataset, edges: edgesDataset }, options);
+
+            // Ripristina le posizioni spostate manualmente e salvate nel file
+            applySavedPositions();
+
+            network.on("click", function (params) {
+                if (params.nodes.length > 0) {
+                    const selectedId = params.nodes[0];
+                    if (String(selectedId).startsWith('j_')) return; // ignora i nodi di giunzione
+                    highlightFamilyLineage(selectedId);
+                    openSidebar(selectedId);
+                } else {
+                    resetLineageHighlight();
+                }
+            });
+
+            // Salva la nuova posizione quando trascini un riquadro (resta permanente, per ogni vista)
+            network.on("dragEnd", function (params) {
+                if (!params.nodes || params.nodes.length === 0) return;
+                const pos = network.getPositions(params.nodes);
+                let moved = false;
+                params.nodes.forEach(id => {
+                    if (String(id).startsWith('j_')) return;
+                    const p = rawData.find(x => x.id === id);
+                    if (p && pos[id]) {
+                        if (!p.data._pos) p.data._pos = {};
+                        p.data._pos[currentLayoutMode] = { x: Math.round(pos[id].x), y: Math.round(pos[id].y) };
+                        moved = true;
+                    }
+                });
+                if (moved) {
+                    positionJunctions();   // le giunzioni "T" seguono i genitori spostati
+                    saveToLocalStorage();
+                    showToast("Posizione salvata (premi Salva JSON per renderla definitiva)");
+                }
+            });
+        }
+
+        // Posizione salvata per la vista corrente (data._pos è indicizzato per tipo di vista)
+        function savedPosOf(p) {
+            if (p && p.data && p.data._pos && p.data._pos[currentLayoutMode] && typeof p.data._pos[currentLayoutMode].x === 'number') {
+                return p.data._pos[currentLayoutMode];
+            }
+            return null;
+        }
+
+        // Applica le posizioni manuali memorizzate per la vista corrente
+        function applySavedPositions() {
+            if (!network) return;
+            rawData.forEach(p => {
+                const c = savedPosOf(p);
+                if (c) { try { network.moveNode(p.id, c.x, c.y); } catch (e) {} }
+            });
+            positionJunctions();
+        }
+
+        // Colloca ogni giunzione "T" al punto medio dei due genitori (così i legami restano ordinati)
+        function positionJunctions() {
+            if (!network) return;
+            nodesDataset.get().forEach(n => {
+                if (!n._junction) return;
+                const par = String(n.id).slice(2).split('&');
+                const pos = network.getPositions(par);
+                const xs = [], ys = [];
+                par.forEach(id => { if (pos[id]) { xs.push(pos[id].x); ys.push(pos[id].y); } });
+                if (xs.length) {
+                    const x = xs.reduce((a, b) => a + b, 0) / xs.length;
+                    const y = Math.max(...ys) + 60;
+                    try { network.moveNode(n.id, x, y); } catch (e) {}
+                }
+            });
+        }
+
+        // Rimuove le posizioni manuali della vista corrente e torna alla disposizione automatica
+        function resetNodePositions() {
+            rawData.forEach(p => { if (p.data && p.data._pos) delete p.data._pos[currentLayoutMode]; });
+            saveToLocalStorage();
+            renderGraph();
+            resetLayout();
+            showToast("Posizioni reimpostate per questa vista");
+        }
+
+        // Mostra/nasconde la legenda
+        function toggleLegend() {
+            const box = document.getElementById('legendBox');
+            const btn = document.getElementById('legendReopen');
+            if (box.classList.contains('hidden')) {
+                box.classList.remove('hidden');
+                btn.classList.add('hidden'); btn.classList.remove('flex');
+            } else {
+                box.classList.add('hidden');
+                btn.classList.remove('hidden'); btn.classList.add('flex');
+            }
+        }
+
+        // Evidenzia parentela diretta (Genitori, Coniugi, Figli) e sfuma gli altri
+        function highlightFamilyLineage(personId) {
+            const person = rawData.find(p => p.id === personId);
+            if (!person) return;
+
+            const relativeIds = new Set([
+                personId,
+                ...(person.rels.parents || []),
+                ...(person.rels.spouses || []),
+                ...(person.rels.children || [])
+            ]);
+
+            // Sfuma nodi non imparentati
+            rawData.forEach(p => {
+                const isRelated = relativeIds.has(p.id);
+                const isTarget = p.id === personId;
+
+                nodesDataset.update({
+                    id: p.id,
+                    opacity: isRelated ? 1.0 : 0.25,
+                    borderWidth: isTarget ? 4 : 2
+                });
+            });
+        }
+
+        function resetLineageHighlight() {
+            rawData.forEach(p => {
+                nodesDataset.update({ id: p.id, opacity: 1.0, borderWidth: 2 });
+            });
+        }
+
+        function changeLayout(newLayout) {
+            currentLayoutMode = newLayout;
+            renderGraph();
+            resetLayout();
+        }
+
+        function changeColorScheme(newScheme) {
+            currentColorScheme = newScheme;
+            renderGraph();
+        }
+
+        function updateLegendPills() {
+            const legendDiv = document.getElementById('branchLegendPills');
+            if (!legendDiv) return;
+            legendDiv.innerHTML = '';
+            
+            const usedBranches = [...new Set(rawData.map(p => (p.data.branch || '').toLowerCase()).filter(Boolean))];
+            usedBranches.forEach(b => {
+                const conf = branchColors[b] || { bg: '#64748b', label: b };
+                legendDiv.innerHTML += `
+                    <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full" style="background-color: ${conf.bg}; color: #000000; border: 1px solid ${conf.border || 'rgba(0,0,0,0.15)'}">
+                        ${b.toUpperCase()}
+                    </span>
+                `;
+            });
+        }
+
+        function populateBranchFilterOptions() {
+            const select = document.getElementById('branchSelect');
+            select.innerHTML = '<option value="">Tutti i rami</option>';
+            const branches = [...new Set(rawData.map(p => p.data.branch).filter(Boolean))];
+            branches.forEach(b => {
+                select.innerHTML += `<option value="${b}">${b.toUpperCase()}</option>`;
+            });
+        }
+
+        function filterGraph() {
+            const search = document.getElementById('searchInput').value.toLowerCase().trim();
+            const selectedBranch = document.getElementById('branchSelect').value;
+
+            const visibleIds = rawData.filter(p => {
+                const fullName = `${p.data['first name'] || ''} ${p.data['last name'] || ''}`.toLowerCase();
+                const matchesSearch = !search || fullName.includes(search);
+                const matchesBranch = !selectedBranch || p.data.branch === selectedBranch;
+                return matchesSearch && matchesBranch;
+            }).map(p => p.id);
+
+            rawData.forEach(p => {
+                const isHidden = !visibleIds.includes(p.id);
+                nodesDataset.update({ id: p.id, hidden: isHidden });
+            });
+        }
+
+        function resetLayout() {
+            if (network) network.fit({ animation: { duration: 500 } });
+        }
+
+        function openSidebar(personId) {
+            currentSelectedId = personId;
+            const person = rawData.find(p => p.id === personId);
+            if (!person) return;
+
+            // Header info
+            const firstName = person.data['first name'] || '';
+            const lastName = person.data['last name'] || '';
+            document.getElementById('panelTitle').innerText = `${firstName} ${lastName}` || 'Senza Nome';
+            document.getElementById('panelSubtitle').innerText = `ID: ${person.id}`;
+
+            const genderBadge = document.getElementById('genderBadge');
+            if (person.data.gender === 'F') {
+                genderBadge.className = "w-8 h-8 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center font-bold";
+                genderBadge.innerHTML = '<i class="fa-solid fa-venus"></i>';
+            } else {
+                genderBadge.className = "w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold";
+                genderBadge.innerHTML = '<i class="fa-solid fa-mars"></i>';
+            }
+
+            // Populate form fields
+            document.getElementById('field_firstName').value = person.data['first name'] || '';
+            document.getElementById('field_lastName').value = person.data['last name'] || '';
+            document.getElementById('field_gender').value = person.data.gender || 'M';
+            document.getElementById('field_branch').value = person.data.branch || '';
+            document.getElementById('field_nato').value = person.data.nato || '';
+            document.getElementById('field_note').value = person.data.note || '';
+
+            renderRelationsLists(person);
+            populateRelationDropdowns();
+
+            document.getElementById('sidebar').classList.remove('sidebar-closed');
+            document.getElementById('sidebar').classList.add('sidebar-open');
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('sidebar-open');
+            document.getElementById('sidebar').classList.add('sidebar-closed');
+            currentSelectedId = null;
+        }
+
+        function saveCurrentPersonDetails() {
+            if (!currentSelectedId) return;
+            const person = rawData.find(p => p.id === currentSelectedId);
+            if (!person) return;
+
+            person.data['first name'] = document.getElementById('field_firstName').value;
+            person.data['last name'] = document.getElementById('field_lastName').value;
+            person.data.gender = document.getElementById('field_gender').value;
+            person.data.branch = document.getElementById('field_branch').value;
+            person.data.nato = document.getElementById('field_nato').value;
+            person.data.note = document.getElementById('field_note').value;
+
+            document.getElementById('panelTitle').innerText = `${person.data['first name']} ${person.data['last name']}`;
+            renderGraph();
+            populateBranchFilterOptions();
+            saveToLocalStorage();
+        }
+
+        function renderRelationsLists(person) {
+            ['parents', 'spouses', 'children'].forEach(relType => {
+                const listElem = document.getElementById(`list_${relType}`);
+                listElem.innerHTML = '';
+                
+                const relIds = person.rels[relType] || [];
+                if (relIds.length === 0) {
+                    listElem.innerHTML = '<li class="text-xs text-slate-400 italic">Nessun legame specificato</li>';
+                    return;
+                }
+
+                relIds.forEach(relId => {
+                    const target = rawData.find(p => p.id === relId);
+                    const name = target ? `${target.data['first name']} ${target.data['last name']}` : relId;
+                    
+                    listElem.innerHTML += `
+                        <li class="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs">
+                            <span class="font-medium text-slate-700">${name}</span>
+                            <button onclick="removeRelation('${relType}', '${relId}')" class="text-red-500 hover:text-red-700 px-1 py-0.5" title="Rimuovi relazione">
+                                <i class="fa-solid fa-times"></i>
+                            </button>
+                        </li>
+                    `;
+                });
+            });
+        }
+
+        function populateRelationDropdowns() {
+            const available = rawData.filter(p => p.id !== currentSelectedId);
+            ['parents', 'spouses', 'children'].forEach(relType => {
+                const selectId = relType === 'parents' ? 'select_add_parent' : relType === 'spouses' ? 'select_add_spouse' : 'select_add_child';
+                const selectElem = document.getElementById(selectId);
+                selectElem.innerHTML = '<option value="">-- Seleziona Persona --</option>';
+                available.forEach(p => {
+                    selectElem.innerHTML += `<option value="${p.id}">${p.data['first name']} ${p.data['last name']}</option>`;
+                });
+            });
+        }
+
+        function addRelation(type) {
+            if (!currentSelectedId) return;
+            const selectId = type === 'parents' ? 'select_add_parent' : type === 'spouses' ? 'select_add_spouse' : 'select_add_child';
+            const targetId = document.getElementById(selectId).value;
+            if (!targetId) return;
+
+            const person = rawData.find(p => p.id === currentSelectedId);
+            const target = rawData.find(p => p.id === targetId);
+
+            if (!person.rels[type].includes(targetId)) person.rels[type].push(targetId);
+
+            // Reciprocal auto updates
+            if (type === 'parents' && !target.rels.children.includes(currentSelectedId)) target.rels.children.push(currentSelectedId);
+            if (type === 'children' && !target.rels.parents.includes(currentSelectedId)) target.rels.parents.push(currentSelectedId);
+            if (type === 'spouses' && !target.rels.spouses.includes(currentSelectedId)) target.rels.spouses.push(currentSelectedId);
+
+            renderGraph();
+            openSidebar(currentSelectedId);
+            saveToLocalStorage();
+            showToast("Relazione aggiunta con successo");
+        }
+
+        function removeRelation(type, targetId) {
+            if (!currentSelectedId) return;
+            const person = rawData.find(p => p.id === currentSelectedId);
+            const target = rawData.find(p => p.id === targetId);
+
+            person.rels[type] = person.rels[type].filter(id => id !== targetId);
+
+            // Reciprocal auto removal
+            if (type === 'parents' && target) target.rels.children = target.rels.children.filter(id => id !== currentSelectedId);
+            if (type === 'children' && target) target.rels.parents = target.rels.parents.filter(id => id !== currentSelectedId);
+            if (type === 'spouses' && target) target.rels.spouses = target.rels.spouses.filter(id => id !== currentSelectedId);
+
+            renderGraph();
+            openSidebar(currentSelectedId);
+            saveToLocalStorage();
+            showToast("Relazione rimossa");
+        }
+
+        function createNewPerson() {
+            const newId = 'antenato_' + Math.random().toString(36).substr(2, 6);
+            const newPerson = {
+                id: newId,
+                data: {
+                    gender: "M",
+                    "first name": "Nuovo",
+                    "last name": "Antenato",
+                    nato: "",
+                    note: "",
+                    branch: "ceni"
+                },
+                rels: { parents: [], spouses: [], children: [] }
+            };
+
+            rawData.push(newPerson);
+            renderGraph();
+            openSidebar(newId);
+            saveToLocalStorage();
+            showToast("Nuovo antenato creato");
+        }
+
+        function deleteCurrentPerson() {
+            if (!currentSelectedId) return;
+            
+            // Clean relations across all nodes
+            rawData.forEach(p => {
+                ['parents', 'spouses', 'children'].forEach(type => {
+                    p.rels[type] = p.rels[type].filter(id => id !== currentSelectedId);
+                });
+            });
+
+            rawData = rawData.filter(p => p.id !== currentSelectedId);
+            closeSidebar();
+            renderGraph();
+            saveToLocalStorage();
+            showToast("Persona eliminata dall'albero");
+        }
+
+        async function openFileWithPicker() {
+            // Utilizzo la File System Access API di Chrome/Edge se disponibile
+            if ('showOpenFilePicker' in window) {
+                try {
+                    const [handle] = await window.showOpenFilePicker({
+                        types: [{ description: 'File JSON', accept: { 'application/json': ['.json'] } }]
+                    });
+                    fileHandle = handle;
+                    try { await idbHandle('put', handle); } catch (e) {}
+                    const file = await handle.getFile();
+                    const text = await file.text();
+                    const importedJson = JSON.parse(text);
+                    loadInitialTreeData(importedJson);
+                    saveToLocalStorage();
+                    showToast(`Collegato a: ${file.name} — d'ora in poi "Salva JSON" scrive qui`);
+                    return;
+                } catch (err) {
+                    if (err.name === 'AbortError') return;
+                }
+            }
+            // Fallback al selettore file standard
+            document.getElementById('fileInput').click();
+        }
+
+        function handleFileImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedJson = JSON.parse(e.target.result);
+                    loadInitialTreeData(importedJson);
+                    saveToLocalStorage();
+                    showToast("JSON caricato con successo!");
+                } catch (err) {
+                    showToast("Errore durante la lettura del file JSON!", true);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        async function saveDirectToFile() {
+            saveToLocalStorage();
+
+            // 1. Se il file è collegato: scrivo direttamente, senza chiedere la cartella
+            if (fileHandle) {
+                try {
+                    if (await verifyPermission(fileHandle)) {
+                        const writable = await fileHandle.createWritable();
+                        await writable.write(JSON.stringify(rawData, null, 2));
+                        await writable.close();
+                        showToast("Salvato in albero-genealogico-ceni.json");
+                        return;
+                    }
+                } catch (err) {
+                    console.error("Errore scrittura diretta:", err);
+                }
+            }
+
+            // 2. Nessun file collegato: salvo automaticamente nella cartella Download (nessuna finestra)
+            exportJSON();
+            showToast("Salvato in Download. Premi 'Apri File' una volta per salvare sempre nello stesso file.");
+        }
+
+        function exportJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(rawData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "albero-genealogico-ceni.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast("File JSON scaricato");
+        }
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.innerText = msg;
+            toastIcon.className = isError ? "fa-solid fa-triangle-exclamation text-red-400" : "fa-solid fa-circle-check text-emerald-400";
+
+            toast.classList.remove('translate-y-[-100px]', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-[-100px]', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
