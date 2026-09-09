@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>501 · Layout scelto — Focus sul turno</title>
+<meta name="theme-color" content="#121212">
+<style>
+/* ============ STESSI TOKEN DEL LAYOUT A ============ */
+:root{
+  --bg:#121212; --surface:#1c1c1c; --surface-hi:#2a2a2a; --line:rgba(255,255,255,.10);
+  --text:#fff; --muted:#9b9b95;
+  --neon:#00e676; --neon-soft:rgba(0,230,118,.13);
+  --gold:#ffd54f; --bust:#ff5252;
+  --font:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;
+  --num:"DIN Alternate","Bahnschrift","Roboto Condensed",var(--font);
+  --key-h:clamp(58px,9.6vh,86px);
+  --r:16px;
+}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{background:var(--bg); color:var(--text); font-family:var(--font);
+  height:100dvh; overflow:hidden; user-select:none; -webkit-user-select:none;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);}
+.app{height:100%; display:flex; flex-direction:column; gap:8px; padding:8px 10px 10px; min-height:0;}
+
+/* ============ HEADER + AVVERSARIO COMPRESSO ============ */
+header{flex:0 0 auto; display:flex; align-items:center; gap:12px; padding:2px 6px;}
+.sl{display:flex; gap:12px; font-family:var(--num); font-size:.78rem; color:#d4d4ce;}
+.sl b{color:var(--muted); font-weight:600; font-size:.66rem; letter-spacing:.12em; margin-right:4px;}
+.mode{margin-left:auto; font-size:.6rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted);}
+
+.rival{flex:0 0 auto; display:flex; align-items:center; gap:10px; padding:9px 14px;
+  background:var(--surface); border:1px solid var(--line); border-radius:12px; opacity:.72;}
+.rival .name{font-size:.8rem; font-weight:600;}
+.rival .tag{font-size:.58rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+  border:1px solid var(--line); border-radius:999px; padding:2px 7px;}
+.rival .n{margin-left:auto; font-family:var(--num); font-size:1.5rem; font-weight:700; font-variant-numeric:tabular-nums;}
+.rival .av{font-size:.64rem; color:var(--muted); font-variant-numeric:tabular-nums;}
+
+/* ============ HERO: il giocatore di turno occupa la scena ============ */
+.hero{flex:1 1 auto; position:relative; overflow:hidden;
+  background:linear-gradient(180deg,var(--neon-soft),transparent 70%),var(--surface);
+  border:1px solid var(--neon); border-radius:var(--r);
+  box-shadow:0 0 0 1px var(--neon), 0 0 26px rgba(0,230,118,.20);
+  padding:12px 16px 14px; display:flex; flex-direction:column; gap:2px;}
+.hero .top{display:flex; align-items:center; gap:8px;}
+.hero .who{font-size:.95rem; font-weight:700; letter-spacing:.01em;}
+.hero .turnpill{font-size:.56rem; letter-spacing:.14em; text-transform:uppercase; font-weight:800;
+  color:#08130c; background:var(--neon); padding:3px 8px; border-radius:999px;}
+.hero .darts{margin-left:auto; display:flex; gap:4px;}
+.hero .darts i{width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.16);}
+.hero .darts i.on{background:var(--neon);}
+.big{margin-top:auto; font-family:var(--num); font-weight:700; line-height:.86; letter-spacing:-.03em; color:var(--neon);
+  font-size:clamp(84px,27vw,148px); font-variant-numeric:tabular-nums; margin-left:-4px;}
+.hero .co{display:flex; align-items:center; gap:7px; margin-top:6px; flex-wrap:wrap;}
+.hero .co .lb{font-size:.58rem; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); font-weight:700;}
+.hero .co span.c{font-family:var(--num); font-weight:700; font-size:.88rem; color:#141414; background:var(--gold);
+  padding:2px 9px; border-radius:7px;}
+.hero .stats{display:flex; gap:16px; margin-top:9px; padding-top:9px; border-top:1px solid var(--line); font-size:.64rem; color:var(--muted);}
+.hero .stats div{display:flex; flex-direction:column;}
+.hero .stats b{font-family:var(--num); font-size:.92rem; color:#eee; font-weight:600; font-variant-numeric:tabular-nums;}
+.hero .live{position:absolute; right:14px; bottom:12px; text-align:right;}
+.hero .live .lb{display:block; font-size:.56rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted);}
+.hero .live .v{font-family:var(--num); font-size:2rem; font-weight:700; line-height:1; font-variant-numeric:tabular-nums;}
+.hero .live .v.empty{color:#4a4a46;}
+/* sballo */
+.hero.bust{border-color:var(--bust); box-shadow:0 0 0 1px var(--bust), 0 0 30px rgba(255,82,82,.3);
+  background:linear-gradient(180deg,rgba(255,82,82,.18),transparent 70%),var(--surface); animation:shake .4s;}
+.hero.bust .big{color:var(--bust); opacity:.18;}
+.hero.bust .live .v{color:var(--bust);}
+.hero.bust .turnpill{background:var(--bust); color:#fff;}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.stamp{position:absolute; inset:0; display:grid; place-items:center; pointer-events:none;
+  font-weight:900; letter-spacing:.2em; font-size:clamp(30px,9vw,52px); color:var(--bust);
+  background:rgba(18,18,18,.55); opacity:0; transition:opacity .18s;}
+.hero.bust .stamp{opacity:1;}
+/* leg vinto: la card resta al suo posto e cambia stato */
+.hero.won{border-color:var(--neon);}
+.hero.won .big{color:#fff;}
+.won-bar{display:none; gap:8px; margin-top:10px;}
+.hero.won .won-bar{display:flex;}
+.won-bar button{flex:1; min-height:48px; border-radius:12px; border:1px solid var(--line);
+  background:var(--surface-hi); color:var(--text); font:inherit; font-weight:700; font-size:.86rem; cursor:pointer;}
+.won-bar button.primary{background:var(--neon); color:#08130c; border-color:transparent;}
+.ribbon{display:none; position:absolute; top:0; right:0; background:var(--neon); color:#08130c;
+  font-size:.6rem; font-weight:900; letter-spacing:.14em; text-transform:uppercase; padding:5px 12px; border-radius:0 0 0 12px;}
+.hero.won .ribbon{display:block;}
+.hero.won .darts,.hero.won .turnpill{visibility:hidden;}
+
+/* ============ TASTIERA A 3 COLONNE, TASTI PIU' GRANDI ============ */
+.pad{flex:0 0 auto; display:grid; grid-template-columns:repeat(3,1fr); gap:7px;}
+.k{min-height:var(--key-h); display:grid; place-items:center; background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--r); color:var(--text); font-family:var(--num); font-size:1.85rem; font-weight:600;
+  touch-action:manipulation; cursor:pointer; transition:transform .07s, background .12s, border-color .12s;}
+.k:active{background:var(--surface-hi); border-color:rgba(255,255,255,.22); transform:scale(.955);}
+.k:focus-visible{outline:2px solid var(--neon); outline-offset:2px;}
+.k[disabled]{opacity:.34; pointer-events:none;}
+.k.fn{font-family:var(--font); font-size:.74rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; background:#191919;}
+.k.del{color:var(--bust);} .k.undo{color:var(--gold);}
+.enter{flex:0 0 auto; min-height:var(--key-h); border:0; border-radius:var(--r); background:var(--neon); color:#08130c;
+  font:800 1rem/1 var(--font); letter-spacing:.16em; text-transform:uppercase; cursor:pointer; touch-action:manipulation;
+  display:flex; align-items:center; justify-content:center; gap:10px;}
+.enter:active{background:#00c964; transform:scale(.99);}
+.enter:disabled{background:#2a2a2a; color:#6a6a66;}
+.enter svg{width:18px; height:18px;}
+
+/* ============ QUANTE FRECCETTE PER CHIUDERE ============ */
+.ask{position:fixed; left:0; right:0; bottom:0; z-index:8; transform:translateY(110%);
+  transition:transform .28s cubic-bezier(.22,1,.36,1);
+  background:#181818; border-top:2px solid var(--gold); border-radius:18px 18px 0 0;
+  padding:16px 14px calc(16px + env(safe-area-inset-bottom)); box-shadow:0 -18px 40px rgba(0,0,0,.6);}
+.ask.show{transform:translateY(0);}
+.ask .q{font-size:.92rem; font-weight:700; text-align:center; margin-bottom:3px;}
+.ask .hint{font-size:.72rem; color:var(--muted); text-align:center; margin-bottom:13px;}
+.ask .row{display:grid; grid-template-columns:repeat(3,1fr); gap:9px;}
+.ask .row button{min-height:74px; border-radius:14px; border:1px solid var(--line); background:var(--surface);
+  color:var(--text); font-family:var(--num); font-size:2rem; font-weight:700; cursor:pointer; display:flex;
+  flex-direction:column; align-items:center; justify-content:center; gap:2px; touch-action:manipulation;}
+.ask .row button small{font-family:var(--font); font-size:.6rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);}
+.ask .row button:active{background:var(--surface-hi); transform:scale(.96);}
+
+/* ============ PANNELLO VITTORIA CON CONFRONTO ============ */
+.sheet{position:fixed; left:0; right:0; bottom:0; z-index:9; transform:translateY(110%);
+  transition:transform .34s cubic-bezier(.22,1,.36,1); max-height:72vh; overflow-y:auto;
+  background:#181818; border-top:2px solid var(--neon); border-radius:18px 18px 0 0;
+  padding:15px 16px calc(16px + env(safe-area-inset-bottom)); box-shadow:0 -18px 44px rgba(0,0,0,.6);}
+.sheet.show{transform:translateY(0);}
+.sheet .grab{width:38px; height:4px; border-radius:99px; background:#3a3a38; margin:0 auto 12px;}
+.sheet h2{font-size:1.02rem; display:flex; align-items:baseline; gap:7px;}
+.sheet h2 em{font-style:normal; color:var(--neon);}
+.sheet h2 span{margin-left:auto; font-family:var(--num); font-size:.8rem; color:var(--muted);}
+.cmp{margin:12px 0 14px; display:grid; grid-template-columns:1fr auto 1fr; gap:5px 10px; align-items:center;}
+.cmp .h{font-size:.72rem; font-weight:700; color:#e6e6e0;}
+.cmp .h.r{text-align:right;}
+.cmp .lb{font-size:.56rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); text-align:center; white-space:nowrap;}
+.cmp .v{font-family:var(--num); font-size:1.02rem; font-weight:600; font-variant-numeric:tabular-nums;}
+.cmp .v.r{text-align:right;}
+.cmp .v.best{color:var(--neon);}
+.sheet .acts{display:flex; gap:9px;}
+.sheet .acts button{flex:1; min-height:52px; border-radius:13px; border:1px solid var(--line); background:var(--surface);
+  color:var(--text); font:inherit; font-weight:700; font-size:.88rem; cursor:pointer;}
+.sheet .acts button.primary{background:var(--neon); color:#08130c; border-color:transparent; font-weight:800;}
+
+.demo{position:fixed; bottom:calc(6px + env(safe-area-inset-bottom)); left:8px; z-index:11; display:flex; gap:6px;}
+.demo button{font:600 .62rem/1 var(--font); letter-spacing:.08em; text-transform:uppercase; color:#bdbdb7;
+  background:rgba(0,0,0,.72); border:1px solid var(--line); border-radius:999px; padding:6px 10px; cursor:pointer;}
+@media (min-width:560px){ .app{max-width:520px; margin:0 auto;} }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="sl"><span><b>SET</b>1 - 0</span><span><b>LEG</b>2 - 1</span></div>
+    <span class="mode">Punteggio totale</span>
+  </header>
+
+  <div class="rival">
+    <span class="name">Marco</span><span class="tag">attende</span>
+    <span class="av">media 44.1 · 12 frecce</span>
+    <span class="n">301</span>
+  </div>
+
+  <section class="hero" id="hero">
+    <span class="ribbon">Leg vinto</span>
+    <div class="top">
+      <span class="who">Roberto</span>
+      <span class="turnpill">di turno</span>
+      <span class="darts"><i class="on"></i><i class="on"></i><i></i></span>
+    </div>
+    <div class="big" id="big">124</div>
+    <div class="co"><span class="lb">Chiusura</span><span class="c">T20</span><span class="c">D32</span></div>
+    <div class="stats">
+      <div>Media 3<b>58.4</b></div>
+      <div>Frecce leg<b>15</b></div>
+      <div>Ultimo turno<b>60</b></div>
+    </div>
+    <div class="live"><span class="lb">Turno</span><span class="v empty" id="val">0</span></div>
+    <div class="stamp">SBALLO</div>
+  </section>
+
+
+  <div class="pad">
+    <button class="k" data-d="1">1</button><button class="k" data-d="2">2</button><button class="k" data-d="3">3</button>
+    <button class="k" data-d="4">4</button><button class="k" data-d="5">5</button><button class="k" data-d="6">6</button>
+    <button class="k" data-d="7">7</button><button class="k" data-d="8">8</button><button class="k" data-d="9">9</button>
+    <button class="k fn del" id="del">Canc</button>
+    <button class="k" data-d="0">0</button>
+    <button class="k fn undo" id="undo">Undo</button>
+  </div>
+
+  <button class="enter" id="enter">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    Conferma turno
+  </button>
+</div>
+
+<div class="ask" id="ask">
+  <p class="q">Con quante freccette hai chiuso?</p>
+  <p class="hint">Serve per la media a 3 freccette e il miglior leg</p>
+  <div class="row">
+    <button data-n="1">1<small>freccetta</small></button>
+    <button data-n="2">2<small>freccette</small></button>
+    <button data-n="3">3<small>freccette</small></button>
+  </div>
+</div>
+
+<div class="sheet" id="sheet">
+  <div class="grab"></div>
+  <h2>Leg vinto da <em>Roberto</em> <span>SET 1-0 · LEG 3-1</span></h2>
+  <div class="cmp">
+    <span class="h">Roberto</span><span class="lb"></span><span class="h r">Marco</span>
+    <span class="v best">13</span><span class="lb">Freccette</span><span class="v r">18</span>
+    <span class="v best">58.4</span><span class="lb">Media 3</span><span class="v r">44.1</span>
+    <span class="v best">63.0</span><span class="lb">First 9</span><span class="v r">51.7</span>
+    <span class="v best">140</span><span class="lb">Miglior turno</span><span class="v r">100</span>
+    <span class="v">D20</span><span class="lb">Chiusura</span><span class="v r">—</span>
+  </div>
+  <div class="acts">
+    <button id="stats">Statistiche</button>
+    <button class="primary" id="next">Prossimo leg</button>
+  </div>
+</div>
+
+<div class="demo">
+  <button id="dBust">Sballo</button>
+  <button id="dWin">Leg vinto</button>
+</div>
+
+<script>
+(function(){
+  var buf='', REST=124;
+  var val=document.getElementById('val'), hero=document.getElementById('hero'),
+      big=document.getElementById('big'), enter=document.getElementById('enter');
+  var impossible=[163,166,169,172,173,175,176,178,179];
+
+  function paint(){
+    val.textContent = buf===''?'0':buf;
+    val.classList.toggle('empty', buf==='');
+    var n=parseInt(buf||'-1',10);
+    enter.disabled = !(buf!=='' && n>=0 && n<=180 && impossible.indexOf(n)<0);
+    big.textContent = (buf!=='' && n<=REST) ? (REST-n) : REST;
+  }
+  function tap(){ if(navigator.vibrate) navigator.vibrate(12); }
+
+  document.querySelectorAll('.k[data-d]').forEach(function(k){
+    k.addEventListener('click', function(){ if(buf.length<3){ buf=(buf==='0'?'':buf)+k.dataset.d; paint(); tap(); }});
+  });
+  document.getElementById('del').addEventListener('click', function(){ buf=buf.slice(0,-1); paint(); tap(); });
+  document.getElementById('undo').addEventListener('click', function(){ buf=''; paint(); tap(); });
+  enter.addEventListener('click', function(){ buf=''; paint(); tap(); });
+
+  document.getElementById('dBust').addEventListener('click', function(){
+    hero.classList.add('bust'); if(navigator.vibrate) navigator.vibrate([40,60,40]);
+    setTimeout(function(){ hero.classList.remove('bust'); buf=''; paint(); }, 1900);
+  });
+  var ask=document.getElementById('ask'), sheet=document.getElementById('sheet');
+  document.getElementById('dWin').addEventListener('click', function(){
+    big.textContent='0'; hero.classList.add('won'); ask.classList.add('show');
+  });
+  ask.querySelectorAll('.row button').forEach(function(b){
+    b.addEventListener('click', function(){
+      ask.classList.remove('show'); tap();
+      setTimeout(function(){ sheet.classList.add('show'); }, 180);
+    });
+  });
+  document.getElementById('next').addEventListener('click', function(){
+    sheet.classList.remove('show'); hero.classList.remove('won'); big.textContent=REST; buf=''; paint();
+  });
+  document.getElementById('stats').addEventListener('click', function(){ sheet.classList.remove('show'); });
+  paint();
+})();
+</script>
+</body>
+</html>
