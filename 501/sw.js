@@ -3,13 +3,15 @@
    Strategia: rete-prima per l'HTML (le modifiche si vedono subito), cache-prima
    per icone e manifest, best-effort per i font esterni. */
 
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE = '501-' + VERSION;
 
 // il guscio minimo per partire offline
 const SHELL = [
   './',
   './index.html',
+  './app.css',
+  './app.js',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
