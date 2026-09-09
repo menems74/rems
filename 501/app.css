@@ -172,9 +172,9 @@ button{font:inherit; color:inherit; touch-action:manipulation;}
 .sheet.show{transform:translateY(0);}
 .sheet.ask{border-top-color:var(--gold);}
 .grab{width:38px; height:4px; border-radius:99px; background:#3a3a38; margin:0 auto 12px;}
-.sheet h2{font-size:1.02rem; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;}
+.sheet h2{font-size:1.14rem; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;}
 .sheet h2 em{font-style:normal; color:var(--neon);}
-.sheet h2 .sp{margin-left:auto; font-family:var(--num); font-size:.78rem; color:var(--muted);}
+.sheet h2 .sp{margin-left:auto; font-family:var(--num); font-size:.84rem; color:var(--muted);}
 .sheet .q{font-size:.95rem; font-weight:700; text-align:center;}
 .sheet .qh{font-size:.72rem; color:var(--muted); text-align:center; margin:3px 0 13px;}
 .asks{display:grid; grid-template-columns:repeat(3,1fr); gap:9px;}
@@ -183,15 +183,21 @@ button{font:inherit; color:inherit; touch-action:manipulation;}
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;}
 .asks button small{font-family:var(--font); font-size:.58rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);}
 .asks button:active{background:var(--surface-hi); transform:scale(.96);}
-.cmp{margin:12px 0 14px; display:grid; grid-template-columns:1fr auto 1fr; gap:5px 10px; align-items:center;}
-.cmp .h{font-size:.72rem; font-weight:700; color:#e6e6e0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+/* confronto di fine leg: numeri leggibili da lontano, non da vicino */
+.cmp{margin:14px 0 16px; display:grid; grid-template-columns:1fr auto 1fr; gap:0 12px; align-items:center;}
+.cmp .h{font-size:.92rem; font-weight:700; color:#e6e6e0; white-space:nowrap; overflow:hidden;
+  text-overflow:ellipsis; padding-bottom:8px; border-bottom:1px solid var(--line);}
 .cmp .h.r{text-align:right;}
-.cmp .lbl{text-align:center; white-space:nowrap;}
-.cmp .v{font-family:var(--num); font-size:1.02rem; font-weight:600; font-variant-numeric:tabular-nums;}
+.cmp .h + .lbl{border-bottom:1px solid var(--line); padding-bottom:8px;}
+.cmp .lbl{text-align:center; white-space:nowrap; font-size:.64rem; padding:0 2px;}
+.cmp .v{font-family:var(--num); font-size:1.7rem; font-weight:700; font-variant-numeric:tabular-nums;
+  line-height:1.5; letter-spacing:-.01em;}
 .cmp .v.r{text-align:right;}
 .cmp .v.best{color:var(--neon);}
+/* riga per riga, una linea sottile aiuta a seguire il confronto */
+.cmp > .v:not(:nth-of-type(-n+2)),.cmp > .lbl:not(:first-of-type){border-top:1px solid rgba(255,255,255,.05);}
 .acts{display:flex; gap:9px;}
-.acts button{flex:1; min-height:52px; border-radius:13px; border:1px solid var(--line); background:var(--surface);
+.acts button{flex:1; min-height:56px; border-radius:13px; border:1px solid var(--line); background:var(--surface);
   font-weight:700; font-size:.88rem; cursor:pointer;}
 .acts button.primary{background:var(--neon); color:#08130c; border-color:transparent; font-weight:800;}
 .backdrop{position:fixed; inset:0; z-index:8; background:rgba(0,0,0,.5); opacity:0; pointer-events:none; transition:opacity .25s;}
