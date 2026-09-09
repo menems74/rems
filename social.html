@@ -58,14 +58,14 @@
     background:linear-gradient(120deg,#ffffff 0%,var(--salvia) 55%,var(--terra) 100%);
     -webkit-background-clip:text; background-clip:text; color:transparent;
     filter:drop-shadow(0 0 34px rgba(213,148,112,.25));}
-  .pill{display:inline-flex; align-items:center; gap:8px; font-size:.7rem; font-weight:600;
-    letter-spacing:.1em; text-transform:uppercase; color:var(--terra);
-    background:rgba(213,148,112,.14); border:1px solid rgba(213,148,112,.35); padding:6px 14px; border-radius:999px;}
   .lead{max-width:min(520px,92%); color:#d8d3c8; opacity:.85; font-size:clamp(14px,1.6vw,16.5px); line-height:1.6;}
   .socials{display:flex; flex-wrap:wrap; gap:14px; justify-content:center; margin-top:4px;}
-  .socials span{width:52px; height:52px; border-radius:14px; display:grid; place-items:center;
-    font-size:1.25rem; color:var(--muted); background:var(--panel); border:1px solid var(--line);
-    opacity:.55; cursor:default;}
+  .socials a{width:56px; height:56px; border-radius:15px; display:grid; place-items:center;
+    font-size:1.35rem; color:var(--text); background:var(--panel); border:1px solid var(--line);
+    text-decoration:none; transition:transform .25s, background .25s, border-color .25s, color .25s;}
+  .socials a:hover,.socials a:focus-visible{background:var(--panel-hi); border-color:rgba(155,176,141,.55);
+    color:var(--salvia); transform:translateY(-4px);}
+  .socials a:focus-visible{outline:2px solid var(--salvia); outline-offset:3px;}
   .note{color:var(--muted); font-size:.78rem; margin-top:2px;}
 
   .anim{opacity:0; transform:translateY(20px); animation:reveal .8s cubic-bezier(.22,1,.36,1) forwards; animation-delay:var(--d,0s);}
@@ -93,17 +93,15 @@
     <main class="hero">
       <p class="kicker anim" style="--d:.1s">I miei profili</p>
       <h1 class="headline anim" style="--d:.24s">Social</h1>
-      <span class="pill anim" style="--d:.42s"><i class="fa-solid fa-clock"></i> Presto</span>
-      <p class="lead anim" style="--d:.52s">Qui troverai i link a tutti i miei social. Sto ancora preparando la pagina.</p>
-      <div class="socials anim" style="--d:.64s">
-        <span aria-label="Instagram"><i class="fa-brands fa-instagram"></i></span>
-        <span aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></span>
-        <span aria-label="X"><i class="fa-brands fa-x-twitter"></i></span>
-        <span aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></span>
-        <span aria-label="YouTube"><i class="fa-brands fa-youtube"></i></span>
-        <span aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></span>
+      <p class="lead anim" style="--d:.44s">Tutti i miei profili, in un posto solo.</p>
+      <div class="socials anim" style="--d:.58s">
+        <a href="https://www.instagram.com/rems_2.0_/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="https://www.facebook.com/menems01" target="_blank" rel="noopener noreferrer" aria-label="Facebook" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="https://www.linkedin.com/in/menems/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+        <a href="https://www.youtube.com/@menems" target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
+        <a href="https://www.tiktok.com/@remsmenems" target="_blank" rel="noopener noreferrer" aria-label="TikTok" title="TikTok"><i class="fa-brands fa-tiktok"></i></a>
       </div>
-      <p class="note anim" style="--d:.74s">I collegamenti verranno attivati appena pronti.</p>
+      <p class="note anim" style="--d:.7s">I profili si aprono in una nuova scheda.</p>
     </main>
   </div>
 

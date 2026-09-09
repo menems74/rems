@@ -80,7 +80,7 @@
   .cta:hover i{transform:translateX(3px);}
 
   /* --- Footer service launcher --- */
-  .services{flex:0 0 auto; display:grid; grid-template-columns:repeat(3,1fr); gap:12px; max-width:820px; width:100%; margin:0 auto;}
+  .services{flex:0 0 auto; display:grid; grid-template-columns:1fr; gap:12px; max-width:420px; width:100%; margin:0 auto;}
   .svc{display:flex; align-items:center; gap:14px; padding:16px 18px; border-radius:16px;
     border:1px solid var(--line); background:var(--panel); text-decoration:none; color:inherit; transition:.25s; position:relative;
     backdrop-filter:blur(6px);}
@@ -104,7 +104,7 @@
   /* --- Responsive --- */
   @media (max-width:720px){
     .brand .wm span{display:none;}
-    .services{grid-template-columns:1fr; gap:10px; max-width:420px;}
+    .services{gap:10px;}
     .svc{padding:13px 15px;}
     .hero{gap:14px;}
   }
@@ -141,17 +141,7 @@
     </main>
 
     <nav class="services">
-      <a class="svc active anim" style="--d:.74s" href="albero.html">
-        <div class="ic"><i class="fa-solid fa-sitemap"></i></div>
-        <div><h3>Albero genealogico</h3><p>Generazioni, rami e parentele</p></div>
-        <i class="fa-solid fa-arrow-right go"></i>
-      </a>
-      <div class="svc soon anim" style="--d:.82s">
-        <span class="badge">Presto</span>
-        <div class="ic"><i class="fa-solid fa-id-card"></i></div>
-        <div><h3>Curriculum</h3><p>Riservato, dopo l'accesso</p></div>
-      </div>
-      <a class="svc active anim" style="--d:.9s" href="app.html">
+      <a class="svc active anim" style="--d:.74s" href="app.html">
         <div class="ic"><i class="fa-solid fa-grip"></i></div>
         <div><h3>App</h3><p>Le applicazioni del portale</p></div>
         <i class="fa-solid fa-arrow-right go"></i>
