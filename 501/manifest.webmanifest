@@ -1,0 +1,19 @@
+{
+  "name": "501 — REMS",
+  "short_name": "501",
+  "description": "App 501 del portale REMS.",
+  "lang": "it",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "id": "/rems/501/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d0c0b",
+  "theme_color": "#0d0c0b",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

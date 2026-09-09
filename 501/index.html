@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>501 — REMS</title>
+<meta name="description" content="App 501 del portale REMS.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0d0c0b">
+<link rel="icon" href="icons/favicon-64.png" sizes="64x64" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="501">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Doto:wght@500;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d0c0b; --text:#f5f1ea; --muted:#a49f92; --line:rgba(255,255,255,.12);
+    --panel:rgba(255,255,255,.05); --panel-hi:rgba(255,255,255,.09);
+    --salvia:#9bb08d; --salvia-deep:#7c9070; --terra:#d59470;
+    --font-sans:"Inter","Segoe UI",system-ui,sans-serif;
+    --font-display:"Doto","Inter",monospace;
+  }
+  *{box-sizing:border-box;margin:0;}
+  body{background:var(--bg); color:var(--text); font-family:var(--font-sans);
+    min-height:100vh; min-height:100dvh; -webkit-font-smoothing:antialiased;
+    -webkit-tap-highlight-color:transparent;}
+
+  .bg{position:fixed; inset:0; overflow:hidden; z-index:0; background:var(--bg);}
+  .bg::before{content:""; position:absolute; inset:-20%;
+    background:
+      radial-gradient(40% 45% at 20% 26%, rgba(155,176,141,.26), transparent 70%),
+      radial-gradient(38% 42% at 82% 30%, rgba(213,148,112,.24), transparent 70%),
+      radial-gradient(52% 55% at 55% 92%, rgba(124,144,112,.18), transparent 72%);
+    filter:blur(6px); animation:aurora 24s ease-in-out infinite alternate;}
+  @keyframes aurora{0%{transform:translate3d(-2%,-1%,0) scale(1.05); opacity:.85;}100%{transform:translate3d(3%,2%,0) scale(1.12); opacity:1;}}
+  #net{position:absolute; inset:0; z-index:0; width:100%; height:100%; display:block;}
+  .vignette{position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:radial-gradient(120% 90% at 50% 32%, transparent 42%, rgba(0,0,0,.60) 100%);}
+
+  .page{position:relative; z-index:1; display:flex; flex-direction:column; gap:clamp(18px,3vh,32px);
+    min-height:100vh; min-height:100dvh; width:100%; max-width:720px; margin:0 auto;
+    padding:calc(clamp(14px,2.2vh,24px) + env(safe-area-inset-top)) clamp(16px,4vw,32px)
+            calc(clamp(32px,5vh,52px) + env(safe-area-inset-bottom));}
+
+  header{display:flex; align-items:center; justify-content:space-between; gap:14px;}
+  .brand{display:flex; align-items:center; gap:12px;}
+  .monogram{width:44px; height:44px; border-radius:50%; display:grid; place-items:center;
+    font-family:var(--font-display); font-weight:900; font-size:1.25rem; color:#20201c;
+    background:linear-gradient(135deg,var(--salvia),var(--terra)); box-shadow:0 6px 18px rgba(213,148,112,.28);}
+  .brand .wm{line-height:1;}
+  .brand .wm b{font-family:var(--font-display); font-weight:700; letter-spacing:.04em; font-size:1.05rem;}
+  .brand .wm span{display:block; font-size:.62rem; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); margin-top:3px;}
+  .back{font-size:.85rem; font-weight:500; color:var(--text); text-decoration:none;
+    padding:9px 16px; border:1px solid var(--line); border-radius:999px; background:var(--panel);
+    display:inline-flex; align-items:center; gap:8px; transition:.25s; white-space:nowrap;}
+  .back:hover{background:var(--panel-hi); transform:translateY(-1px);}
+  .back svg{width:14px; height:14px; transition:transform .25s;}
+  .back:hover svg{transform:translateX(-3px);}
+
+  .intro{text-align:center; display:flex; flex-direction:column; align-items:center; gap:clamp(8px,1.6vh,14px);
+    padding-top:clamp(4px,3vh,28px);}
+  .kicker{font-size:.72rem; letter-spacing:.24em; text-transform:uppercase; color:var(--salvia); font-weight:600;}
+  .headline{font-family:var(--font-display); font-weight:900; line-height:.9; letter-spacing:.02em;
+    font-size:clamp(84px,26vw,190px);
+    background:linear-gradient(120deg,#ffffff 0%,var(--salvia) 55%,var(--terra) 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter:drop-shadow(0 0 34px rgba(213,148,112,.25));}
+  .lead{max-width:min(460px,94%); color:#d8d3c8; opacity:.85; font-size:clamp(14px,1.6vw,16px); line-height:1.6;}
+
+  /* --- Menu principale: qui andranno le opzioni della app --- */
+  .menu{display:grid; gap:12px; width:100%;}
+  .opt{display:flex; align-items:center; gap:14px; width:100%; text-align:left;
+    padding:17px 18px; border-radius:16px; border:1px solid var(--line); background:var(--panel);
+    color:inherit; font:inherit; text-decoration:none; position:relative; transition:.25s;
+    backdrop-filter:blur(6px);}
+  .opt .ic{width:40px; height:40px; flex:none; border-radius:11px; display:grid; place-items:center;}
+  .opt .ic svg{width:18px; height:18px;}
+  .opt h2{font-size:.98rem; font-weight:600; margin-bottom:2px;}
+  .opt p{font-size:.76rem; color:var(--muted); line-height:1.35;}
+  .opt .badge{position:absolute; top:10px; right:12px; font-size:.6rem; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--terra); font-weight:600;}
+  .opt.ready{cursor:pointer;}
+  .opt.ready .ic{background:linear-gradient(135deg,var(--salvia),var(--salvia-deep)); color:#1c1c18;}
+  .opt.ready:hover{background:var(--panel-hi); border-color:rgba(155,176,141,.5); transform:translateY(-3px);}
+  .opt.todo{border-style:dashed; cursor:default;}
+  .opt.todo .ic{background:rgba(255,255,255,.08); color:var(--muted);}
+
+  /* --- Barra PWA: installazione e stato --- */
+  .pwa{display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:12px; margin-top:auto;}
+  .install{display:none; align-items:center; gap:10px; font-weight:600; font-size:.92rem; color:#1a1a17;
+    background:#f5f1ea; padding:12px 22px; border:0; border-radius:999px; cursor:pointer; transition:.25s;
+    box-shadow:0 0 0 1px rgba(255,255,255,.15), 0 0 22px rgba(213,148,112,.3);}
+  .install.show{display:inline-flex;}
+  .install:hover{transform:translateY(-2px);}
+  .install svg{width:16px; height:16px;}
+  .state{display:inline-flex; align-items:center; gap:8px; font-size:.75rem; color:var(--muted);}
+  .dot{width:8px; height:8px; border-radius:50%; background:var(--salvia); box-shadow:0 0 10px rgba(155,176,141,.8);}
+  .state.offline .dot{background:var(--terra); box-shadow:0 0 10px rgba(213,148,112,.8);}
+
+  .anim{opacity:0; transform:translateY(18px); animation:reveal .8s cubic-bezier(.22,1,.36,1) forwards; animation-delay:var(--d,0s);}
+  @keyframes reveal{to{opacity:1; transform:none;}}
+  header{opacity:0; animation:slideDown .7s cubic-bezier(.22,1,.36,1) forwards;}
+  @keyframes slideDown{from{opacity:0; transform:translateY(-16px);} to{opacity:1; transform:none;}}
+
+  /* installata sul telefono: niente link fuori dalla app, niente bottone installa */
+  @media all and (display-mode:standalone){
+    .back{display:none;}
+    .install{display:none!important;}
+  }
+  @media (max-width:520px){ .brand .wm span{display:none;} }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;} .anim{opacity:1; transform:none;}}
+</style>
+</head>
+<body>
+  <div class="bg"><canvas id="net"></canvas></div>
+  <div class="vignette"></div>
+
+  <div class="page">
+    <header>
+      <div class="brand">
+        <div class="monogram">C</div>
+        <div class="wm"><b>REMS</b><span>Portale web 2.0</span></div>
+      </div>
+      <a class="back" href="../app.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        App
+      </a>
+    </header>
+
+    <main class="intro">
+      <p class="kicker anim" style="--d:.1s">App del portale</p>
+      <h1 class="headline anim" style="--d:.22s">501</h1>
+      <p class="lead anim" style="--d:.4s">Installabile sul telefono e utilizzabile anche senza connessione.</p>
+    </main>
+
+    <!--
+      MENU PRINCIPALE
+      I tre blocchi qui sotto sono segnaposto: diventeranno le opzioni della app.
+      Pronta   -> <button class="opt ready" ...> oppure <a class="opt ready" href="...">
+      Da fare  -> <div class="opt todo"> con <span class="badge">Da definire</span>
+    -->
+    <nav class="menu">
+      <div class="opt todo anim" style="--d:.5s">
+        <span class="badge">Da definire</span>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></div>
+        <div><h2>Prima opzione</h2><p>Slot libero</p></div>
+      </div>
+
+      <div class="opt todo anim" style="--d:.56s">
+        <span class="badge">Da definire</span>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></div>
+        <div><h2>Seconda opzione</h2><p>Slot libero</p></div>
+      </div>
+
+      <div class="opt todo anim" style="--d:.62s">
+        <span class="badge">Da definire</span>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M4 20h4L20 8a2.8 2.8 0 0 0-4-4L4 16v4z"/></svg></div>
+        <div><h2>Impostazioni</h2><p>Slot libero</p></div>
+      </div>
+    </nav>
+
+    <div class="pwa">
+      <button class="install anim" style="--d:.7s" id="install" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
+        Installa la app
+      </button>
+      <p class="state anim" style="--d:.76s" id="state"><span class="dot"></span><span id="state-text">Online</span></p>
+    </div>
+  </div>
+
+<script>
+/* --- stato rete + installazione PWA --- */
+(function(){
+  var state = document.getElementById('state');
+  var text = document.getElementById('state-text');
+  var btn = document.getElementById('install');
+  var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+  function paintNetwork(){
+    var on = navigator.onLine;
+    state.classList.toggle('offline', !on);
+    text.textContent = on ? (standalone ? 'App installata' : 'Online') : 'Offline — la app funziona comunque';
+  }
+  window.addEventListener('online', paintNetwork);
+  window.addEventListener('offline', paintNetwork);
+  paintNetwork();
+
+  var prompt = null;
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault(); prompt = e;
+    if(!standalone) btn.classList.add('show');
+  });
+  btn.addEventListener('click', function(){
+    if(!prompt) return;
+    prompt.prompt();
+    prompt.userChoice.then(function(){ prompt = null; btn.classList.remove('show'); });
+  });
+  window.addEventListener('appinstalled', function(){
+    prompt = null; btn.classList.remove('show'); standalone = true; paintNetwork();
+  });
+
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('sw.js').catch(function(err){
+        console.warn('Service worker non registrato:', err);
+      });
+    });
+  }
+})();
+
+/* --- sfondo a costellazione, come nelle altre pagine --- */
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var canvas = document.getElementById('net'); if(!canvas) return;
+  var ctx = canvas.getContext('2d'), w, h, dpr, nodes = [], raf = null;
+  var COLORS = ['155,176,141','213,148,112','196,194,195'];
+  function size(){
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = canvas.clientWidth; h = canvas.clientHeight;
+    canvas.width = Math.floor(w*dpr); canvas.height = Math.floor(h*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    var target = Math.round(Math.min(88, (w*h)/17000)); nodes = [];
+    for(var i=0;i<target;i++){nodes.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.18,vy:(Math.random()-.5)*.18,r:Math.random()*1.6+.8,c:COLORS[(Math.random()*COLORS.length)|0]});}
+  }
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    var maxD = Math.min(150, Math.max(90, w*0.12));
+    for(var i=0;i<nodes.length;i++){
+      var a=nodes[i]; a.x+=a.vx; a.y+=a.vy;
+      if(a.x<-20)a.x=w+20; else if(a.x>w+20)a.x=-20;
+      if(a.y<-20)a.y=h+20; else if(a.y>h+20)a.y=-20;
+      for(var j=i+1;j<nodes.length;j++){
+        var b=nodes[j],dx=a.x-b.x,dy=a.y-b.y,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<maxD){var op=(1-d/maxD)*0.32; ctx.strokeStyle='rgba(155,176,141,'+op.toFixed(3)+')'; ctx.lineWidth=1;
+          ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();}
+      }
+    }
+    for(var k=0;k<nodes.length;k++){var n=nodes[k]; ctx.beginPath(); ctx.fillStyle='rgba('+n.c+',0.85)'; ctx.arc(n.x,n.y,n.r,0,Math.PI*2); ctx.fill();}
+    raf = requestAnimationFrame(draw);
+  }
+  function start(){ size(); if(raf) cancelAnimationFrame(raf); draw(); if(reduce) cancelAnimationFrame(raf); }
+  var rt; window.addEventListener('resize', function(){ clearTimeout(rt); rt=setTimeout(start,200); });
+  start();
+})();
+</script>
+</body>
+</html>
