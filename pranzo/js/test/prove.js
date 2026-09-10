@@ -403,3 +403,205 @@ prova('id e date della settimana', () => {
   uguale('2026-09-14', giorni[0].data);
   uguale('2026-09-18', giorni[1].data);
 });
+
+/* ==========================================================================
+   PROVE DELLA LISTA SPESA (M3)
+   L'aggregazione in unità canonica è il punto dove è più facile sbagliare.
+   ========================================================================== */
+
+import * as S from '../shopping.js';
+
+const ING3 = M.indicizza([
+  { id: 'i_tonno', nome: 'Tonno', macro: 'proteina', unita: 'g', reparto: 'dispensa',
+    formatoAcquisto: { qta: 160, label: '2 scatolette da 80 g' },
+    conversioni: [{ label: 'scatoletta', fattore: 80 }], stagioni: [], famiglia: 'pesce' },
+  { id: 'i_pasta', nome: 'Pasta', macro: 'carboidrato', unita: 'g', reparto: 'dispensa',
+    formatoAcquisto: { qta: 500, label: 'confezione da 500 g' }, conversioni: [], stagioni: [] },
+  { id: 'i_pomodorini', nome: 'Pomodorini', macro: 'fibra', unita: 'g', reparto: 'ortofrutta',
+    formatoAcquisto: { qta: 500, label: 'vassoio da 500 g' }, conversioni: [], stagioni: [] },
+  { id: 'i_uova', nome: 'Uova', macro: 'proteina', unita: 'pz', reparto: 'latticini',
+    formatoAcquisto: { qta: 6, label: 'confezione da 6' }, conversioni: [], stagioni: [], famiglia: 'uova' },
+  { id: 'i_olio', nome: 'Olio', macro: 'grasso', unita: 'ml', reparto: 'dispensa',
+    formatoAcquisto: { qta: 1000, label: 'bottiglia da 1 l' },
+    conversioni: [{ label: 'cucchiaio', fattore: 10 }], stagioni: [] }
+]);
+
+const P1 = { id: 'p_uno', nome: 'Pasta col tonno', tipo: 'unico', tempoMin: 15, difficolta: 1,
+  stagioni: [], passi: ['x'], origine: 'base', tags: [], attivo: true,
+  ingredienti: [
+    { ingredienteId: 'i_pasta', qta: 100, unita: 'g' },
+    { ingredienteId: 'i_tonno', qta: 1, unita: 'scatoletta' },
+    { ingredienteId: 'i_pomodorini', qta: 150, unita: 'g' },
+    { ingredienteId: 'i_olio', qta: 1, unita: 'cucchiaio' }
+  ] };
+const P2 = { id: 'p_due', nome: 'Insalata di tonno', tipo: 'unico', tempoMin: 10, difficolta: 1,
+  stagioni: [], passi: ['x'], origine: 'base', tags: [], attivo: true,
+  ingredienti: [
+    { ingredienteId: 'i_tonno', qta: 1.5, unita: 'scatoletta' },
+    { ingredienteId: 'i_pomodorini', qta: 100, unita: 'g' },
+    { ingredienteId: 'i_uova', qta: 2, unita: 'pz' }
+  ] };
+
+const MENU_PROVA = {
+  id: 'men_prova', dataInizio: '2026-09-14', stato: 'attivo',
+  giorni: [
+    { giorno: 'lun', data: '2026-09-14', modalita: 'unico', piatti: ['p_uno'], bloccato: false },
+    { giorno: 'mar', data: '2026-09-15', modalita: 'unico', piatti: ['p_due'], bloccato: false }
+  ]
+};
+
+function ctxSpesa(extra = {}) {
+  return Object.assign({
+    indicePiatti: M.indicizza([P1, P2]),
+    indiceIngredienti: ING3,
+    dispensa: new Map(),
+    porzioni: 1,
+    ordineReparti: M.REPARTI
+  }, extra);
+}
+
+prova('somma in unità canonica: 1 + 1,5 scatolette = 200 g di tonno', () => {
+  const lista = S.generaLista(MENU_PROVA, ctxSpesa());
+  const tonno = lista.voci.find((v) => v.ingredienteId === 'i_tonno');
+  uguale(200, tonno.qtaRichiesta);
+  uguale('g', tonno.unita);
+});
+prova('la voce dice in quali piatti serve', () => {
+  const lista = S.generaLista(MENU_PROVA, ctxSpesa());
+  const tonno = lista.voci.find((v) => v.ingredienteId === 'i_tonno');
+  uguale(['Insalata di tonno', 'Pasta col tonno'], tonno.usatoIn);
+});
+prova('porzioni: raddoppiando raddoppiano le quantità', () => {
+  const uno = S.generaLista(MENU_PROVA, ctxSpesa());
+  const due = S.generaLista(MENU_PROVA, ctxSpesa({ porzioni: 2 }));
+  const q = (l, id) => l.voci.find((v) => v.ingredienteId === id).qtaRichiesta;
+  uguale(q(uno, 'i_pasta') * 2, q(due, 'i_pasta'));
+  uguale(q(uno, 'i_tonno') * 2, q(due, 'i_tonno'));
+});
+prova('arrotondamento al formato con nota di cosa avanza', () => {
+  const lista = S.generaLista(MENU_PROVA, ctxSpesa());
+  const tonno = lista.voci.find((v) => v.ingredienteId === 'i_tonno');
+  // 200 g richiesti, confezioni da 160 g: due confezioni, 320 g, 120 g avanzati
+  uguale(320, tonno.qtaDaComprare);
+  uguale(2, tonno.pacchi);
+  if (!/prendine 2/.test(tonno.notaArrotondamento)) throw new Error(tonno.notaArrotondamento);
+  if (!/120 g/.test(tonno.notaArrotondamento)) throw new Error('deve dire quanto avanza: ' + tonno.notaArrotondamento);
+});
+prova('un pacco solo: nota senza "prendine"', () => {
+  const r = S.arrotondaAlFormato(90, ING3.get('i_pasta'));
+  uguale(500, r.qta); uguale(1, r.pacchi);
+  if (!/avanzano/.test(r.nota)) throw new Error('la nota deve dire cosa avanza: ' + r.nota);
+  if (/prendine/.test(r.nota)) throw new Error('con un pacco non serve "prendine": ' + r.nota);
+});
+prova('più pacchi: la nota dice quanti prenderne', () => {
+  const r = S.arrotondaAlFormato(1100, ING3.get('i_pasta'));
+  uguale(1500, r.qta); uguale(3, r.pacchi);
+  if (!/prendine 3/.test(r.nota)) throw new Error(r.nota);
+});
+prova('quantità esatta: nessun avanzo da segnalare', () => {
+  const r = S.arrotondaAlFormato(1000, ING3.get('i_pasta'));
+  uguale(1000, r.qta); uguale(2, r.pacchi);
+  if (/avanzano/.test(r.nota)) throw new Error('non deve inventare avanzi: ' + r.nota);
+});
+prova('pezzi: 2 uova diventano una confezione da 6', () => {
+  const lista = S.generaLista(MENU_PROVA, ctxSpesa());
+  const uova = lista.voci.find((v) => v.ingredienteId === 'i_uova');
+  uguale(2, uova.qtaRichiesta);
+  uguale(6, uova.qtaDaComprare);
+  uguale('pz', uova.unita);
+});
+prova('la dispensa si sottrae prima di arrotondare', () => {
+  const conScorta = S.generaLista(MENU_PROVA, ctxSpesa({ dispensa: new Map([['i_pasta', 100]]) }));
+  const pasta = conScorta.voci.find((v) => v.ingredienteId === 'i_pasta');
+  uguale(100, pasta.qtaRichiesta);
+  uguale(100, pasta.qtaInDispensa);
+  uguale(0, pasta.qtaDaComprare);              // ne serviva 100 e ce n'è 100
+  uguale('', pasta.notaArrotondamento);
+});
+prova('dispensa parziale: si compra solo il resto, arrotondato', () => {
+  const lista = S.generaLista(MENU_PROVA, ctxSpesa({ dispensa: new Map([['i_tonno', 100]]) }));
+  const tonno = lista.voci.find((v) => v.ingredienteId === 'i_tonno');
+  uguale(100, tonno.qtaInDispensa);
+  uguale(160, tonno.qtaDaComprare);            // servono 100 g -> 1 confezione
+  uguale(1, tonno.pacchi);
+});
+prova('le voci sono ordinate secondo il giro al supermercato', () => {
+  const ordine = ['latticini', 'ortofrutta', 'dispensa', 'macelleria', 'pescheria', 'panetteria', 'surgelati', 'altro'];
+  const lista = S.generaLista(MENU_PROVA, ctxSpesa({ ordineReparti: ordine }));
+  const reparti = lista.voci.map((v) => v.reparto);
+  const atteso = reparti.slice().sort((a, b) => ordine.indexOf(a) - ordine.indexOf(b));
+  uguale(atteso, reparti);
+});
+prova('le spunte sopravvivono al ricalcolo', () => {
+  const prima = S.generaLista(MENU_PROVA, ctxSpesa());
+  S.segnaComprato(prima, 'i_pasta', true);
+  S.segnaInCasa(prima, 'i_pomodorini', true);
+  S.aggiungiVoceLibera(prima, 'detersivo');
+
+  const dopo = S.generaLista(MENU_PROVA, ctxSpesa(), prima);
+  uguale(true, dopo.voci.find((v) => v.ingredienteId === 'i_pasta').comprato);
+  uguale(true, dopo.voci.find((v) => v.ingredienteId === 'i_pomodorini').giaInCasa);
+  uguale(1, dopo.libere.length);
+  uguale('detersivo', dopo.libere[0].nome);
+});
+prova('"ce l\'ho già" restituisce la quantità da mettere in dispensa', () => {
+  const lista = S.generaLista(MENU_PROVA, ctxSpesa());
+  const agg = S.segnaInCasa(lista, 'i_pomodorini', true);
+  uguale('i_pomodorini', agg.ingredienteId);
+  uguale(250, agg.qta);                        // 150 + 100 dai due piatti
+  uguale(true, lista.voci.find((v) => v.ingredienteId === 'i_pomodorini').giaInCasa);
+});
+prova('togliendo "ce l\'ho già" la voce torna da comprare', () => {
+  const lista = S.generaLista(MENU_PROVA, ctxSpesa());
+  S.segnaInCasa(lista, 'i_pomodorini', true);
+  const agg = S.segnaInCasa(lista, 'i_pomodorini', false);
+  uguale(0, agg.qta);
+  uguale(false, lista.voci.find((v) => v.ingredienteId === 'i_pomodorini').giaInCasa);
+});
+prova('il conteggio ignora ciò che è già in casa', () => {
+  const lista = S.generaLista(MENU_PROVA, ctxSpesa());
+  const totaleIniziale = S.conteggio(lista).totale;
+  S.segnaInCasa(lista, 'i_pasta', true);
+  uguale(totaleIniziale - 1, S.conteggio(lista).totale);
+  S.segnaComprato(lista, 'i_tonno', true);
+  uguale(1, S.conteggio(lista).fatti);
+});
+prova('voci libere: si aggiungono, si spuntano, si togliono', () => {
+  const lista = S.generaLista(MENU_PROVA, ctxSpesa());
+  const voce = S.aggiungiVoceLibera(lista, '  caffè  ');
+  uguale('caffè', voce.nome);
+  S.segnaComprato(lista, voce.id, true);
+  uguale(true, lista.libere[0].comprato);
+  S.togliVoceLibera(lista, voce.id);
+  uguale(0, lista.libere.length);
+  uguale(null, S.aggiungiVoceLibera(lista, '   '));
+});
+prova('unità non convertibile: la lista lo segnala e va avanti', () => {
+  const rotto = Object.assign({}, P1, { id: 'p_rotto',
+    ingredienti: [{ ingredienteId: 'i_pasta', qta: 1, unita: 'barattolo' },
+                  { ingredienteId: 'i_pomodorini', qta: 100, unita: 'g' }] });
+  const menu = { id: 'm_rotto', giorni: [{ giorno: 'lun', piatti: ['p_rotto'] }] };
+  const lista = S.generaLista(menu, ctxSpesa({ indicePiatti: M.indicizza([rotto]) }));
+  if (!lista.problemi.length) throw new Error('doveva segnalare il problema');
+  uguale(1, lista.voci.length);                // i pomodorini ci sono comunque
+});
+prova('proposta di scarico dalla dispensa: solo ciò che c\'è', () => {
+  const righe = S.propostaScarico(P1, {
+    indiceIngredienti: ING3,
+    dispensa: new Map([['i_pasta', 500], ['i_olio', 900]]),
+    porzioni: 1
+  });
+  uguale(2, righe.length);
+  const pasta = righe.find((r) => r.ingredienteId === 'i_pasta');
+  uguale(100, pasta.usata);
+  uguale(400, pasta.restante);
+  const olio = righe.find((r) => r.ingredienteId === 'i_olio');
+  uguale(10, olio.usata);                      // 1 cucchiaio = 10 ml
+  uguale(890, olio.restante);
+});
+prova('scarico: non va sotto zero', () => {
+  const righe = S.propostaScarico(P1, {
+    indiceIngredienti: ING3, dispensa: new Map([['i_pasta', 40]]), porzioni: 1
+  });
+  uguale(0, righe[0].restante);
+});

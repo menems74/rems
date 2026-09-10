@@ -3,6 +3,7 @@
 
 import { el, svuotaNodo } from './dom.js';
 import * as M from '../model.js';
+import * as S from '../shopping.js';
 
 export function mostraDettaglio(piatto, stato, perche) {
   const pannello = document.getElementById('pannello');
@@ -63,10 +64,70 @@ export function mostraDettaglio(piatto, stato, perche) {
     corpo.appendChild(el('p', { class: 'conteggio' }, 'tag: ' + piatto.tags.join(', ')));
   }
 
+  // "cucinato": segna la data e propone di scalare la dispensa. Proposta,
+  // non automatismo: le specifiche sono chiare su questo punto.
+  if (stato.azioni && stato.azioni.cucinato) {
+    const zona = el('div', { class: 'zonaCucinato' });
+    zona.appendChild(el('button', {
+      class: 'azione', type: 'button',
+      onclick: () => chiediScarico(zona, piatto, stato)
+    }, 'Cucinato oggi'));
+    corpo.appendChild(zona);
+  }
+
   pannello.hidden = false;
   document.getElementById('pannelloChiudi').focus();
 }
 
 export function chiudiDettaglio() {
   document.getElementById('pannello').hidden = true;
+}
+
+
+/**
+ * Mostra la proposta di scarico dalla dispensa. Nulla viene toccato finché
+ * non si conferma, e si può sempre solo segnare il piatto come cucinato.
+ */
+function chiediScarico(zona, piatto, stato) {
+  const righe = S.propostaScarico(piatto, {
+    indiceIngredienti: stato.indiceIngredienti,
+    dispensa: stato.dispensaMappa,
+    porzioni: stato.preferenze.porzioni || 1
+  });
+  svuotaNodo(zona);
+
+  if (!righe.length) {
+    zona.appendChild(el('p', { class: 'conteggio' },
+      'Nessuno di questi ingredienti è in dispensa: segno solo il piatto come cucinato.'));
+    zona.appendChild(el('button', {
+      class: 'azione', type: 'button',
+      onclick: () => stato.azioni.cucinato(piatto.id, [])
+    }, 'Segna come cucinato'));
+    return;
+  }
+
+  zona.appendChild(el('h3', {}, 'Scalo dalla dispensa?'));
+  const elenco = el('div', { class: 'scarico' });
+  for (const riga of righe) {
+    const spunta = el('input', {
+      type: 'checkbox', checked: 'checked',
+      'aria-label': 'scala ' + riga.nome,
+      onchange: (e) => { riga.scarica = e.target.checked; }
+    });
+    elenco.appendChild(el('label', { class: 'rigaScarico' }, [
+      spunta,
+      el('span', { class: 'nomeScarico' }, riga.nome),
+      el('span', { class: 'num' },
+        `${M.formattaQta(riga.usata, riga.unita)} · restano ${M.formattaQta(riga.restante, riga.unita)}`)
+    ]));
+  }
+  zona.appendChild(elenco);
+  zona.appendChild(el('button', {
+    class: 'azione', type: 'button',
+    onclick: () => stato.azioni.cucinato(piatto.id, righe.filter((r) => r.scarica))
+  }, 'Confermo, scala la dispensa'));
+  zona.appendChild(el('button', {
+    class: 'testuale', type: 'button',
+    onclick: () => stato.azioni.cucinato(piatto.id, [])
+  }, 'segna cucinato senza scalare'));
 }

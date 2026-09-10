@@ -826,7 +826,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "dispensaBase": true
  },
  {
   "id": "ing_pangrattato",
@@ -845,7 +846,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "dispensaBase": true
  },
  {
   "id": "ing_mais",
@@ -1376,7 +1378,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "dispensaBase": true
  },
  {
   "id": "ing_burro",
@@ -1493,8 +1496,8 @@
   "unita": "pz",
   "reparto": "ortofrutta",
   "formatoAcquisto": {
-   "qta": 1,
-   "label": "1 testa (unità = spicchio)"
+   "qta": 12,
+   "label": "1 testa, ~12 spicchi"
   },
   "conversioni": [],
   "stagioni": [],
@@ -1645,7 +1648,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "dispensaBase": true
  },
  {
   "id": "ing_pepe",
@@ -1659,7 +1663,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "dispensaBase": true
  },
  {
   "id": "ing_aceto",
@@ -1678,7 +1683,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "dispensaBase": true
  },
  {
   "id": "ing_balsamico",
@@ -1697,7 +1703,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "dispensaBase": true
  },
  {
   "id": "ing_senape",
@@ -1716,7 +1723,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "dispensaBase": true
  },
  {
   "id": "ing_olive",
@@ -1787,7 +1795,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "dispensaBase": true
  },
  {
   "id": "ing_curry",
@@ -1806,7 +1815,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "dispensaBase": true
  },
  {
   "id": "ing_paprika",
@@ -1825,7 +1835,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "dispensaBase": true
  },
  {
   "id": "ing_origano",
@@ -1844,7 +1855,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "dispensaBase": true
  },
  {
   "id": "ing_peperoncino",
@@ -1863,7 +1875,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "dispensaBase": true
  },
  {
   "id": "ing_noce_moscata",
@@ -1882,7 +1895,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "dispensaBase": true
  },
  {
   "id": "ing_vino_bianco",

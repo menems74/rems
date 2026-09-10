@@ -213,3 +213,96 @@ nav a:active{background:var(--premuto);}
   nav a{max-width:124px;}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important;}}
+
+/* ================================================ LISTA SPESA (scontrino)
+   È la schermata che si usa al supermercato: nome a sinistra, filetto di
+   puntini, quantità in monospazio a destra. La voce comprata resta,
+   barrata, così sai cosa hai già preso.                                  */
+.testaLista{
+  display:flex; align-items:baseline; column-gap:12px; row-gap:2px; flex-wrap:wrap;
+  padding-bottom:8px; margin-bottom:4px; border-bottom:1px solid var(--filetto-forte);
+}
+.contatore{font-size:1.02rem; color:var(--inchiostro);}
+.comandiLista{margin-left:auto; display:flex; gap:16px;}
+
+.scontrino{margin-top:4px;}
+.reparto{
+  font-size:.95rem; font-weight:650; margin:20px 0 2px;
+  padding-bottom:4px; border-bottom:1px solid var(--filetto-forte);
+}
+.reparto:first-child{margin-top:6px;}
+
+.bloccoVoce{border-bottom:1px solid var(--filetto); padding:0 0 5px;}
+.voce{
+  display:flex; align-items:baseline; gap:8px; width:100%;
+  min-height:48px; text-align:left; padding:4px 0;
+}
+.voce:active{background:var(--premuto);}
+.casella{
+  flex:none; width:26px; height:26px; align-self:center;
+  border:1.5px solid var(--inchiostro); border-radius:2px;
+  display:grid; place-items:center; font-family:var(--num); font-size:1.1rem; line-height:1;
+}
+.voceNome{font-size:1.06rem; font-weight:600;}
+.filo{
+  flex:1; min-width:16px; align-self:baseline;
+  border-bottom:2px dotted rgba(22,24,26,.34); transform:translateY(-5px);
+}
+.voceQta{flex:none; font-size:1.06rem; font-weight:650; white-space:nowrap;}
+
+.voce.preso .voceNome, .voce.preso .voceQta{
+  color:var(--matita); text-decoration:line-through; text-decoration-thickness:1.5px;
+}
+.voce.preso .casella{border-color:var(--spunta); color:var(--spunta);}
+
+.sottoVoce{display:flex; align-items:baseline; gap:12px; padding-left:34px;}
+.notaVoce{
+  flex:1; display:flex; flex-wrap:wrap; gap:2px 12px;
+  color:var(--matita); font-size:.79rem; line-height:1.3;
+}
+.notaVoce .usato{font-style:italic;}
+
+.aggiungi{
+  display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+  margin-top:20px; padding-top:14px; border-top:1px solid var(--filetto-forte);
+}
+.aggiungi input, .aggiungi select{
+  flex:1 1 55%; min-height:var(--tocco); padding:0 10px; font:inherit;
+  background:transparent; color:var(--inchiostro);
+  border:1px solid var(--filetto-forte); border-radius:2px;
+}
+
+/* ==================================================== DISPENSA e "ALTRO" */
+.dispensa{border-top:1px solid var(--filetto);}
+.vociDispensa{
+  display:flex; align-items:center; gap:12px;
+  padding:8px 0; border-bottom:1px solid var(--filetto);
+}
+.nomeDispensa{flex:1; font-size:1rem;}
+.campoQta{display:flex; align-items:center; gap:6px;}
+.campoQta input{
+  width:88px; min-height:var(--tocco); padding:0 8px; text-align:right;
+  font-family:var(--num); font-size:1rem; background:transparent; color:var(--inchiostro);
+  border:1px solid var(--filetto-forte); border-radius:2px;
+}
+.campoQta .unita{color:var(--matita); font-size:.85rem; width:22px;}
+
+.elencoAltro{border-top:1px solid var(--filetto);}
+.vociAltro{
+  display:flex; align-items:baseline; gap:12px; justify-content:space-between;
+  min-height:56px; padding:12px 0; border-bottom:1px solid var(--filetto);
+  text-decoration:none; color:var(--biro); font-size:1.05rem; font-weight:600;
+}
+.vociAltro .nota{margin:0; text-align:right; font-weight:400;}
+.vociAltro.spento{color:var(--matita);}
+
+/* ------------------------------------------------- "cucinato" e scarico -- */
+.zonaCucinato{margin-top:22px; padding-top:14px; border-top:1px solid var(--filetto-forte);}
+.scarico{margin:6px 0 4px;}
+.rigaScarico{
+  display:flex; align-items:center; gap:10px; min-height:var(--tocco);
+  padding:6px 0; border-bottom:1px solid var(--filetto); font-size:.95rem;
+}
+.rigaScarico input[type=checkbox]{width:22px; height:22px; accent-color:var(--biro); flex:none;}
+.nomeScarico{flex:1;}
+.rigaScarico .num{color:var(--matita); font-size:.82rem; text-align:right;}

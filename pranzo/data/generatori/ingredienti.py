@@ -100,7 +100,7 @@ ING = [
  # ---------------- CONDIMENTI ----------------
  ("ing_cipolla","Cipolla","condimento","pz","ortofrutta",3,"retina da 3",[],[],None,""),
  ("ing_cipolla_rossa","Cipolla rossa","condimento","pz","ortofrutta",3,"retina da 3",[],[],None,""),
- ("ing_aglio","Aglio","condimento","pz","ortofrutta",1,"1 testa (unità = spicchio)",[],[],None,"l'unità è lo spicchio"),
+ ("ing_aglio","Aglio","condimento","pz","ortofrutta",12,"1 testa, ~12 spicchi",[],[],None,"l'unità è lo spicchio"),
  ("ing_limone","Limone","condimento","pz","ortofrutta",3,"retina da 3",[],[],None,""),
  ("ing_prezzemolo","Prezzemolo","condimento","g","ortofrutta",20,"mazzetto",C(("mazzetto",20)),[],None,""),
  ("ing_basilico","Basilico","condimento","g","ortofrutta",20,"vasetto",C(("foglie",2)),[],None,""),
@@ -125,12 +125,21 @@ ING = [
  ("ing_vino_bianco","Vino bianco","condimento","ml","dispensa",750,"bottiglia da 750 ml",C(("bicchiere",100)),[],None,""),
 ]
 
+# scorte di credenza: si danno per presenti al primo avvio, altrimenti la
+# prima lista della spesa chiede di comprare un chilo di sale per 3 grammi
+DISPENSA_BASE = {
+ "ing_sale","ing_pepe","ing_olio_evo","ing_aceto","ing_balsamico","ing_senape",
+ "ing_curry","ing_paprika","ing_origano","ing_peperoncino","ing_noce_moscata",
+ "ing_brodo_granulare","ing_farina","ing_pangrattato",
+}
+
 out = []
 for (i, nome, macro, unita, reparto, fq, fl, conv, stag, fam, note) in ING:
     ing = {"id": i, "nome": nome, "macro": macro, "unita": unita, "reparto": reparto,
            "formatoAcquisto": {"qta": fq, "label": fl},
            "conversioni": conv, "stagioni": stag, "note": note}
     if fam: ing["famiglia"] = fam
+    if i in DISPENSA_BASE: ing["dispensaBase"] = True
     out.append(ing)
 
 # controlli
