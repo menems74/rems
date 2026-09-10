@@ -191,6 +191,54 @@ function importAll(data){
   if(data.settings) setSettings(data.settings);
   return {players: players.length, history: history.length};
 }
+/* Salva il backup passando dal sistema operativo:
+   1. foglio di condivisione (Android/iOS) -> Drive, OneDrive, Box, File...
+   2. finestra "salva con nome" (desktop) -> qualsiasi cartella, anche sincronizzata
+   3. download classico, se il dispositivo non offre nessuno dei due.
+   Nessun servizio esterno: sono funzioni del browser. */
+function backupName(){
+  return 'dart-backup-' + new Date().toISOString().slice(0,10) + '.json';
+}
+function backupBlob(){
+  return new Blob([JSON.stringify(exportAll(), null, 2)], {type:'application/json'});
+}
+function download(blob, name){
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+}
+function saveBackup(){
+  var name = backupName(), blob = backupBlob();
+
+  return Promise.resolve().then(function(){
+    if(!navigator.canShare) return null;
+    var file;
+    try { file = new File([blob], name, {type:'application/json'}); }
+    catch(e){ return null; }                       // File non costruibile: si prosegue
+    if(!navigator.canShare({files:[file]})) return null;
+    return navigator.share({files:[file], title:'Backup Dart'})
+      .then(function(){ return 'share'; })
+      .catch(function(err){ return (err && err.name === 'AbortError') ? 'abort' : null; });
+  }).then(function(res){
+    if(res) return res;
+    if(!window.showSaveFilePicker) return null;
+    return window.showSaveFilePicker({
+      suggestedName: name,
+      types: [{description:'Backup Dart', accept:{'application/json':['.json']}}]
+    }).then(function(handle){
+      return handle.createWritable().then(function(w){
+        return w.write(blob).then(function(){ return w.close(); });
+      }).then(function(){ return 'picker'; });
+    }).catch(function(err){ return (err && err.name === 'AbortError') ? 'abort' : null; });
+  }).then(function(res){
+    if(res) return res;
+    download(blob, name);
+    return 'download';
+  });
+}
+
 function wipeAll(){
   Object.keys(K).forEach(function(k){ if(k !== 'match') localStorage.removeItem(K[k]); });
   GAMES.forEach(function(g){ clearMatch(g.id); });
@@ -281,6 +329,7 @@ return {
   listHistory: listHistory, addHistory: addHistory, aggregate: aggregate,
   getMatch: getMatch, setMatch: setMatch, clearMatch: clearMatch,
   exportAll: exportAll, importAll: importAll, wipeAll: wipeAll,
+  saveBackup: saveBackup, backupName: backupName, backupBlob: backupBlob, download: download,
   uid: uid, esc: esc, fmt: fmt, buzz: buzz, toast: toast, pwa: pwa, keepAwake: keepAwake
 };
 })();

@@ -163,15 +163,17 @@
 
     <div class="card">
       <span class="lbl">Backup</span>
-      <p class="hint" style="margin-top:0">Tutto è salvato solo su questo dispositivo. Esporta un file JSON per spostare giocatori, impostazioni e storico altrove.</p>
-      <button class="ghost" id="expBtn" style="margin-top:12px">Esporta file JSON</button>
+      <p class="hint" style="margin-top:0">Tutto è salvato solo su questo dispositivo. Il backup è un file JSON con giocatori, impostazioni e storico.</p>
+      <button class="cta" id="expBtn" style="margin-top:14px; min-height:52px">Salva il backup</button>
+      <p class="hint">Sul telefono si apre il menu di condivisione: puoi mandarlo a Drive, OneDrive, Box, WhatsApp o salvarlo nei File. Su computer si apre la finestra «salva con nome».</p>
+      <button class="ghost sm" id="dlBtn" style="margin-top:4px">Scarica e basta</button>
     </div>
 
     <div class="card">
       <span class="lbl">Ripristino</span>
-      <p class="hint" style="margin-top:0">L'importazione unisce i dati del file ai tuoi: profili e partite già presenti non vengono duplicati.</p>
+      <p class="hint" style="margin-top:0">Il selettore del telefono legge anche da Drive, OneDrive e dagli altri servizi installati. L'importazione unisce i dati al tuo archivio: profili e partite già presenti non vengono duplicati.</p>
       <label class="ghost" style="margin-top:12px; display:inline-flex">
-        Importa file JSON
+        Scegli il file di backup
         <input type="file" id="impFile" accept="application/json,.json" hidden>
       </label>
     </div>

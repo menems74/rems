@@ -138,14 +138,19 @@ function tile(label, value){
 }
 
 /* ---------------------------------------------------------------- dati */
-function exportData(){
-  var blob = new Blob([JSON.stringify(D.exportAll(), null, 2)], {type:'application/json'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url; a.download = 'dart-dati-' + new Date().toISOString().slice(0,10) + '.json';
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
-  D.toast('File JSON scaricato');
+var SAVED = {
+  share:    'Backup inviato all’app che hai scelto',
+  picker:   'Backup salvato dove hai indicato',
+  download: 'Backup scaricato tra i download',
+  abort:    'Salvataggio annullato'
+};
+function saveData(){
+  D.saveBackup().then(function(how){ D.toast(SAVED[how] || 'Backup salvato'); })
+                .catch(function(){ D.toast('Salvataggio non riuscito', true); });
+}
+function downloadData(){
+  D.download(D.backupBlob(), D.backupName());
+  D.toast('Backup scaricato tra i download');
 }
 function importData(file){
   var fr = new FileReader();
@@ -213,7 +218,8 @@ $$('#v-prefs [data-pref-toggle]').forEach(function(t){
   });
 });
 
-$('#expBtn').addEventListener('click', exportData);
+$('#expBtn').addEventListener('click', saveData);
+$('#dlBtn').addEventListener('click', downloadData);
 $('#impFile').addEventListener('change', function(e){
   if(e.target.files[0]) importData(e.target.files[0]);
   e.target.value = '';
