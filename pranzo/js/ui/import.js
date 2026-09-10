@@ -178,10 +178,12 @@ function controlla(stato) {
     return;
   }
   bozza.proposte = IA.esaminaTutti(grezzi, contestoEsame(stato));
+  const quanti = bozza.proposte.length;
   const buoni = bozza.proposte.filter((p) => p.accettabile).length;
-  avviso(bozza.proposte.length
-    ? `${bozza.proposte.length} piatti letti, ${buoni} pronti da accettare.`
-    : 'Non ho trovato piatti nella risposta.', bozza.proposte.length ? 'info' : 'errore');
+  avviso(quanti
+    ? `${quanti === 1 ? 'un piatto letto' : quanti + ' piatti letti'}, ` +
+      `${buoni ? buoni + ' da salvare' : 'nessuno da salvare'}.`
+    : 'Non ho trovato piatti nella risposta.', quanti ? 'info' : 'errore');
   ridisegna(stato);
 }
 
@@ -255,7 +257,7 @@ function schedaProposta(proposta, stato) {
   const daCompletare = (proposta.ingredientiNuovi || []).filter(incompleto);
   const azioni = el('div', { class: 'azioniProposta' });
   if (!proposta.accettabile) {
-    azioni.appendChild(el('span', { class: 'spentoTesto' }, 'non si può tenere'));
+    azioni.appendChild(el('span', { class: 'spentoTesto' }, 'non si può salvare'));
   } else if (daCompletare.length) {
     azioni.appendChild(el('button', { class: 'testuale', type: 'button', disabled: 'disabled' },
       daCompletare.length === 1 ? 'prima dimmi cos\'è' : 'prima dimmi cosa sono'));
@@ -263,7 +265,7 @@ function schedaProposta(proposta, stato) {
     azioni.appendChild(el('button', {
       class: 'testuale acceso', type: 'button',
       onclick: () => accetta(proposta, stato)
-    }, 'tienilo'));
+    }, 'salva il piatto'));
   }
   azioni.appendChild(el('button', {
     class: 'testuale', type: 'button',

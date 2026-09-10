@@ -578,8 +578,10 @@ async function importaPiatto(piatto, ingredientiNuovi) {
     return false;
   }
   await caricaStato();
-  avviso(`"${piatto.nome}" è in catalogo` +
-    ((ingredientiNuovi || []).length ? `, con ${ingredientiNuovi.length} ingredienti nuovi.` : '.'));
+  const quanti = (ingredientiNuovi || []).length;
+  avviso(`"${piatto.nome}" è in catalogo` + (quanti
+    ? `, con ${quanti === 1 ? 'un ingrediente nuovo' : quanti + ' ingredienti nuovi'}.`
+    : '.'));
   disegna();
   return true;
 }
