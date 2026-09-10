@@ -54,6 +54,11 @@ button{font:inherit; color:inherit; touch-action:manipulation;}
 .mbtn.primary{background:var(--neon); border-color:transparent; color:#08130c;}
 .mbtn.primary .ic{background:rgba(0,0,0,.14);}
 .mbtn.primary small{color:rgba(8,19,12,.72);}
+.resume-row{display:flex; align-items:stretch; gap:8px;}
+.resume-row .mbtn{flex:1; min-width:0;}
+.resume-row .iconbtn.kill{width:56px; height:auto; flex:none; color:var(--bust);
+  border-color:rgba(255,82,82,.34); background:rgba(255,82,82,.07);}
+.resume-row .iconbtn.kill svg{width:19px; height:19px;}
 .mbtn.resume{border-color:var(--gold);}
 .mbtn.resume .ic{background:rgba(255,213,79,.16); color:var(--gold);}
 .mbtn[disabled]{opacity:.4; pointer-events:none;}
@@ -62,9 +67,11 @@ button{font:inherit; color:inherit; touch-action:manipulation;}
 .card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:14px;}
 .card + .card{margin-top:2px;}
 .card > .lbl{display:block; margin-bottom:10px;}
+/* nelle schede di configurazione conta piu' l'etichetta del bottone */
+.card .lbl{font-size:.74rem; letter-spacing:.1em; color:#c9c9c2;}
 .seg{display:grid; grid-auto-flow:column; grid-auto-columns:1fr; gap:6px; background:#151515;
   border:1px solid var(--line); border-radius:12px; padding:4px;}
-.seg button{min-height:44px; border:0; background:transparent; border-radius:9px; font-weight:600; font-size:.88rem; cursor:pointer;}
+.seg button{min-height:42px; border:0; background:transparent; border-radius:9px; font-weight:600; font-size:.82rem; cursor:pointer;}
 .seg button[aria-pressed="true"]{background:var(--neon); color:#08130c; font-weight:800;}
 .slot{display:flex; align-items:center; gap:10px; margin-top:10px;}
 .slot .tag{width:26px; height:26px; flex:none; border-radius:8px; display:grid; place-items:center;
@@ -79,6 +86,7 @@ button{font:inherit; color:inherit; touch-action:manipulation;}
 .hint{color:var(--muted); font-size:.72rem; margin-top:9px; line-height:1.45;}
 .cta{width:100%; min-height:56px; border-radius:14px; border:0; background:var(--neon); color:#08130c;
   font-weight:800; font-size:1rem; letter-spacing:.02em; cursor:pointer; margin-top:auto;}
+.cta.top{margin-top:2px; min-height:60px; font-size:1.06rem;}   /* azione principale, sopra le opzioni */
 .cta:active{background:#00c964;}
 .cta:disabled{background:#2a2a2a; color:#6a6a66;}
 .err{color:var(--bust); font-size:.76rem; min-height:1.1em;}
@@ -250,8 +258,8 @@ button{font:inherit; color:inherit; touch-action:manipulation;}
   background:#7a7a74; transition:transform .2s, background .2s;}
 .switch[aria-checked="true"]{background:rgba(0,230,118,.22); border-color:var(--neon);}
 .switch[aria-checked="true"]::after{transform:translateX(21px); background:var(--neon);}
-.pick{display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:7px; margin-top:9px;}
-.pick button{min-height:46px; border-radius:11px; background:#151515; border:1px solid var(--line);
-  font-size:.84rem; font-weight:600; cursor:pointer; padding:0 10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.pick{display:grid; grid-template-columns:repeat(auto-fill,minmax(104px,1fr)); gap:6px; margin-top:8px;}
+.pick button{min-height:42px; border-radius:11px; background:#151515; border:1px solid var(--line);
+  font-size:.8rem; font-weight:600; cursor:pointer; padding:0 10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .pick button[aria-pressed="true"]{background:var(--neon); color:#08130c; border-color:transparent; font-weight:800;}
 .pick button[disabled]{opacity:.3; pointer-events:none;}   /* gia' scelto come altro giocatore */

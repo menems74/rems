@@ -412,7 +412,16 @@ function dartsInLeg(m, p){
 }
 
 /* -------------------------------------------------------------- eventi */
-$('#resume').addEventListener('click', function(){ input = ''; show('game'); });
+$('#resumeBtn').addEventListener('click', function(){ input = ''; show('game'); });
+$('#resumeDel').addEventListener('click', function(){
+  if(!match) return;
+  var who = match.players.map(function(p){ return p.name; }).join(' · ');
+  if(!confirm('Eliminare la partita in corso di ' + who + '?\nI punteggi di questo match vanno persi.')) return;
+  D.clearMatch(GAME);
+  match = null;
+  renderSetup();
+  D.toast('Partita eliminata');
+});
 
 $$('#v-setup [data-cfg]').forEach(function(group){
   group.addEventListener('click', function(e){

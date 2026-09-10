@@ -32,10 +32,17 @@
       <h1 class="sp" style="text-align:right; font-family:var(--num); letter-spacing:.03em">501</h1>
     </div>
 
-    <button class="mbtn resume" id="resume" hidden>
-      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l14 8-14 8V4z"/></svg></span>
-      <span><b>Riprendi partita</b><small></small></span>
-    </button>
+    <div class="resume-row" id="resume" hidden>
+      <button class="mbtn resume" id="resumeBtn">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l14 8-14 8V4z"/></svg></span>
+        <span><b>Riprendi partita</b><small></small></span>
+      </button>
+      <button class="iconbtn kill" id="resumeDel" title="Elimina la partita in corso" aria-label="Elimina la partita in corso">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v5M14 11v5"/></svg>
+      </button>
+    </div>
+
+    <button class="cta top" id="startBtn">Inizia partita</button>
 
     <div class="card">
       <span class="lbl">Giocatori</span>
@@ -80,7 +87,6 @@
     </div>
 
     <p class="err" id="setupErr"></p>
-    <button class="cta" id="startBtn">Inizia partita</button>
   </div>
 </section>
 
