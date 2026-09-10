@@ -2,26 +2,28 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>App — REMS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Pranzo 2.0 — REMS</title>
+<meta name="description" content="Pranzo 2.0: la app è in preparazione.">
+<link rel="icon" href="../dart/icons/favicon-64.png" sizes="64x64" type="image/png">
+<meta name="theme-color" content="#0d0c0b">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Doto:wght@500;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
   :root{
     --bg:#0d0c0b; --text:#f5f1ea; --muted:#a49f92; --line:rgba(255,255,255,.12);
     --panel:rgba(255,255,255,.05); --panel-hi:rgba(255,255,255,.09);
-    --salvia:#9bb08d; --salvia-deep:#7c9070; --terra:#d59470;
+    --salvia:#9bb08d; --terra:#d59470;
     --font-sans:"Inter","Segoe UI",system-ui,sans-serif;
     --font-display:"Doto","Inter",monospace;
   }
   *{box-sizing:border-box;margin:0;}
+  html,body{height:100%;}
   body{background:var(--bg); color:var(--text); font-family:var(--font-sans);
-    min-height:100vh; min-height:100dvh; -webkit-font-smoothing:antialiased;}
+    height:100vh; height:100dvh; overflow:hidden; -webkit-font-smoothing:antialiased;}
 
-  /* sfondo fisso, identico alle altre pagine */
-  .bg{position:fixed; inset:0; overflow:hidden; z-index:0; background:var(--bg);}
+  .bg{position:absolute; inset:0; overflow:hidden; z-index:0; background:var(--bg);}
   .bg::before{content:""; position:absolute; inset:-20%;
     background:
       radial-gradient(40% 45% at 20% 26%, rgba(155,176,141,.26), transparent 70%),
@@ -30,11 +32,12 @@
     filter:blur(6px); animation:aurora 24s ease-in-out infinite alternate;}
   @keyframes aurora{0%{transform:translate3d(-2%,-1%,0) scale(1.05); opacity:.85;}100%{transform:translate3d(3%,2%,0) scale(1.12); opacity:1;}}
   #net{position:absolute; inset:0; z-index:0; width:100%; height:100%; display:block;}
-  .vignette{position:fixed; inset:0; z-index:0; pointer-events:none;
+  .vignette{position:absolute; inset:0; z-index:0; pointer-events:none;
     background:radial-gradient(120% 90% at 50% 32%, transparent 42%, rgba(0,0,0,.60) 100%);}
 
-  .page{position:relative; z-index:1; display:flex; flex-direction:column; gap:clamp(20px,3vh,34px);
-    min-height:100vh; min-height:100dvh; padding:clamp(16px,2.4vh,28px) clamp(16px,4vw,40px) clamp(40px,6vh,64px);}
+  .page{position:relative; z-index:1; display:flex; flex-direction:column;
+    height:100vh; height:100dvh; overflow:hidden;
+    padding:clamp(16px,2.4vh,28px) clamp(16px,4vw,40px);}
 
   header{flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; gap:16px;}
   .brand{display:flex; align-items:center; gap:12px;}
@@ -44,56 +47,31 @@
   .brand .wm{line-height:1;}
   .brand .wm b{font-family:var(--font-display); font-weight:700; letter-spacing:.04em; font-size:1.05rem;}
   .brand .wm span{display:block; font-size:.62rem; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); margin-top:3px;}
-  .home-link{font-size:.85rem; font-weight:500; color:var(--text); text-decoration:none;
+  .back{font-size:.85rem; font-weight:500; color:var(--text); text-decoration:none;
     padding:9px 16px; border:1px solid var(--line); border-radius:999px; background:var(--panel);
     display:inline-flex; align-items:center; gap:8px; transition:.25s;}
-  .home-link:hover{background:var(--panel-hi); transform:translateY(-1px);}
-  .home-link i{transition:transform .25s;}
-  .home-link:hover i{transform:translateX(-3px);}
+  .back:hover{background:var(--panel-hi); transform:translateY(-1px);}
+  .back svg{width:14px; height:14px; transition:transform .25s;}
+  .back:hover svg{transform:translateX(-3px);}
 
-  .intro{text-align:center; display:flex; flex-direction:column; align-items:center; gap:clamp(10px,1.8vh,16px);
-    padding-top:clamp(8px,4vh,40px);}
+  main{flex:1 1 auto; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; gap:clamp(14px,2.4vh,22px);}
   .kicker{font-size:.72rem; letter-spacing:.24em; text-transform:uppercase; color:var(--salvia); font-weight:600;}
-  .headline{font-family:var(--font-display); font-weight:900; line-height:.9; letter-spacing:.02em;
-    font-size:clamp(56px,14vw,130px); white-space:nowrap;
+  .headline{font-family:var(--font-display); font-weight:900; line-height:.92; letter-spacing:.02em;
+    font-size:clamp(56px,15vw,132px);
     background:linear-gradient(120deg,#ffffff 0%,var(--salvia) 55%,var(--terra) 100%);
     -webkit-background-clip:text; background-clip:text; color:transparent;
     filter:drop-shadow(0 0 34px rgba(213,148,112,.25));}
-  .lead{max-width:min(560px,92%); color:#d8d3c8; opacity:.85; font-size:clamp(14px,1.6vw,16.5px); line-height:1.6;}
-
-  /* --- Elenco app --- */
-  .apps{width:100%; max-width:880px; margin:0 auto; display:grid; gap:12px;
-    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));}
-  .app{display:flex; align-items:center; gap:14px; padding:16px 18px; border-radius:16px;
-    border:1px solid var(--line); background:var(--panel); text-decoration:none; color:inherit;
-    position:relative; transition:.25s; backdrop-filter:blur(6px);}
-  .app .ic{width:40px; height:40px; flex:none; border-radius:11px; display:grid; place-items:center; font-size:1rem;}
-  .app h3{font-size:.98rem; font-weight:600; margin-bottom:2px;}
-  .app p{font-size:.76rem; color:var(--muted); line-height:1.35;}
-  .app .go{margin-left:auto; color:var(--salvia); font-size:.85rem; transition:transform .25s;}
-  .app .badge{position:absolute; top:10px; right:12px; font-size:.6rem; letter-spacing:.08em;
-    text-transform:uppercase; color:var(--terra); font-weight:600;}
-  /* app online */
-  .app.live .ic{background:linear-gradient(135deg,var(--salvia),var(--salvia-deep)); color:#1c1c18;}
-  .app.live:hover{background:var(--panel-hi); border-color:rgba(155,176,141,.5); transform:translateY(-3px);}
-  .app.live:hover .go{transform:translateX(3px);}
-  /* app ancora da costruire */
-  .app.soon{border-style:dashed; cursor:default;}
-  .app.soon .ic{background:rgba(255,255,255,.08); color:var(--muted);}
-  .app.soon h3{color:#e6e1d7;}
-
-  .note{text-align:center; color:var(--muted); font-size:.78rem;}
+  .pill{display:inline-flex; align-items:center; gap:8px; font-size:.7rem; font-weight:600;
+    letter-spacing:.1em; text-transform:uppercase; color:var(--terra);
+    background:rgba(213,148,112,.14); border:1px solid rgba(213,148,112,.35); padding:6px 14px; border-radius:999px;}
+  .lead{max-width:min(480px,92%); color:#d8d3c8; opacity:.85; font-size:clamp(14px,1.6vw,16.5px); line-height:1.6;}
 
   .anim{opacity:0; transform:translateY(20px); animation:reveal .8s cubic-bezier(.22,1,.36,1) forwards; animation-delay:var(--d,0s);}
   @keyframes reveal{to{opacity:1; transform:none;}}
   header{opacity:0; animation:slideDown .7s cubic-bezier(.22,1,.36,1) forwards;}
   @keyframes slideDown{from{opacity:0; transform:translateY(-16px);} to{opacity:1; transform:none;}}
-
-  @media (max-width:720px){
-    .brand .wm span{display:none;}
-    .apps{grid-template-columns:1fr; max-width:420px;}
-    .app{padding:13px 15px;}
-  }
+  @media (max-width:720px){.brand .wm span{display:none;}}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;} .anim{opacity:1; transform:none;}}
 </style>
 </head>
@@ -107,55 +85,18 @@
         <div class="monogram">C</div>
         <div class="wm"><b>REMS</b><span>Portale web 2.0</span></div>
       </div>
-      <a class="home-link" href="index.html"><i class="fa-solid fa-arrow-left"></i> Home</a>
+      <a class="back" href="../app.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        App
+      </a>
     </header>
 
-    <main class="intro">
-      <p class="kicker anim" style="--d:.1s">Elenco applicazioni</p>
-      <h1 class="headline anim" style="--d:.24s">App</h1>
-      <p class="lead anim" style="--d:.44s">Le applicazioni del portale: quelle già online e quelle in costruzione.</p>
+    <main>
+      <p class="kicker anim" style="--d:.1s">App del portale</p>
+      <h1 class="headline anim" style="--d:.24s">Pranzo 2.0</h1>
+      <span class="pill anim" style="--d:.42s">In preparazione</span>
+      <p class="lead anim" style="--d:.52s">Lo spazio è pronto: appena arrivano le specifiche, qui prende forma la app.</p>
     </main>
-
-    <!--
-      COME AGGIUNGERE UNA APP
-      App già online  -> copia un blocco "app live": un link <a> alla pagina della app, con la freccia .go
-      App da costruire -> copia un blocco "app soon": un <div>, con il badge "Presto" e senza link
-      Ogni blocco usa style="--d:..." per ritardare un po' la comparsa rispetto al precedente.
-      L'icona è una qualsiasi classe Font Awesome (es. fa-solid fa-calendar).
-    -->
-    <nav class="apps">
-      <a class="app live anim" style="--d:.5s" href="dart/">
-        <div class="ic"><i class="fa-solid fa-bullseye"></i></div>
-        <div><h3>Dart</h3><p>Giochi di allenamento per freccette</p></div>
-        <i class="fa-solid fa-arrow-right go"></i>
-      </a>
-
-      <a class="app live anim" style="--d:.56s" href="pranzo/">
-        <div class="ic"><i class="fa-solid fa-utensils"></i></div>
-        <div><h3>Pranzo 2.0</h3><p>In preparazione</p></div>
-        <i class="fa-solid fa-arrow-right go"></i>
-      </a>
-
-      <a class="app live anim" style="--d:.62s" href="albero.html">
-        <div class="ic"><i class="fa-solid fa-sitemap"></i></div>
-        <div><h3>Albero genealogico</h3><p>Generazioni, rami e parentele</p></div>
-        <i class="fa-solid fa-arrow-right go"></i>
-      </a>
-
-      <div class="app soon anim" style="--d:.68s">
-        <span class="badge">Presto</span>
-        <div class="ic"><i class="fa-solid fa-id-card"></i></div>
-        <div><h3>Curriculum</h3><p>Riservato, dopo l'accesso</p></div>
-      </div>
-
-      <div class="app soon anim" style="--d:.8s">
-        <span class="badge">Presto</span>
-        <div class="ic"><i class="fa-solid fa-plus"></i></div>
-        <div><h3>Prossima app</h3><p>Slot libero, da definire</p></div>
-      </div>
-    </nav>
-
-    <p class="note anim" style="--d:.88s">L'elenco cresce man mano che le app vengono pubblicate.</p>
   </div>
 
 <script>
