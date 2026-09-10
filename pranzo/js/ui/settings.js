@@ -85,11 +85,20 @@ function gruppo(titolo, nota) {
   return sezione;
 }
 
+/** iPhone e iPad: lì l'installazione la fa il browser, non la pagina. */
+function suApple() {
+  const ua = navigator.userAgent || '';
+  if (/iphone|ipad|ipod/i.test(ua)) return true;
+  // iPad recente si presenta come un Mac: lo si riconosce dal tocco
+  return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+}
+
 function bloccoInstalla(stato) {
   const sezione = gruppo('Installa sul telefono',
     'Diventa un\'icona nella schermata Home e si apre senza barra del browser. ' +
     'Funziona anche in aereo.');
 
+  // Chrome e Android: il browser sa invitare da sé, e allora basta un bottone
   if (invitoInstalla) {
     sezione.appendChild(el('button', {
       class: 'azione', type: 'button',
@@ -99,13 +108,39 @@ function bloccoInstalla(stato) {
         ridisegna(stato);
       }
     }, 'Installa l\'app'));
-  } else {
-    sezione.appendChild(el('ol', { class: 'passiInstalla' }, [
-      el('li', {}, 'tocca il pulsante Condividi del browser'),
-      el('li', {}, 'scorri e scegli "Aggiungi alla schermata Home"'),
-      el('li', {}, 'confermi, e l\'icona compare tra le app')
-    ]));
+    return sezione;
   }
+
+  // su iPhone quel bottone non può esistere: Safari non lo permette a nessun
+  // sito, quindi si spiega dove sta la voce — e cosa fare se non si vede
+  if (suApple()) {
+    sezione.appendChild(el('p', { class: 'spiega' },
+      'Su iPhone e iPad lo fa Safari, non l\'app: nessun sito può installarsi da sé.'));
+    sezione.appendChild(el('ol', { class: 'passiInstalla' }, [
+      el('li', {}, 'tocca Condividi: il quadrato con la freccia in su, nella barra dell\'indirizzo'),
+      el('li', {}, 'scorri l\'elenco in basso e cerca "Aggiungi alla schermata Home"'),
+      el('li', {}, 'confermi con Aggiungi, e l\'icona compare tra le app')
+    ]));
+    sezione.appendChild(el('details', { class: 'vediPrompt' }, [
+      el('summary', {}, 'la voce non c\'è: cosa fare'),
+      el('ul', { class: 'passiInstalla' }, [
+        el('li', {}, 'in fondo a quell\'elenco tocca "Modifica azioni…": se la voce è ' +
+                     'spenta, accendila col pulsante verde'),
+        el('li', {}, 'se hai aperto la pagina dentro WhatsApp, Instagram o Gmail, ' +
+                     'aprila prima in Safari: nei browser dentro le app la voce non c\'è'),
+        el('li', {}, 'se non c\'è nemmeno in "Modifica azioni", controlla ' +
+                     'Impostazioni → Tempo di utilizzo → Contenuti e privacy → ' +
+                     'Acquisti in-store e installazioni')
+      ])
+    ]));
+    return sezione;
+  }
+
+  sezione.appendChild(el('ol', { class: 'passiInstalla' }, [
+    el('li', {}, 'apri il menù del browser'),
+    el('li', {}, 'scegli "Installa app" o "Aggiungi alla schermata Home"'),
+    el('li', {}, 'confermi, e l\'icona compare tra le app')
+  ]));
   return sezione;
 }
 

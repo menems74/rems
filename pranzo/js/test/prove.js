@@ -1254,3 +1254,12 @@ prova('un piatto solo: il prompt lo chiede al singolare', () => {
   const tre = IA.creaPrompt(ctxIA(), { quanti: 3 });
   if (!/3 idee per il pranzo/.test(tre)) throw new Error('e plurale con più di uno');
 });
+
+prova('l\'ultimo voto è l\'ultimo anche a pari giornata', () => {
+  const ctx = { voti: { p1: [
+    { id: 'vot_a_0', piattoId: 'p1', stelle: 5, data: '2026-09-10', motivo: 'buono' },
+    { id: 'vot_b_0', piattoId: 'p1', stelle: 1, data: '2026-09-10', motivo: 'nonMiPiace' }
+  ] } };
+  uguale('vot_b_0', G.riepilogoPiatto('p1', ctx).ultimo.id);
+  uguale(2, G.riepilogoPiatto('p1', ctx).quanti);
+});

@@ -116,15 +116,17 @@ function rigaGiorno(giorno, menu, stato) {
     }) }))
     .filter((x) => x.blocco);
 
+  // Le etichette dicono cosa ottieni, non come si chiama l'operazione:
+  // "altri piatti" tiene la forma del giorno e cambia i piatti; l'altra
+  // porta il nome della forma in cui il giorno si trasformerebbe, e accanto
+  // al tempo c'è scritto com'è adesso.
   const azioni = el('div', { class: 'azioniGiorno' }, [
     el('button', { class: 'testuale', type: 'button', onclick: () => stato.azioni.rigeneraGiorno(giorno.giorno) },
-      'rigenera'),
-    // la modalità attuale è già scritta accanto al tempo: qui basta "cambia"
+      'altri piatti'),
     el('button', {
       class: 'testuale', type: 'button',
-      title: giorno.modalita === 'primoSecondo' ? 'passa a piatto unico' : 'passa a primo + secondo',
       onclick: () => stato.azioni.cambiaModalita(giorno.giorno)
-    }, 'cambia'),
+    }, giorno.modalita === 'primoSecondo' ? 'piatto unico' : 'primo + secondo'),
     el('button', {
       class: 'testuale' + (giorno.bloccato ? ' acceso' : ''), type: 'button',
       onclick: () => stato.azioni.bloccaGiorno(giorno.giorno)

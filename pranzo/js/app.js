@@ -18,7 +18,7 @@ import * as Nuovi from './ui/import.js';
 import * as Impostazioni from './ui/settings.js';
 import * as B from './backup.js';
 import * as G from './tastes.js';
-import { chiudiDettaglio } from './ui/dish.js';
+import { mostraDettaglio, chiudiDettaglio } from './ui/dish.js';
 
 const stato = {
   ingredienti: [], piatti: [],
@@ -494,8 +494,12 @@ async function salvaVoto(piattoId, bozza) {
   const piatto = stato.indicePiatti.get(piattoId);
   avviso(`Voto salvato: ${bozza.stelle} su 5 a ${piatto ? piatto.nome : piattoId}.` +
          (nuovi ? ' Ho notato una cosa: guarda in Gusti.' : ''));
-  chiudiDettaglio();
   disegna();
+
+  // con un voto basso il pannello resta aperto: c'è una domanda da fare,
+  // ossia se il piatto va tolto dalle proposte per davvero
+  const basso = bozza.stelle <= 2 && bozza.motivo !== 'troppoLungo';
+  if (basso && piatto) mostraDettaglio(piatto, stato, null);
 }
 
 async function eliminaVoto(votoId) {
@@ -523,6 +527,7 @@ function messaggioGusto(lista, id, aggiunto) {
     : (stato.indiceIngredienti.get(id) || {}).nome;
   const nome = cosa || id;
   if (!aggiunto) return `${nome} non è più in "${G.LISTE[lista].titolo.toLowerCase()}".`;
+  if (lista === 'escludiPiatti') return `${nome}: non te lo propongo più.`;
   if (lista === 'escludiIngredienti') {
     const quanti = stato.piatti.filter((p) =>
       (p.ingredienti || []).some((v) => v.ingredienteId === id)).length;

@@ -41,6 +41,9 @@ export function mostraDettaglio(piatto, stato, perche) {
 
   if (stato.azioni && stato.azioni.aggiungiGusto) corpo.appendChild(sceltaGusti(piatto, stato));
 
+  const daEscludere = chiedeDiEscludere(piatto, stato, riepilogo);
+  if (daEscludere) corpo.appendChild(bloccoNonProporre(piatto, stato, daEscludere));
+
   if (perche && perche.length) {
     corpo.appendChild(el('h3', {}, 'Perché questo piatto'));
     corpo.appendChild(el('ul', { class: 'perche' }, perche.map((c) => el('li', {}, [
@@ -97,7 +100,11 @@ export function mostraDettaglio(piatto, stato, perche) {
 }
 
 export function chiudiDettaglio() {
-  document.getElementById('pannello').hidden = true;
+  const pannello = document.getElementById('pannello');
+  if (!pannello || pannello.hidden) return;
+  pannello.hidden = true;
+  // si svuota: un pannello chiuso non deve lasciare in giro il piatto di prima
+  svuotaNodo(document.getElementById('pannelloCorpo'));
 }
 
 /* ---------------------------------------------------- amo / escludo ------ */
@@ -122,6 +129,45 @@ function sceltaGusti(piatto, stato) {
   ]);
 }
 
+/* --------------------------------------------------- non proporlo più ----
+   Un voto basso abbassa il punteggio, ma non toglie il piatto dal giro: per
+   quello serve la lista degli esclusi. Invece di lasciarlo dedurre, dopo un
+   voto basso lo si chiede qui, con parole chiare.                          */
+
+/* Chi ha detto "no, lascia" non se lo sente richiedere a ogni apertura. */
+const nonChiedere = new Set();
+
+function chiedeDiEscludere(piatto, stato, riepilogo) {
+  if (!stato.azioni || !stato.azioni.aggiungiGusto) return null;
+  if (nonChiedere.has(piatto.id)) return null;
+  if ((stato.preferenze.escludiPiatti || []).includes(piatto.id)) return null;
+  const ultimo = riepilogo.ultimo;
+  if (!ultimo || ultimo.stelle > 2) return null;
+  // "troppo lungo" parla del tempo, non del gusto: non c'entra con l'escluderlo
+  if (ultimo.motivo === 'troppoLungo') return null;
+  return ultimo;
+}
+
+function bloccoNonProporre(piatto, stato, voto) {
+  return el('div', { class: 'proposta' }, [
+    el('p', { class: 'testoProposta' },
+      `L'hai votato ${voto.stelle} su 5: te lo propongo ancora?`),
+    el('p', { class: 'spiega' },
+      'Con un voto basso torna più raramente, ma torna. Se non lo vuoi più ' +
+      'vedere finisce tra i piatti che escludi, e da lì lo puoi sempre ritirare.'),
+    el('div', { class: 'azioniProposta' }, [
+      el('button', {
+        class: 'testuale acceso', type: 'button',
+        onclick: () => stato.azioni.aggiungiGusto('escludiPiatti', piatto.id)
+      }, 'non propormelo più'),
+      el('button', {
+        class: 'testuale', type: 'button',
+        onclick: () => { nonChiedere.add(piatto.id); mostraDettaglio(piatto, stato, null); }
+      }, 'va bene, riproponilo')
+    ])
+  ]);
+}
+
 /* ------------------------------------------------------------- il voto --- */
 
 /**
@@ -133,6 +179,9 @@ function zonaVoto(piatto, stato, riepilogo) {
   zona.appendChild(el('h3', {}, 'Com\'è andato?'));
 
   const bozza = { stelle: 0, motivo: 'buono', note: '' };
+
+  zona.appendChild(el('p', { class: 'spiega' },
+    'Tocca le stelle: una sola se non ti è piaciuto.'));
 
   const fila = el('div', { class: 'stelle', role: 'group', 'aria-label': 'Voto da 1 a 5 stelle' });
   const bottoni = [];

@@ -230,8 +230,10 @@ export function applicaSuggerimento(preferenze, suggerimento) {
 
 /** Riga di riepilogo per un piatto: media, quanti voti, ultimo voto. */
 export function riepilogoPiatto(piattoId, ctx) {
+  // dal più recente; a pari giorno decide l'id, che porta l'ora dentro di sé
   const voti = ((ctx.voti || {})[piattoId] || []).slice()
-    .sort((a, b) => (b.data || '').localeCompare(a.data || ''));
+    .sort((a, b) => (b.data || '').localeCompare(a.data || '') ||
+                    String(b.id || '').localeCompare(String(a.id || '')));
   return {
     voti,
     quanti: voti.length,
