@@ -12,7 +12,7 @@
 *{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;}
 body{background:var(--bg); color:var(--text); font-family:var(--font);
-  height:100dvh; overflow:hidden; -webkit-font-smoothing:antialiased;
+  height:100dvh; height:var(--app-h,100dvh); overflow:hidden; -webkit-font-smoothing:antialiased;
   padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);}
 button{font:inherit; color:inherit; touch-action:manipulation;}
 /* serve perche' molti elementi qui hanno display:flex, che vincerebbe su [hidden] */
@@ -92,7 +92,9 @@ button{font:inherit; color:inherit; touch-action:manipulation;}
 .err{color:var(--bust); font-size:.76rem; min-height:1.1em;}
 
 /* ===================== partita ===================== */
-#v-game{gap:8px;}
+/* 18px in piu' sotto: sui telefoni con barra dei gesti l'ultimo bottone
+   arrivava a filo dello schermo e i tocchi non lo raggiungevano */
+#v-game{gap:8px; padding-bottom:calc(18px + env(safe-area-inset-bottom));}
 .ghead{flex:0 0 auto; display:flex; align-items:center; gap:12px; padding:0 4px;}
 .ghead .sl{display:flex; gap:12px; font-family:var(--num); font-size:.8rem; color:#d4d4ce;}
 .ghead .sl b{color:var(--muted); font-weight:600; font-size:.64rem; letter-spacing:.12em; margin-right:4px;}
@@ -149,6 +151,11 @@ button{font:inherit; color:inherit; touch-action:manipulation;}
   font-weight:900; letter-spacing:.2em; font-size:clamp(30px,9vw,52px); color:var(--bust);
   background:rgba(18,18,18,.55); transition:opacity .18s;}
 .hero.bust .stamp{opacity:1;}
+.hero.ok{animation:okflash .55s ease-out;}
+@keyframes okflash{
+  0%{box-shadow:0 0 0 2px var(--neon), 0 0 46px rgba(0,230,118,.6);}
+  100%{box-shadow:0 0 0 1px var(--neon), 0 0 26px rgba(0,230,118,.20);}
+}
 .ribbon{display:none; position:absolute; top:0; right:0; background:var(--neon); color:#08130c;
   font-size:.58rem; font-weight:900; letter-spacing:.14em; text-transform:uppercase; padding:5px 12px; border-radius:0 0 0 12px;}
 .hero.won{border-color:var(--neon);}
@@ -166,11 +173,13 @@ button{font:inherit; color:inherit; touch-action:manipulation;}
 .k[disabled]{opacity:.34; pointer-events:none;}
 .k.fn{font-family:var(--font); font-size:.74rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; background:#191919;}
 .k.del{color:var(--bust);} .k.undo{color:var(--gold);}
-.enter{flex:0 0 auto; min-height:var(--key-h); border:0; border-radius:var(--r); background:var(--neon); color:#08130c;
-  font:800 1rem/1 var(--font); letter-spacing:.16em; text-transform:uppercase; cursor:pointer;
+.enter{flex:0 0 auto; min-height:max(66px, var(--key-h)); border:0; border-radius:var(--r);
+  background:var(--neon); color:#08130c;
+  font:800 1.05rem/1 var(--font); letter-spacing:.14em; text-transform:uppercase; cursor:pointer;
   display:flex; align-items:center; justify-content:center; gap:10px;}
 .enter:active{background:#00c964; transform:scale(.99);}
 .enter:disabled{background:#2a2a2a; color:#6a6a66;}
+.enter.bad:disabled{background:rgba(255,82,82,.16); color:var(--bust); box-shadow:inset 0 0 0 1px rgba(255,82,82,.4);}
 .enter svg{width:18px; height:18px;}
 
 /* pannelli dal basso */

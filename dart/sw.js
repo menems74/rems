@@ -3,7 +3,7 @@
    Rete-prima per le pagine (gli aggiornamenti si vedono subito), cache-prima
    per fogli di stile, script e icone. */
 
-const VERSION = 'v3';
+const VERSION = 'v4';
 const CACHE = 'dart-' + VERSION;
 
 const SHELL = [

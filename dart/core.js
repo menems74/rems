@@ -307,6 +307,20 @@ function toast(msg, bad){
   toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2600);
 }
 
+/* Alcuni telefoni, con la app installata, dichiarano una finestra piu' alta
+   dell'area davvero visibile: l'ultimo bottone finisce sotto la barra dei
+   gesti e i tocchi li mangia il sistema. Misuriamo l'altezza vera. */
+(function appHeight(){
+  function set(){
+    var h = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+    if(h) document.documentElement.style.setProperty('--app-h', Math.round(h) + 'px');
+  }
+  set();
+  window.addEventListener('resize', set);
+  window.addEventListener('orientationchange', function(){ setTimeout(set, 250); });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', set);
+})();
+
 /* Barra di installazione e stato rete, uguale su tutte le pagine.
    Il bottone resta visibile anche quando il browser non offre l'evento di
    installazione: in quel caso spiega come farlo a mano, perche' su iOS non

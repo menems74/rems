@@ -162,6 +162,9 @@ function count(n){
   } else {
     D.setMatch(GAME, match);
     renderGame();
+    var hero = $('#hero');
+    hero.classList.remove('ok'); void hero.offsetWidth; hero.classList.add('ok');
+    setTimeout(function(){ hero.classList.remove('ok'); }, 600);
   }
 }
 

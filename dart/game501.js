@@ -319,6 +319,15 @@ function paintInput(){
   }
   warn.textContent = msg;
   warn.style.color = (msg === 'chiusura') ? 'var(--neon)' : 'var(--bust)';
+
+  // il bottone spiega da solo perche' non accetta: prima taceva e basta
+  var btn = $('#enterBtn'), label = $('#enterLabel'), icon = $('#enterIcon');
+  var bad = input !== '' && !ok;
+  btn.classList.toggle('bad', bad);
+  icon.hidden = bad;
+  label.textContent = bad
+    ? (n > 180 ? 'Oltre 180 punti' : 'Punteggio impossibile')
+    : 'Conferma turno';
 }
 
 function pressDigit(d){
@@ -354,7 +363,17 @@ function pressEnter(){
     setTimeout(function(){ hero.classList.remove('bust'); }, 1700);
     return;
   }
-  renderGame(); D.buzz();
+  renderGame();
+  flash(hero);
+  D.buzz();
+}
+
+/* segnale visivo che il turno e' entrato davvero */
+function flash(el){
+  el.classList.remove('ok');
+  void el.offsetWidth;          // riavvia l'animazione
+  el.classList.add('ok');
+  setTimeout(function(){ el.classList.remove('ok'); }, 600);
 }
 
 function openSheet(sel){ $('#backdrop').classList.add('show'); $(sel).classList.add('show'); }
