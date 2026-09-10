@@ -262,6 +262,9 @@ function renderGame(){
   if(!match){ show('setup'); return; }
   var m = match, p = m.cur, opp = m.players.length === 2 ? 1 - p : null;
 
+  // verde per il primo giocatore, arancione per il secondo
+  $('#v-game').classList.toggle('p2', p === 1);
+
   $('#gSets').textContent = m.sets[0] + ' - ' + m.sets[1];
   $('#gLegs').textContent = m.legs[0] + ' - ' + m.legs[1];
   $('#gSetsBox').hidden = m.solo;
