@@ -267,7 +267,7 @@ $('#backdrop').addEventListener('click', function(){
 });
 document.addEventListener('keydown', function(e){
   if(!$('#v-game').classList.contains('on')) return;
-  if(e.key >= '1' && e.key <= '3' && !$('#moreSheet').classList.contains('show')) count(+e.key);
+  if(e.key >= '1' && e.key <= '9' && !$('#moreSheet').classList.contains('show')) count(+e.key);
 });
 
 /* -------------------------------------------------------------- avvio */
