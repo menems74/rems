@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>501 — Dart</title>
+<meta name="description" content="Gioco 501: match a set e leg, chiusura in doppio, statistiche.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#121212">
+<link rel="icon" href="icons/favicon-64.png" sizes="64x64" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Dart">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ui.css">
+<script src="core.js"></script>
+<script src="game501.js" defer></script>
+</head>
+<body>
+
+<!-- ======================= NUOVA PARTITA ======================= -->
+<section class="view on scroll" id="v-setup">
+  <div class="wrap">
+    <div class="bar">
+      <a class="ghost" href="index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Giochi
+      </a>
+      <h1 class="sp" style="text-align:right; font-family:var(--num); letter-spacing:.03em">501</h1>
+    </div>
+
+    <button class="mbtn resume" id="resume" hidden>
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l14 8-14 8V4z"/></svg></span>
+      <span><b>Riprendi partita</b><small></small></span>
+    </button>
+
+    <div class="card">
+      <span class="lbl">Giocatori</span>
+      <div class="seg" data-cfg="count">
+        <button type="button" data-val="1">1 · allenamento</button>
+        <button type="button" data-val="2">2 giocatori</button>
+      </div>
+      <p class="lbl" style="margin:14px 0 0; color:#cfcfc8">Giocatore 1</p>
+      <div class="pick" id="pick0"></div>
+      <div id="slot2">
+        <p class="lbl" style="margin:14px 0 0; color:#cfcfc8">Giocatore 2</p>
+        <div class="pick" id="pick1"></div>
+      </div>
+      <p class="hint" id="noPlayers" hidden>Non ci sono profili salvati. Aggiungili dalla home, in <b>Giocatori</b>: valgono per tutti i giochi.</p>
+    </div>
+
+    <div class="card" id="setsBox">
+      <span class="lbl">Al meglio di (set)</span>
+      <div class="seg" data-cfg="bestOfSets">
+        <button type="button" data-val="1">1</button>
+        <button type="button" data-val="3">3</button>
+        <button type="button" data-val="5">5</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="lbl" id="legsLabel">Al meglio di (leg)</span>
+      <div class="seg" data-cfg="bestOfLegs">
+        <button type="button" data-val="1">1</button>
+        <button type="button" data-val="3">3</button>
+        <button type="button" data-val="5">5</button>
+      </div>
+    </div>
+
+    <div class="card" id="starterBox">
+      <span class="lbl">Chi inizia il primo leg</span>
+      <div class="seg" data-cfg="starter">
+        <button type="button" data-val="0" id="starter0">Giocatore 1</button>
+        <button type="button" data-val="1" id="starter1">Giocatore 2</button>
+      </div>
+      <p class="hint">Nei leg successivi la partenza si alterna da sola.</p>
+    </div>
+
+    <p class="err" id="setupErr"></p>
+    <button class="cta" id="startBtn">Inizia partita</button>
+  </div>
+</section>
+
+<!-- =========================== PARTITA =========================== -->
+<section class="view" id="v-game">
+  <div class="ghead">
+    <div class="sl">
+      <span id="gSetsBox"><b>SET</b><span id="gSets">0 - 0</span></span>
+      <span><b>LEG</b><span id="gLegs">0 - 0</span></span>
+    </div>
+    <div class="sp">
+      <button class="iconbtn" id="undoBtn" title="Annulla turno" aria-label="Annulla turno">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6M3.5 13a9 9 0 1 0 2.6-6.4L3 9"/></svg>
+      </button>
+      <button class="iconbtn" id="gExit" title="Esci dalla partita" aria-label="Esci">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5V21H3V10.5z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="rival" id="rival">
+    <span class="name" id="rName">—</span>
+    <span class="tag">attende</span>
+    <span class="av" id="rAvg"></span>
+    <span class="n" id="rRem">501</span>
+  </div>
+
+  <section class="hero" id="hero">
+    <span class="ribbon">Leg vinto</span>
+    <div class="top">
+      <span class="who" id="pName">—</span>
+      <span class="turnpill">di turno</span>
+      <span class="darts" id="dots"><i></i><i></i><i></i></span>
+    </div>
+    <div class="big" id="pRem">501</div>
+    <div class="co none" id="co"><span class="lbl">Chiusura</span></div>
+    <div class="hstats">
+      <div>Media 3<b id="pAvg">0.0</b></div>
+      <div>Freccette<b id="pDarts">0</b></div>
+      <div>Ultimo turno<b id="pLast">—</b></div>
+    </div>
+    <div class="live">
+      <span class="lbl">Turno</span>
+      <span class="v empty" id="liveVal">0</span>
+      <span class="warn" id="liveWarn"></span>
+    </div>
+    <div class="stamp">SBALLO</div>
+  </section>
+
+  <div class="pad" id="pad">
+    <button class="k" data-d="1">1</button><button class="k" data-d="2">2</button><button class="k" data-d="3">3</button>
+    <button class="k" data-d="4">4</button><button class="k" data-d="5">5</button><button class="k" data-d="6">6</button>
+    <button class="k" data-d="7">7</button><button class="k" data-d="8">8</button><button class="k" data-d="9">9</button>
+    <button class="k fn del" id="delBtn">Canc</button>
+    <button class="k" data-d="0">0</button>
+    <button class="k fn undo" id="undoBtn2">Undo</button>
+  </div>
+
+  <button class="enter" id="enterBtn" disabled>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    Conferma turno
+  </button>
+</section>
+
+<!-- ===================== PANNELLI E AVVISI ===================== -->
+<div class="backdrop" id="backdrop"></div>
+
+<div class="sheet ask" id="askSheet">
+  <div class="grab"></div>
+  <p class="q">Con quante freccette hai chiuso?</p>
+  <p class="qh">Serve per la media a 3 freccette e per il miglior leg</p>
+  <div class="asks">
+    <button type="button" data-n="1">1<small>freccetta</small></button>
+    <button type="button" data-n="2">2<small>freccette</small></button>
+    <button type="button" data-n="3">3<small>freccette</small></button>
+  </div>
+  <div class="acts" style="margin-top:11px">
+    <button type="button" id="askUndo">Ho sbagliato, annulla il turno</button>
+  </div>
+</div>
+
+<div class="sheet" id="legSheet">
+  <div class="grab"></div>
+  <h2 id="legTitle">Leg vinto</h2>
+  <p class="qh" id="legMeta" style="text-align:left; margin:5px 0 0"></p>
+  <div class="cmp" id="cmp"></div>
+  <div class="acts">
+    <button type="button" id="legStats">Statistiche</button>
+    <button type="button" class="primary" id="legNext">Prossimo leg</button>
+  </div>
+</div>
+
+<p class="toast" id="toast"></p>
+</body>
+</html>

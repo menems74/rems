@@ -2,291 +2,39 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-<title>501 — REMS</title>
-<meta name="description" content="Segnapunti 501 per freccette: match a set e leg, statistiche, funziona offline.">
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#121212">
-<link rel="icon" href="icons/favicon-64.png" sizes="64x64" type="image/png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="501">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="mobile-web-app-capable" content="yes">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css">
-<script src="app.js" defer></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La app si chiama Dart — REMS</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="../dart/icons/favicon-64.png" sizes="64x64" type="image/png">
+<meta http-equiv="refresh" content="3; url=../dart/">
+<style>
+  :root{color-scheme:dark;}
+  body{margin:0; min-height:100vh; display:grid; place-items:center; text-align:center;
+    background:#121212; color:#f5f1ea; font:16px/1.6 "Inter","Segoe UI",system-ui,sans-serif; padding:24px;}
+  .box{max-width:420px;}
+  h1{font-size:1.3rem; margin:0 0 10px;}
+  p{color:#9b9b95; font-size:.92rem; margin:0 0 18px;}
+  a{display:inline-block; background:#00e676; color:#08130c; font-weight:800; text-decoration:none;
+    padding:14px 24px; border-radius:999px;}
+</style>
 </head>
 <body>
-
-<!-- ============================ MENU ============================ -->
-<section class="view on" id="v-menu">
-  <div class="wrap">
-    <div class="bar">
-      <h1 style="font-family:var(--num);letter-spacing:.04em">501</h1>
-      <span class="sp"></span>
-      <a class="ghost" href="../app.html" id="backPortal">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        App
-      </a>
-    </div>
-
-    <p class="sub" style="margin:2px 0 6px">Segnapunti per freccette · somma delle 3 freccette · doppio per chiudere</p>
-
-    <div class="menu-list">
-      <button class="mbtn primary" id="newMatch">
-        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
-        <span><b>Nuova partita</b><small>Scegli giocatori, set e leg</small></span>
-      </button>
-
-      <button class="mbtn resume" id="resume" hidden>
-        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l14 8-14 8V4z"/></svg></span>
-        <span><b>Riprendi partita</b><small></small></span>
-      </button>
-
-      <button class="mbtn" data-go="players">
-        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20v-2a4 4 0 0 0-8 0v2M12 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M21 20v-2a4 4 0 0 0-3-3.85"/></svg></span>
-        <span><b>Giocatori</b><small>Profili salvati sul telefono</small></span>
-      </button>
-
-      <button class="mbtn" data-go="stats">
-        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
-        <span><b>Statistiche</b><small>Medie, miglior leg, storico</small></span>
-      </button>
-
-      <button class="mbtn" data-go="data">
-        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg></span>
-        <span><b>Dati e backup</b><small>Esporta o importa un file JSON</small></span>
-      </button>
-    </div>
-
-    <div style="margin-top:auto; display:flex; flex-direction:column; align-items:center; gap:9px; padding-top:14px">
-      <button class="cta" id="install" style="display:none; max-width:280px; margin:0">Installa la app</button>
-      <p class="sub" id="state" style="display:flex; align-items:center; gap:7px; font-size:.74rem">
-        <span id="stateText">Online</span>
-      </p>
-    </div>
+  <div class="box">
+    <h1>Il 501 è dentro la app Dart</h1>
+    <p>Questo indirizzo non è più in uso: la app di allenamento si chiama <b>Dart</b> e raccoglie il 501 insieme agli altri giochi. Ti porto lì.</p>
+    <a href="../dart/">Vai alla app Dart</a>
   </div>
-</section>
-
-<!-- ======================= NUOVA PARTITA ======================= -->
-<section class="view scroll" id="v-setup">
-  <div class="wrap">
-    <div class="bar">
-      <button class="ghost" data-go="menu">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        Menu
-      </button>
-      <h1 class="sp" style="text-align:right">Nuova partita</h1>
-    </div>
-
-    <div class="card">
-      <span class="lbl">Giocatori</span>
-      <div class="seg" data-seg="count">
-        <button type="button" data-val="1">1 · allenamento</button>
-        <button type="button" data-val="2">2 giocatori</button>
-      </div>
-      <div class="slot">
-        <span class="tag">1</span>
-        <input id="name0" type="text" placeholder="Nome giocatore 1" autocomplete="off" maxlength="18">
-      </div>
-      <div class="chips" id="chips0" hidden></div>
-      <div id="slot2">
-        <div class="slot">
-          <span class="tag">2</span>
-          <input id="name1" type="text" placeholder="Nome giocatore 2" autocomplete="off" maxlength="18">
-        </div>
-        <div class="chips" id="chips1" hidden></div>
-      </div>
-      <p class="hint">I nomi nuovi vengono salvati come profili, così le statistiche si sommano nel tempo.</p>
-    </div>
-
-    <div class="card" id="setsBox">
-      <span class="lbl">Al meglio di (set)</span>
-      <div class="seg" data-seg="bestOfSets">
-        <button type="button" data-val="1">1</button>
-        <button type="button" data-val="3">3</button>
-        <button type="button" data-val="5">5</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <span class="lbl" id="legsLabel">Al meglio di (leg)</span>
-      <div class="seg" data-seg="bestOfLegs">
-        <button type="button" data-val="1">1</button>
-        <button type="button" data-val="3">3</button>
-        <button type="button" data-val="5">5</button>
-      </div>
-    </div>
-
-    <div class="card" id="starterBox">
-      <span class="lbl">Chi inizia il primo leg</span>
-      <div class="seg" data-seg="starter">
-        <button type="button" data-val="0" id="starter0">Giocatore 1</button>
-        <button type="button" data-val="1" id="starter1">Giocatore 2</button>
-      </div>
-      <p class="hint">Nei leg successivi la partenza si alterna da sola.</p>
-    </div>
-
-    <p class="err" id="setupErr"></p>
-    <button class="cta" id="startBtn">Inizia partita</button>
-  </div>
-</section>
-
-<!-- =========================== PARTITA =========================== -->
-<section class="view" id="v-game">
-  <div class="ghead">
-    <div class="sl">
-      <span id="gSetsBox"><b>SET</b><span id="gSets">0 - 0</span></span>
-      <span><b id="gLegsLabel">LEG</b><span id="gLegs">0 - 0</span></span>
-    </div>
-    <div class="sp">
-      <button class="iconbtn" id="undoBtn" title="Annulla turno" aria-label="Annulla turno">
-        <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6M3.5 13a9 9 0 1 0 2.6-6.4L3 9"/></svg>
-      </button>
-      <button class="iconbtn" id="gExit" title="Esci dalla partita" aria-label="Esci">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5V21H3V10.5z"/></svg>
-      </button>
-    </div>
-  </div>
-
-  <div class="rival" id="rival">
-    <span class="name" id="rName">—</span>
-    <span class="tag">attende</span>
-    <span class="av" id="rAvg"></span>
-    <span class="n" id="rRem">501</span>
-  </div>
-
-  <section class="hero" id="hero">
-    <span class="ribbon">Leg vinto</span>
-    <div class="top">
-      <span class="who" id="pName">—</span>
-      <span class="turnpill">di turno</span>
-      <span class="darts" id="dots"><i></i><i></i><i></i></span>
-    </div>
-    <div class="big" id="pRem">501</div>
-    <div class="co none" id="co"><span class="lbl">Chiusura</span></div>
-    <div class="hstats">
-      <div>Media 3<b id="pAvg">0.0</b></div>
-      <div>Freccette<b id="pDarts">0</b></div>
-      <div>Ultimo turno<b id="pLast">—</b></div>
-    </div>
-    <div class="live">
-      <span class="lbl">Turno</span>
-      <span class="v empty" id="liveVal">0</span>
-      <span class="warn" id="liveWarn"></span>
-    </div>
-    <div class="stamp">SBALLO</div>
-  </section>
-
-  <div class="pad" id="pad">
-    <button class="k" data-d="1">1</button><button class="k" data-d="2">2</button><button class="k" data-d="3">3</button>
-    <button class="k" data-d="4">4</button><button class="k" data-d="5">5</button><button class="k" data-d="6">6</button>
-    <button class="k" data-d="7">7</button><button class="k" data-d="8">8</button><button class="k" data-d="9">9</button>
-    <button class="k fn del" id="delBtn">Canc</button>
-    <button class="k" data-d="0">0</button>
-    <button class="k fn undo" id="undoBtn2">Undo</button>
-  </div>
-
-  <button class="enter" id="enterBtn" disabled>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-    Conferma turno
-  </button>
-</section>
-
-<!-- ========================== GIOCATORI ========================== -->
-<section class="view scroll" id="v-players">
-  <div class="wrap">
-    <div class="bar">
-      <button class="ghost" data-go="menu">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        Menu
-      </button>
-      <h1 class="sp" style="text-align:right">Giocatori</h1>
-    </div>
-    <div class="rows" id="playerRows"></div>
-    <button class="cta" id="addPlayer">Aggiungi giocatore</button>
-  </div>
-</section>
-
-<!-- ========================= STATISTICHE ========================= -->
-<section class="view scroll" id="v-stats">
-  <div class="wrap">
-    <div class="bar">
-      <button class="ghost" data-go="menu">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        Menu
-      </button>
-      <h1 class="sp" style="text-align:right">Statistiche</h1>
-    </div>
-    <div id="statsBody"></div>
-  </div>
-</section>
-
-<!-- ============================ DATI ============================ -->
-<section class="view scroll" id="v-data">
-  <div class="wrap">
-    <div class="bar">
-      <button class="ghost" data-go="menu">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        Menu
-      </button>
-      <h1 class="sp" style="text-align:right">Dati e backup</h1>
-    </div>
-
-    <div class="card">
-      <span class="lbl">Backup</span>
-      <p class="hint" style="margin-top:0">Tutto è salvato solo su questo dispositivo. Esporta un file JSON per spostare giocatori e storico su un altro telefono o sul PC.</p>
-      <button class="ghost" id="expBtn" style="margin-top:12px">Esporta file JSON</button>
-    </div>
-
-    <div class="card">
-      <span class="lbl">Ripristino</span>
-      <p class="hint" style="margin-top:0">L'importazione unisce i dati del file ai tuoi: i profili e le partite già presenti non vengono duplicati.</p>
-      <label class="ghost" style="margin-top:12px; display:inline-flex">
-        Importa file JSON
-        <input type="file" id="impFile" accept="application/json,.json" hidden>
-      </label>
-    </div>
-
-    <div class="card">
-      <span class="lbl">Azzeramento</span>
-      <p class="hint" style="margin-top:0">Cancella giocatori, storico e partita in corso da questo dispositivo. Non si torna indietro.</p>
-      <button class="ghost danger" id="wipeBtn" style="margin-top:12px">Cancella tutti i dati</button>
-    </div>
-  </div>
-</section>
-
-<!-- ===================== PANNELLI E AVVISI ===================== -->
-<div class="backdrop" id="backdrop"></div>
-
-<div class="sheet ask" id="askSheet">
-  <div class="grab"></div>
-  <p class="q">Con quante freccette hai chiuso?</p>
-  <p class="qh">Serve per la media a 3 freccette e per il miglior leg</p>
-  <div class="asks">
-    <button type="button" data-n="1">1<small>freccetta</small></button>
-    <button type="button" data-n="2">2<small>freccette</small></button>
-    <button type="button" data-n="3">3<small>freccette</small></button>
-  </div>
-  <div class="acts" style="margin-top:11px">
-    <button type="button" id="askUndo">Ho sbagliato, annulla il turno</button>
-  </div>
-</div>
-
-<div class="sheet" id="legSheet">
-  <div class="grab"></div>
-  <h2 id="legTitle">Leg vinto</h2>
-  <p class="qh" id="legMeta" style="text-align:left; margin:5px 0 0"></p>
-  <div class="cmp" id="cmp"></div>
-  <div class="acts">
-    <button type="button" id="legStats">Statistiche</button>
-    <button type="button" class="primary" id="legNext">Prossimo leg</button>
-  </div>
-</div>
-
-<p class="toast" id="toast"></p>
+<script>
+  // toglie di mezzo il vecchio service worker, poi passa alla nuova pagina
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.getRegistrations().then(function(rs){
+      rs.forEach(function(r){ if(r.scope.indexOf('/501/') > -1) r.unregister(); });
+    }).catch(function(){});
+  }
+  if(window.caches){
+    caches.keys().then(function(ks){ ks.forEach(function(k){ if(k.indexOf('501-') === 0) caches.delete(k); }); }).catch(function(){});
+  }
+  setTimeout(function(){ location.replace('../dart/'); }, 1200);
+</script>
 </body>
 </html>
