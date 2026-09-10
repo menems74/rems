@@ -397,3 +397,62 @@ nav a:active{background:var(--premuto);}
 .ingredienti li.escluso span:first-child{color:var(--rosso);}
 .ingredienti li.amato span:first-child{color:var(--spunta);}
 .motivo.piccolo{font-size:.82rem; margin-top:2px;}
+
+/* ====================================================== NUOVI PIATTI =====
+   Tre passi numerati nel margine, come una ricetta scritta a mano. Ogni
+   passo ha una sola azione: copia, controlla, tieni.                      */
+.passo{margin-bottom:32px;}
+.titoloPasso{
+  display:flex; align-items:baseline; gap:10px;
+  font-size:1.05rem; font-weight:650; margin:0 0 6px;
+  padding-bottom:5px; border-bottom:1px solid var(--filetto-forte);
+}
+.numeroPasso{
+  flex:none; width:24px; height:24px; display:inline-grid; place-items:center;
+  color:var(--biro); border:1px solid var(--margine-riga); border-radius:50%;
+  font-size:.8rem; line-height:1;
+}
+
+.passo > input[type=text], .passo textarea{
+  width:100%; margin-top:8px; padding:10px; font:inherit;
+  color:var(--inchiostro); background:transparent;
+  border:1px solid var(--filetto-forte); border-radius:2px;
+}
+.passo > input[type=text]{min-height:var(--tocco); padding:0 10px;}
+.passo textarea{resize:vertical; line-height:1.4;}
+
+.quantiPiatti{display:flex; column-gap:18px; flex-wrap:wrap; margin-top:4px;}
+.sottoAzioni{display:flex; column-gap:18px; flex-wrap:wrap;}
+
+.vediPrompt{margin-top:12px;}
+.vediPrompt summary{
+  min-height:var(--tocco); display:flex; align-items:center;
+  color:var(--biro); font-size:.9rem; cursor:pointer;
+  text-decoration:underline; text-underline-offset:3px;
+}
+.vediPrompt textarea{
+  width:100%; font-family:var(--num); font-size:.8rem;
+  background:transparent; color:var(--matita);
+  border:1px solid var(--filetto); border-radius:2px; padding:10px;
+}
+
+/* la proposta di un piatto: sta già in stile "gusti", qui solo le varianti */
+.proposta.storta{border-left-color:var(--rosso);}
+.proposta .ingredienti, .proposta .passi{margin-top:6px;}
+.ingredienteNuovo{
+  margin:8px 0 4px; padding-top:8px; border-top:1px dotted var(--filetto-forte);
+}
+.nomeNuovo{font-size:.95rem; font-weight:600;}
+.campiNuovo{display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;}
+.campiNuovo select{
+  flex:1 1 40%; min-height:var(--tocco); padding:0 8px;
+  font:inherit; font-size:.9rem; color:var(--inchiostro); background:transparent;
+  border:1px solid var(--filetto-forte); border-radius:2px;
+}
+
+.spiega{color:var(--matita); font-size:.9rem; margin-bottom:2px;}
+.spentoTesto{
+  color:var(--matita); font-size:.9rem;
+  min-height:var(--tocco); display:flex; align-items:center;
+}
+.testuale:disabled{color:var(--matita); text-decoration:none; font-weight:400; cursor:default;}

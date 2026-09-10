@@ -13,6 +13,7 @@ import * as Catalogo from './ui/catalog.js';
 import * as Spesa from './ui/shopping.js';
 import * as Dispensa from './ui/pantry.js';
 import * as Gusti from './ui/tastes.js';
+import * as Nuovi from './ui/import.js';
 import * as G from './tastes.js';
 import { chiudiDettaglio } from './ui/dish.js';
 
@@ -37,6 +38,7 @@ const ROTTE = {
   catalogo:  { titolo: 'Catalogo', render: (c) => Catalogo.render(c, stato) },
   gusti:     { titolo: 'Gusti', render: (c) => Gusti.render(c, stato) },
   dispensa:  { titolo: 'Dispensa', render: (c) => Dispensa.render(c, stato) },
+  nuovi:     { titolo: 'Nuovi piatti', render: (c) => Nuovi.render(c, stato) },
   altro:     { titolo: 'Altro', render: (c) => altro(c) }
 };
 
@@ -51,7 +53,7 @@ function altro(contenitore) {
   const voci = [
     { testo: 'Dispensa', nota: 'quello che hai in casa', href: '#/dispensa' },
     { testo: 'Gusti', nota: 'liste, voti e suggerimenti', href: '#/gusti' },
-    { testo: 'Nuovi piatti', nota: 'suggerimenti — milestone M5', href: null },
+    { testo: 'Nuovi piatti', nota: 'farsi aiutare da un\'AI', href: '#/nuovi' },
     { testo: 'Impostazioni e backup', nota: 'milestone M6', href: null }
   ];
   const elenco = el('div', { class: 'elencoAltro' });
@@ -88,7 +90,7 @@ async function avvia() {
     generaLista, segnaComprato, segnaInCasa, aggiungiLibera, togliLibera,
     salvaDispensa, cucinato,
     salvaVoto, eliminaVoto, aggiungiGusto, togliGusto,
-    confermaSuggerimento, scartaSuggerimento
+    confermaSuggerimento, scartaSuggerimento, importaPiatto
   };
 
   window.addEventListener('hashchange', disegna);
@@ -520,6 +522,29 @@ async function scartaSuggerimento(id) {
   disegna();
 }
 
+/* ------------------------------------------------------- nuovi piatti ----
+   L'importazione è già stata validata dalla schermata: qui si scrive, e si
+   scrive tutto insieme — o entra il piatto con i suoi ingredienti nuovi, o
+   non entra niente.                                                       */
+
+async function importaPiatto(piatto, ingredientiNuovi) {
+  try {
+    await DB.transazione([DB.STORE.ingredienti, DB.STORE.piatti], 'readwrite', async (stores) => {
+      for (const ing of ingredientiNuovi || []) await stores[DB.STORE.ingredienti].scrivi(ing);
+      await stores[DB.STORE.piatti].scrivi(piatto);
+    });
+  } catch (errore) {
+    console.error(errore);
+    avviso('Non riesco a salvare il piatto: ' + errore.message, 'errore');
+    return false;
+  }
+  await caricaStato();
+  avviso(`"${piatto.nome}" è in catalogo` +
+    ((ingredientiNuovi || []).length ? `, con ${ingredientiNuovi.length} ingredienti nuovi.` : '.'));
+  disegna();
+  return true;
+}
+
 /* ------------------------------------------------------------ router ----- */
 
 function rottaCorrente() {
@@ -531,7 +556,7 @@ function disegna() {
   const nome = rottaCorrente();
   const rotta = ROTTE[nome];
   document.getElementById('titolo').textContent = rotta.titolo;
-  const attiva = nome === 'dispensa' ? 'altro' : nome;
+  const attiva = (nome === 'dispensa' || nome === 'nuovi') ? 'altro' : nome;
   for (const link of document.querySelectorAll('nav a')) {
     link.setAttribute('aria-current', link.dataset.rotta === attiva ? 'page' : 'false');
   }

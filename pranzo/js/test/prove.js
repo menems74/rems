@@ -864,3 +864,278 @@ prova('stelle e date brevi', () => {
   uguale('14 set', G.dataBreve('2026-09-14'));
   uguale('1 gen', G.dataBreve('2026-01-01'));
 });
+
+/* ==========================================================================
+   PROVE DELL'IMPORTAZIONE DA AI (M5)
+   Le AI gratuite rispondono in modo sciatto: blocchi markdown, saluti,
+   "gr" invece di "g", un piatto invece di un array. Si legge con generosità
+   e si salva con severità: queste prove tengono in piedi le due regole.
+   ========================================================================== */
+
+import * as IA from '../ai-import.js';
+
+const INGREDIENTI2 = [...ING2.values()];
+
+function ctxIA(extra = {}) {
+  return Object.assign({
+    piatti: CATALOGO,
+    ingredienti: INGREDIENTI2,
+    indiceIngredienti: ING2,
+    preferenze: M.preferenzePredefinite()
+  }, extra);
+}
+
+const PIATTO_AI = {
+  nome: 'Riso con pollo e spinaci',
+  tipo: 'unico', tempoMin: 25, difficolta: 1, stagioni: [1, 2],
+  tags: ['veloce'],
+  ingredienti: [
+    { nome: 'riso', qta: 90, unita: 'g' },
+    { nome: 'Pollo', qta: 150, unita: 'g' },
+    { nome: 'spinaci', qta: 150, unita: 'g' }
+  ],
+  passi: ['Lessa il riso.', 'Salta il pollo.', 'Unisci gli spinaci.']
+};
+
+/* ---------------------------------------------------- leggere la risposta */
+
+prova('JSON dentro un blocco markdown con saluti attorno', () => {
+  const risposta = 'Certo! Ecco tre idee:\n\n```json\n' + JSON.stringify([PIATTO_AI]) +
+                   '\n```\n\nFammi sapere se vuoi altro!';
+  const letti = IA.estraiJson(risposta);
+  uguale(1, letti.length);
+  uguale('Riso con pollo e spinaci', letti[0].nome);
+});
+prova('JSON senza blocco, con testo prima e dopo', () => {
+  const risposta = 'Ecco: ' + JSON.stringify([PIATTO_AI]) + ' Buon appetito.';
+  uguale(1, IA.estraiJson(risposta).length);
+});
+prova('un piatto solo, senza array', () => {
+  uguale(1, IA.estraiJson(JSON.stringify(PIATTO_AI)).length);
+});
+prova('array avvolto in una chiave', () => {
+  uguale(1, IA.estraiJson(JSON.stringify({ piatti: [PIATTO_AI] })).length);
+  uguale(1, IA.estraiJson(JSON.stringify({ ricette: [PIATTO_AI] })).length);
+});
+prova('risposta illeggibile: errore chiaro, non un crash', () => {
+  lancia(() => IA.estraiJson(''), 'vuoto');
+  lancia(() => IA.estraiJson('Mi dispiace, non posso aiutarti.'), 'nessun JSON');
+  lancia(() => IA.estraiJson('[{"nome": "rotto",}]'), 'JSON malformato');
+});
+
+/* -------------------------------------------------- trovare l'ingrediente */
+
+prova('ingredienti trovati per nome, anche storto', () => {
+  const cerca = (n) => (IA.cercaIngrediente(n, INGREDIENTI2) || {}).id;
+  uguale('i_pollo', cerca('Pollo'));
+  uguale('i_pollo', cerca('  pollo  '));
+  uguale('i_zucchine', cerca('zucchina'));          // singolare
+  uguale('i_pomodorini', cerca('Pomodorini'));
+  uguale('i_uova', cerca('uova'));
+  uguale(undefined, cerca('cous cous'));            // davvero nuovo
+  uguale(undefined, cerca(''));
+});
+prova('unità scritte all\'italiana o all\'inglese', () => {
+  uguale('g', IA.normalizzaUnita('grammi'));
+  uguale('g', IA.normalizzaUnita('gr'));
+  uguale('ml', IA.normalizzaUnita('millilitri'));
+  uguale('pz', IA.normalizzaUnita('pezzi'));
+  uguale('cucchiaio', IA.normalizzaUnita('cucchiaio'));
+});
+
+/* ------------------------------------------------------------- l'esame --- */
+
+prova('un piatto ben fatto passa e si aggancia agli ingredienti giusti', () => {
+  const e = IA.esamina(PIATTO_AI, ctxIA());
+  uguale(true, e.accettabile);
+  uguale([], e.problemi);
+  uguale(0, e.ingredientiNuovi.length);
+  uguale(['i_riso', 'i_pollo', 'i_spinaci'], e.piatto.ingredienti.map((v) => v.ingredienteId));
+  uguale('unico', e.piatto.tipo);
+  uguale('ai', e.piatto.origine);
+  uguale('pia_riso_con_pollo_e_spinaci', e.piatto.id);
+});
+
+prova('quantità e unità sciatte: si perdonano', () => {
+  const grezzo = Object.assign({}, PIATTO_AI, {
+    tipo: 'Piatto unico', difficolta: 'facile',
+    ingredienti: [
+      { ingrediente: 'riso', quantita: '90 g' },
+      { nome: 'pollo', qta: 150, unita: 'gr' },
+      { nome: 'spinaci', qta: 0.15, unita: 'kg' }
+    ]
+  });
+  const e = IA.esamina(grezzo, ctxIA());
+  uguale('unico', e.piatto.tipo);
+  uguale(1, e.piatto.difficolta);                   // "facile" non è un numero: 1
+  uguale(90, e.piatto.ingredienti[0].qta);
+  uguale('g', e.piatto.ingredienti[1].unita);
+  // "kg" non è convertibile: l'app lo dice invece di inventare
+  if (!e.problemi.some((x) => /kg/.test(x))) throw new Error('doveva segnalare il kg');
+});
+
+prova('litri su un ingrediente in ml: si converte il numero', () => {
+  const idx = M.indicizza([{ id: 'i_brodo', nome: 'Brodo', macro: 'condimento', unita: 'ml',
+    reparto: 'dispensa', formatoAcquisto: { qta: 1000 }, conversioni: [], stagioni: [] }]);
+  const e = IA.esamina({
+    nome: 'Zuppa', tipo: 'primo', tempoMin: 20, passi: ['x'],
+    ingredienti: [{ nome: 'brodo', qta: 0.5, unita: 'l' }]
+  }, ctxIA({ ingredienti: [...idx.values()], indiceIngredienti: idx, piatti: [] }));
+  uguale(500, e.piatto.ingredienti[0].qta);
+  uguale('ml', e.piatto.ingredienti[0].unita);
+});
+
+prova('ingrediente mai visto: si chiede cos\'è, non si indovina', () => {
+  const grezzo = Object.assign({}, PIATTO_AI, {
+    nome: 'Cous cous con pollo',
+    ingredienti: [
+      { nome: 'Cous cous', qta: 80, unita: 'g' },
+      { nome: 'pollo', qta: 150, unita: 'g' }
+    ]
+  });
+  const e = IA.esamina(grezzo, ctxIA());
+  uguale(1, e.ingredientiNuovi.length);
+  const nuovo = e.ingredientiNuovi[0];
+  uguale('Cous cous', nuovo.nome);
+  uguale('', nuovo.macro);                          // niente indovinelli
+  uguale('', nuovo.reparto);
+  uguale('g', nuovo.unita);
+  uguale('ing_cous_cous', nuovo.id);
+  if (!e.avvisi.some((x) => /nuovo/.test(x))) throw new Error('doveva avvisare');
+});
+
+prova('senza macro e reparto non si salva; completati sì', () => {
+  const e = IA.esamina(Object.assign({}, PIATTO_AI, {
+    nome: 'Cous cous con pollo',
+    ingredienti: [{ nome: 'Cous cous', qta: 80, unita: 'g' },
+                  { nome: 'pollo', qta: 150, unita: 'g' },
+                  { nome: 'spinaci', qta: 150, unita: 'g' }]
+  }), ctxIA());
+  let esito = IA.preparaSalvataggio(e, ctxIA());
+  uguale(false, esito.ok);
+
+  e.ingredientiNuovi[0].macro = 'carboidrato';
+  e.ingredientiNuovi[0].reparto = 'dispensa';
+  esito = IA.preparaSalvataggio(e, ctxIA());
+  uguale([], esito.errori);
+  uguale(true, esito.ok);
+  uguale(1, esito.ingredienti.length);
+});
+
+prova('una proteina nuova senza famiglia non passa', () => {
+  const e = IA.esamina({
+    nome: 'Tempeh con broccoli', tipo: 'unico', tempoMin: 20, passi: ['x'],
+    ingredienti: [{ nome: 'Tempeh', qta: 150, unita: 'g' },
+                  { nome: 'broccoli', qta: 150, unita: 'g' },
+                  { nome: 'riso', qta: 90, unita: 'g' }]
+  }, ctxIA());
+  const nuovo = e.ingredientiNuovi[0];
+  nuovo.macro = 'proteina'; nuovo.reparto = 'latticini';
+  uguale(false, IA.preparaSalvataggio(e, ctxIA()).ok);
+  nuovo.famiglia = 'vegetale';
+  uguale(true, IA.preparaSalvataggio(e, ctxIA()).ok);
+});
+
+prova('la blacklist non si rilassa nemmeno qui', () => {
+  const pref = Object.assign(M.preferenzePredefinite(), { escludiIngredienti: ['i_spinaci'] });
+  const e = IA.esamina(PIATTO_AI, ctxIA({ preferenze: pref }));
+  uguale(false, e.accettabile);
+  uguale(['Spinaci'], e.blacklist);
+  if (!e.problemi.some((x) => /spinaci/.test(x))) throw new Error('doveva dire perché');
+  // e anche forzando la mano, il salvataggio rifiuta
+  const esito = IA.preparaSalvataggio(e, ctxIA({ preferenze: pref }));
+  uguale(false, esito.ok);
+});
+
+prova('piatto già in catalogo: si riconosce dal nome', () => {
+  const e = IA.esamina({
+    nome: 'Secondo Pollo', tipo: 'secondo', tempoMin: 20, passi: ['x'],
+    ingredienti: [{ nome: 'pollo', qta: 150, unita: 'g' }]
+  }, ctxIA());
+  uguale('se_pollo', e.duplicato);
+  uguale(false, e.accettabile);
+});
+
+prova('un piatto unico che non copre tutto: avviso, non divieto', () => {
+  const e = IA.esamina({
+    nome: 'Riso in bianco', tipo: 'unico', tempoMin: 15, passi: ['x'],
+    ingredienti: [{ nome: 'riso', qta: 90, unita: 'g' }]
+  }, ctxIA());
+  uguale(true, e.accettabile);
+  if (!e.avvisi.some((x) => /non copre/.test(x))) throw new Error('doveva avvisare sui macro');
+});
+
+prova('quello che manca davvero blocca il piatto', () => {
+  uguale(false, IA.esamina({ tipo: 'unico' }, ctxIA()).accettabile);
+  const senzaPassi = IA.esamina(Object.assign({}, PIATTO_AI, { passi: [] }), ctxIA());
+  uguale(false, senzaPassi.accettabile);
+  const senzaTempo = IA.esamina(Object.assign({}, PIATTO_AI, { tempoMin: null }), ctxIA());
+  uguale(false, senzaTempo.accettabile);
+});
+
+prova('il procedimento in un testo unico si spezza in passi', () => {
+  const e = IA.esamina(Object.assign({}, PIATTO_AI, {
+    passi: '1. Lessa il riso.\n2. Salta il pollo.\n3. Unisci gli spinaci.'
+  }), ctxIA());
+  uguale(3, e.piatto.passi.length);
+  uguale('Lessa il riso.', e.piatto.passi[0]);
+});
+
+prova('l\'AI che ripete lo stesso piatto lo dice una volta sola', () => {
+  const tutti = IA.esaminaTutti([PIATTO_AI, PIATTO_AI, Object.assign({}, PIATTO_AI, { nome: 'RISO con POLLO e spinaci' })], ctxIA());
+  uguale(1, tutti.length);
+});
+
+/* ------------------------------------------------------------ il prompt -- */
+
+prova('il prompt dice i gusti, la stagione e il formato', () => {
+  const pref = Object.assign(M.preferenzePredefinite(), {
+    escludiIngredienti: ['i_broccoli'], amoIngredienti: ['i_pollo'], tempoMaxMin: 30
+  });
+  const testo = IA.creaPrompt(ctxIA({ preferenze: pref, mese: 7, voti: {} }), { quanti: 3 });
+  if (!/3 idee/.test(testo)) throw new Error('non chiede il numero giusto');
+  if (!/NON usare, per nessun motivo: Broccoli/.test(testo)) throw new Error('non passa la blacklist');
+  if (!/mi piacciono molto: Pollo/.test(testo)) throw new Error('non passa i preferiti');
+  if (!/mese 7/.test(testo)) throw new Error('non dice la stagione');
+  if (!/30 minuti/.test(testo)) throw new Error('non dice il tempo');
+  if (!/"ingredienti"/.test(testo)) throw new Error('non mostra lo schema');
+  // corto: si incolla anche in una chat gratuita
+  if (testo.length > 2000) throw new Error('prompt troppo lungo: ' + testo.length);
+});
+
+prova('il prompt riporta i voti come esempio di gusto', () => {
+  const testo = IA.creaPrompt(ctxIA({
+    voti: {
+      u_pollo_zucchine: [{ stelle: 5, data: '2026-06-01', motivo: 'buono' }],
+      u_ceci_spinaci: [{ stelle: 1, data: '2026-06-02', motivo: 'nonMiPiace' }]
+    }
+  }), {});
+  if (!/ho apprezzato: u_pollo_zucchine/.test(testo)) throw new Error('manca il piatto piaciuto');
+  if (!/non mi sono piaciuti: u_ceci_spinaci/.test(testo)) throw new Error('manca il piatto bocciato');
+});
+
+prova('la richiesta libera finisce nel prompt', () => {
+  const testo = IA.creaPrompt(ctxIA(), { richiesta: '  qualcosa con il forno  ' });
+  if (!/oggi: qualcosa con il forno/.test(testo)) throw new Error('richiesta non passata');
+});
+
+prova('l\'esempio dentro il prompt è importabile dall\'app stessa', () => {
+  const testo = IA.creaPrompt(ctxIA(), {});
+  const esempio = IA.estraiJson(testo);           // il prompt contiene solo quel JSON
+  uguale(1, esempio.length);
+  uguale('Farro con zucchine e feta', esempio[0].nome);
+  // e passa l'esame come un piatto qualunque, con gli ingredienti veri
+  const catalogo = [
+    { id: 'i_farro', nome: 'Farro perlato', macro: 'carboidrato', unita: 'g', reparto: 'dispensa',
+      formatoAcquisto: { qta: 500 }, conversioni: [], stagioni: [] },
+    { id: 'i_feta', nome: 'Feta', macro: 'proteina', unita: 'g', reparto: 'latticini',
+      formatoAcquisto: { qta: 200 }, conversioni: [], stagioni: [], famiglia: 'formaggi' },
+    ING2.get('i_zucchine')
+  ];
+  const e = IA.esamina(esempio[0], ctxIA({
+    piatti: [], ingredienti: catalogo, indiceIngredienti: M.indicizza(catalogo)
+  }));
+  uguale([], e.problemi);
+  uguale(true, e.accettabile);
+  uguale(0, e.ingredientiNuovi.length);
+});
