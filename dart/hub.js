@@ -57,10 +57,12 @@ function renderPlayers(){
     return;
   }
   box.innerHTML = list.map(function(pl){
-    var a = D.aggregate(pl.id);
-    var meta = a.matches
-      ? a.matches + ' partite · media ' + D.fmt(a.avg3) + ' · ' + a.c180 + ' × 180'
-      : 'nessuna partita giocata';
+    var a = D.aggregate(pl.id, '501');
+    var clockGames = D.clockStats(pl.id, 'singoli').games + D.clockStats(pl.id, 'doppi').games;
+    var bits = [];
+    if(a.matches) bits.push(a.matches + ' × 501 · media ' + D.fmt(a.avg3));
+    if(clockGames) bits.push(clockGames + ' × clock');
+    var meta = bits.length ? bits.join(' · ') : 'nessuna partita giocata';
     return '<div class="row" data-id="' + pl.id + '">' +
       '<div><div class="nm">' + D.esc(pl.name) + '</div><div class="meta">' + meta + '</div></div>' +
       '<div class="sp">' +
@@ -108,16 +110,30 @@ function renderStats(){
   }
   var html = '';
   D.listPlayers().forEach(function(pl){
-    var a = D.aggregate(pl.id);
-    if(!a.matches) return;
-    html += '<p class="lbl" style="margin:16px 0 8px">' + D.esc(pl.name) + '</p><div class="statgrid">' +
-      tile('Partite', a.matches + (a.wins ? ' · ' + a.wins + ' vinte' : '')) +
-      tile('Media 3 freccette', D.fmt(a.avg3)) +
-      tile('Miglior turno', a.bestTurn || '—') +
-      tile('Miglior leg', a.bestLeg === null ? '—' : a.bestLeg + ' frecce') +
-      tile('Leg vinti', a.legsWon) +
-      tile('180', a.c180) +
-      '</div>';
+    var a = D.aggregate(pl.id, '501');
+    var clock = D.clockStats(pl.id, clockMode);
+    var other = D.clockStats(pl.id, clockMode === 'doppi' ? 'singoli' : 'doppi');
+    if(!a.matches && !clock.games && !other.games) return;
+
+    html += '<p class="lbl" style="margin:18px 0 8px; font-size:.8rem; color:#fff">' + D.esc(pl.name) + '</p>';
+
+    if(a.matches){
+      html += '<p class="lbl" style="margin:6px 0 6px">501</p><div class="statgrid">' +
+        tile('Partite', a.matches + (a.wins ? ' · ' + a.wins + ' vinte' : '')) +
+        tile('Media 3 freccette', D.fmt(a.avg3)) +
+        tile('Miglior turno', a.bestTurn || '—') +
+        tile('Miglior leg', a.bestLeg === null ? '—' : a.bestLeg + ' frecce') +
+        tile('Leg vinti', a.legsWon) +
+        tile('180', a.c180) +
+        '</div>';
+    }
+    if(clock.games || other.games){
+      html += '<p class="lbl" style="margin:16px 0 0">Around the Clock</p>' +
+        '<div class="seg modeswitch" data-clockmode>' +
+          '<button type="button" data-val="singoli" aria-pressed="' + (clockMode === 'singoli') + '">Singoli</button>' +
+          '<button type="button" data-val="doppi" aria-pressed="' + (clockMode === 'doppi') + '">Doppi</button>' +
+        '</div>' + clockTable(clock);
+    }
   });
 
   html += '<p class="lbl" style="margin:20px 0 8px">Ultime partite</p><div class="rows">';
@@ -135,6 +151,30 @@ function renderStats(){
 }
 function tile(label, value){
   return '<div class="tile"><span class="lbl">' + label + '</span><b>' + value + '</b></div>';
+}
+
+/* Around the Clock: una riga per bersaglio con minimo, media e massimo. */
+var clockMode = 'singoli';
+function clockTable(st){
+  if(!st.games){
+    return '<p class="hint" style="margin-top:10px">Nessun giro completato in questa modalità.</p>';
+  }
+  var html = '<div class="ctable">' +
+    '<span class="hd">Bersaglio</span><span class="hd">Min</span><span class="hd">Media</span><span class="hd">Max</span>';
+  st.targets.forEach(function(row){
+    var s = row.stats;
+    html += '<span class="t">' + D.clockLabel(row.key, clockMode) + '</span>' +
+      (s ? '<span class="v best">' + s.min + '</span><span class="v">' + D.fmt(s.avg) +
+           '</span><span class="v">' + s.max + '</span>'
+         : '<span class="v none">—</span><span class="v none">—</span><span class="v none">—</span>');
+  });
+  html += '<span class="t tot">Giro intero</span>' +
+    '<span class="v best tot">' + st.total.min + '</span>' +
+    '<span class="v tot">' + D.fmt(st.total.avg) + '</span>' +
+    '<span class="v tot">' + st.total.max + '</span></div>' +
+    '<p class="hint">' + st.games + (st.games === 1 ? ' giro completato' : ' giri completati') +
+    ' con i bersagli ' + clockMode + '.</p>';
+  return html;
 }
 
 /* ---------------------------------------------------------------- dati */
@@ -216,6 +256,11 @@ $$('#v-prefs [data-pref-toggle]').forEach(function(t){
     if(sel[i] && sel[1-i] === sel[i]) sel[1-i] = null;   // niente stesso profilo due volte
     D.setSettings({players: sel}); renderPrefs(); D.buzz();
   });
+});
+
+$('#statsBody').addEventListener('click', function(e){
+  var b = e.target.closest('[data-clockmode] button'); if(!b) return;
+  clockMode = b.dataset.val; renderStats(); D.buzz();
 });
 
 $('#expBtn').addEventListener('click', saveData);

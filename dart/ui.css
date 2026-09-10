@@ -263,3 +263,44 @@ button{font:inherit; color:inherit; touch-action:manipulation;}
   font-size:.8rem; font-weight:600; cursor:pointer; padding:0 10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .pick button[aria-pressed="true"]{background:var(--neon); color:#08130c; border-color:transparent; font-weight:800;}
 .pick button[disabled]{opacity:.3; pointer-events:none;}   /* gia' scelto come altro giocatore */
+
+/* ===================== Around the Clock ===================== */
+.ghead .sl #gWho{font-size:.9rem; font-weight:700; color:#fff;}
+.modechip{font-size:.56rem; letter-spacing:.12em; text-transform:uppercase; color:var(--neon);
+  border:1px solid rgba(0,230,118,.4); background:rgba(0,230,118,.12); padding:3px 9px; border-radius:999px;}
+/* barra di avanzamento sui 21 bersagli */
+.track{flex:0 0 auto; display:flex; gap:4px; align-items:center; padding:0 2px;}
+.track i{flex:1; height:8px; border-radius:99px; background:rgba(255,255,255,.12); transition:background .2s, height .2s;}
+.track i.done{background:var(--neon);}
+.track i.now{background:var(--gold); height:13px;}
+.clockhero{justify-content:center; text-align:center;}
+.clockhero .top{width:100%;}
+.clockhero .big{margin:auto 0 0; font-size:clamp(104px,34vw,190px); letter-spacing:-.04em; line-height:.9;}
+.clockhero .tsub{color:#d8d3c8; opacity:.9; font-size:.94rem; margin:8px 0 auto;}
+.clockhero .hstats{width:100%; justify-content:space-between; text-align:left;}
+.askline{flex:0 0 auto; text-align:center; font-size:.86rem; font-weight:600; color:#e4e4de; margin:2px 0 0;}
+.pad.three{grid-template-columns:repeat(3,1fr);}
+.pad.three .k{min-height:clamp(62px,10.5vh,94px); font-size:2.3rem;}
+.enter.ghosty{background:var(--surface); color:var(--text); border:1px solid var(--line);
+  font-weight:700; font-size:.86rem; letter-spacing:.08em; min-height:50px;}
+.enter.ghosty:active{background:var(--surface-hi);}
+/* display del pannello "di piu'" */
+.entry{display:flex; align-items:center; gap:12px; padding:9px 14px; border-radius:12px;
+  background:var(--surface); border:1px solid var(--line);}
+.entry .val{font-family:var(--num); font-size:2rem; font-weight:700; line-height:1;
+  font-variant-numeric:tabular-nums; min-width:2ch; text-align:right;}
+.entry .val.empty{color:#4a4a46;}
+
+/* tabella per bersaglio nelle statistiche */
+.modeswitch{margin:10px 0 2px;}
+.ctable{display:grid; grid-template-columns:1fr auto auto auto; gap:0 12px; margin-top:6px;}
+.ctable .hd{font-size:.54rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+  padding-bottom:7px; border-bottom:1px solid var(--line); text-align:right;}
+.ctable .hd:first-child{text-align:left;}
+.ctable .t{font-family:var(--num); font-weight:700; font-size:.98rem; padding:7px 0;
+  border-top:1px solid rgba(255,255,255,.05);}
+.ctable .v{font-family:var(--num); font-size:.98rem; text-align:right; padding:7px 0;
+  border-top:1px solid rgba(255,255,255,.05); font-variant-numeric:tabular-nums; color:#e8e8e2;}
+.ctable .v.best{color:var(--neon); font-weight:700;}
+.ctable .v.none{color:#55554f;}
+.ctable .tot .t,.ctable .tot .v{border-top:2px solid var(--line); font-weight:800; font-size:1.06rem; padding-top:9px;}

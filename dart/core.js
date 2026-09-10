@@ -30,8 +30,8 @@ var GAMES = [
   {id:'501', name:'501', href:'501.html', ready:true,
    desc:'Match a set e leg, chiusura in doppio',
    icon:'<path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/>'},
-  {id:'clock', name:'Around the Clock', ready:false,
-   desc:'Dal numero 1 al 20, uno dopo l’altro',
+  {id:'clock', name:'Around the Clock', href:'clock.html', ready:true,
+   desc:'Dal numero 1 al 20, poi il bull',
    icon:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/>'},
   {id:'cricket', name:'Cricket', ready:false,
    desc:'Chiudi 20-15 e il centro prima dell’avversario',
@@ -98,6 +98,45 @@ function setSettings(patch){
   Object.keys(patch).forEach(function(k){ settings[k] = patch[k]; });
   write(K.settings, settings);
   return getSettings();
+}
+
+/* Bersagli di Around the Clock: dall'1 al 20, poi il bull. */
+var CLOCK_TARGETS = (function(){
+  var t = [];
+  for(var n=1;n<=20;n++) t.push({key:String(n), n:n});
+  t.push({key:'bull', n:25});
+  return t;
+})();
+function clockLabel(key, mode){
+  if(key === 'bull') return 'BULL';
+  return (mode === 'doppi' ? 'D' : '') + key;
+}
+/* Minimo, media e massimo di freccette per ogni bersaglio, su tutte le
+   partite di un giocatore in una modalita'. */
+function clockStats(playerId, mode){
+  var rows = {}, totals = [], games = 0;
+  CLOCK_TARGETS.forEach(function(t){ rows[t.key] = []; });
+  history.forEach(function(h){
+    if(h.game !== 'clock' || h.mode !== mode) return;
+    var p = h.players && h.players[0];
+    if(!p || p.id !== playerId || !p.perTarget) return;
+    games++;
+    if(typeof p.total === 'number') totals.push(p.total);
+    Object.keys(p.perTarget).forEach(function(k){
+      if(rows[k]) rows[k].push(p.perTarget[k]);
+    });
+  });
+  function agg(list){
+    if(!list.length) return null;
+    var min = Math.min.apply(null, list), max = Math.max.apply(null, list);
+    var sum = list.reduce(function(a,b){ return a+b; }, 0);
+    return {min:min, max:max, avg:sum/list.length, n:list.length};
+  }
+  return {
+    games: games,
+    targets: CLOCK_TARGETS.map(function(t){ return {key:t.key, stats:agg(rows[t.key])}; }),
+    total: agg(totals)
+  };
 }
 
 /* ------------------------------------------------------------ giocatori */
@@ -322,7 +361,8 @@ function keepAwake(){
 }
 
 return {
-  GAMES: GAMES, DEFAULTS: DEFAULTS,
+  GAMES: GAMES, DEFAULTS: DEFAULTS, CLOCK_TARGETS: CLOCK_TARGETS,
+  clockLabel: clockLabel, clockStats: clockStats,
   getSettings: getSettings, setSettings: setSettings,
   listPlayers: listPlayers, playerById: playerById, playerByName: playerByName,
   addPlayer: addPlayer, renamePlayer: renamePlayer, removePlayer: removePlayer,
