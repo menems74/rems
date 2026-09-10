@@ -49,12 +49,19 @@ header .sotto{margin-left:auto; color:var(--matita); font-size:.78rem; font-fami
 main{padding:14px 16px 24px;}
 
 /* --------------------------------------------------------------- avvisi -- */
+/* Il messaggio è sospeso sopra la barra: se stesse nel flusso, comparendo
+   spingerebbe giù tutta la pagina e perderesti il punto dove stavi
+   scrivendo o spuntando. Sta in basso, vicino al dito che ha appena
+   toccato, e non copre il titolo. */
 #avviso{
-  margin:0; padding:11px 16px; font-size:.92rem;
-  border-bottom:1px solid var(--filetto);
-  background:rgba(31,107,69,.08); color:var(--spunta);
+  position:fixed; left:0; right:0; z-index:25;
+  bottom:calc(54px + env(safe-area-inset-bottom));
+  margin:0; padding:11px 16px 11px 13px; font-size:.92rem;
+  background:var(--carta); color:var(--spunta);
+  border-top:1px solid var(--filetto-forte);
+  border-left:3px solid var(--spunta);
 }
-#avviso[data-tipo="errore"]{background:rgba(179,38,30,.08); color:var(--rosso);}
+#avviso[data-tipo="errore"]{color:var(--rosso); border-left-color:var(--rosso);}
 .rilassato{
   font-size:.88rem; color:var(--rosso); margin:0 0 12px;
   padding-left:11px; border-left:3px solid var(--rosso);

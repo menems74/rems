@@ -602,9 +602,23 @@ function rottaCorrente() {
   return ROTTE[nome] ? nome : 'casa';
 }
 
+let rottaDisegnata = null;
+
+/**
+ * Ridisegna la schermata corrente.
+ *
+ * Il punto delicato è lo scorrimento: svuotare la vista fa accorciare la
+ * pagina, il browser riporta la barra in cima e quando il contenuto torna
+ * sei rimasto in alto. Fastidioso se stavi compilando in fondo o spuntando
+ * la spesa. Quindi: cambiando sezione si parte dall'inizio, restando nella
+ * stessa si torna esattamente dov'eri.
+ */
 function disegna() {
   const nome = rottaCorrente();
   const rotta = ROTTE[nome];
+  const stessaSezione = nome === rottaDisegnata;
+  const scorrimento = stessaSezione ? window.scrollY : 0;
+
   document.getElementById('titolo').textContent = rotta.titolo;
   const sottoAltro = ['dispensa', 'nuovi', 'impostazioni', 'gusti'];
   const attiva = sottoAltro.includes(nome) ? 'altro' : nome;
@@ -613,6 +627,9 @@ function disegna() {
   }
   chiudiDettaglio();
   rotta.render(document.getElementById('vista'));
+
+  rottaDisegnata = nome;
+  window.scrollTo(0, scorrimento);
 }
 
 avvia();

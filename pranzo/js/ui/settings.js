@@ -52,9 +52,10 @@ export function render(contenitore, stato) {
 }
 
 function ridisegna(stato) {
-  if (document.getElementById('titolo').textContent === 'Impostazioni') {
-    render(document.getElementById('vista'), stato);
-  }
+  if (document.getElementById('titolo').textContent !== 'Impostazioni') return;
+  const scorrimento = window.scrollY;      // vedi il commento in ui/import.js
+  render(document.getElementById('vista'), stato);
+  window.scrollTo(0, scorrimento);
 }
 
 async function caricaIstantanee(stato) {

@@ -21,8 +21,13 @@ export function render(contenitore, stato) {
   if (bozza.proposte) contenitore.appendChild(passoScegli(stato));
 }
 
+/* Ridisegnare svuota la vista, e una pagina che si accorcia trascina la
+   barra di scorrimento in cima: si rimette dov'era, o compilare in fondo
+   diventa una rincorsa. */
 function ridisegna(stato) {
+  const scorrimento = window.scrollY;
   render(document.getElementById('vista'), stato);
+  window.scrollTo(0, scorrimento);
 }
 
 /* ---------------------------------------------------------- 1. chiedere -- */
@@ -292,7 +297,7 @@ function domandeIngrediente(ing, proposta, stato) {
 
   campi.appendChild(el('select', {
     'aria-label': `Unità di ${ing.nome}`,
-    onchange: (e) => { ing.unita = e.target.value; ridisegna(stato); }
+    onchange: (e) => { ing.unita = e.target.value; }
   }, M.UNITA.map((u) => el('option', { value: u, selected: ing.unita === u || null }, u))));
 
   campi.appendChild(el('select', {
