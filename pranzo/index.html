@@ -4,72 +4,37 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Pranzo 2.0</title>
-<meta name="description" content="Pranzo 2.0: gestione alimentare, installabile e funzionante offline.">
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#3f7d4e">
-<link rel="icon" href="icons/favicon-64.png" sizes="64x64" type="image/png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Pranzo">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="mobile-web-app-capable" content="yes">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="ui.css">
-<script src="core.js"></script>
-<script src="main.js" defer></script>
+<meta name="description" content="Pianifica i pranzi della settimana e genera la lista della spesa.">
+<meta name="color-scheme" content="light">
+<!-- icone e manifest arrivano in M6: per ora nessuna richiesta di favicon -->
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="css/app.css">
+<script type="module" src="js/app.js"></script>
 </head>
 <body>
 
-<section class="view on" id="v-home">
-  <div class="wrap">
-    <div class="bar">
-      <div class="brand">
-        <span class="mark">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M7 3v8a2 2 0 0 0 4 0V3M9 11v10"/>
-            <path d="M17 3c1.4 1.6 1.4 4.4 0 6v12"/>
-          </svg>
-        </span>
-        <span class="who">
-          <b>Pranzo 2.0</b>
-          <span class="sub">Gestione alimentare</span>
-        </span>
-      </div>
-    </div>
+<header>
+  <h1 id="titolo">Catalogo</h1>
+  <p class="sotto">Pranzo 2.0 · archivio su <span id="motore">…</span></p>
+</header>
 
-    <div class="card">
-      <span class="pill">In preparazione</span>
-      <h1 class="title" style="margin:12px 0 8px">La cucina è pronta,<br>manca la ricetta</h1>
-      <p class="lead">L'impalcatura della app è già in piedi: si installa sul telefono, funziona senza connessione e ha il suo archivio locale. Appena arrivano le specifiche, le sezioni compaiono qui sotto.</p>
-    </div>
+<p id="avviso" role="status" hidden></p>
 
-    <p class="lbl" style="margin:6px 2px 0">Sezioni</p>
-    <div class="row soon">
-      <span class="ic">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5v14"/></svg>
-      </span>
-      <span><b>Da definire</b><small>Le funzioni della app</small></span>
-      <span class="tag">Presto</span>
-    </div>
+<main id="vista"></main>
 
-    <div class="foot">
-      <button class="btn ghost" id="install">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
-        Installa la app
-      </button>
-      <div class="card" id="installHelp" hidden style="width:100%">
-        <span class="lbl">Come installarla</span>
-        <p class="hint" data-os="android" style="margin-top:8px">Apri il menu di Chrome (i tre puntini in alto a destra) e scegli <b>Installa app</b>, oppure <b>Aggiungi a schermata Home</b>.</p>
-        <p class="hint" data-os="ios" hidden style="margin-top:8px">In Safari premi il tasto <b>Condividi</b> in basso, poi <b>Aggiungi a Home</b>. Su iPhone funziona solo da Safari.</p>
-        <p class="hint" style="margin-top:8px">Se l'avevi già installata e non te la ripropone: chiudi la finestra dell'app dalle app recenti, disinstalla l'icona dalla schermata Home, poi riapri questo indirizzo nel browser.</p>
-      </div>
-      <p class="state" id="state"><span class="dot"></span><span id="stateText">Online</span></p>
-    </div>
-  </div>
+<nav aria-label="Sezioni">
+  <a href="#/settimana" data-rotta="settimana">Settimana</a>
+  <a href="#/spesa" data-rotta="spesa">Spesa</a>
+  <a href="#/catalogo" data-rotta="catalogo">Catalogo</a>
+  <a href="#/gusti" data-rotta="gusti">Gusti</a>
+  <a href="#/altro" data-rotta="altro">Altro</a>
+</nav>
+
+<!-- pannello di dettaglio del piatto -->
+<section id="pannello" hidden aria-label="Dettaglio piatto">
+  <button id="pannelloChiudi" type="button">Chiudi</button>
+  <div id="pannelloCorpo"></div>
 </section>
 
-<p class="toast" id="toast"></p>
 </body>
 </html>

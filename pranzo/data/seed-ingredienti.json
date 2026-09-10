@@ -1,0 +1,1906 @@
+[
+ {
+  "id": "ing_pollo_petto",
+  "nome": "Petto di pollo",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "macelleria",
+  "formatoAcquisto": {
+   "qta": 300,
+   "label": "confezione da ~300 g"
+  },
+  "conversioni": [
+   {
+    "label": "fetta",
+    "fattore": 120
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "pollame"
+ },
+ {
+  "id": "ing_pollo_cosce",
+  "nome": "Cosce di pollo",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "macelleria",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "vassoio da ~500 g"
+  },
+  "conversioni": [
+   {
+    "label": "coscia",
+    "fattore": 200
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "pollame"
+ },
+ {
+  "id": "ing_tacchino_fesa",
+  "nome": "Fesa di tacchino",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "macelleria",
+  "formatoAcquisto": {
+   "qta": 300,
+   "label": "confezione da ~300 g"
+  },
+  "conversioni": [
+   {
+    "label": "fetta",
+    "fattore": 100
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "pollame"
+ },
+ {
+  "id": "ing_manzo_macinato",
+  "nome": "Macinato di manzo",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "macelleria",
+  "formatoAcquisto": {
+   "qta": 400,
+   "label": "confezione da ~400 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "manzo"
+ },
+ {
+  "id": "ing_manzo_fettine",
+  "nome": "Fettine di manzo",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "macelleria",
+  "formatoAcquisto": {
+   "qta": 300,
+   "label": "confezione da ~300 g"
+  },
+  "conversioni": [
+   {
+    "label": "fettina",
+    "fattore": 90
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "manzo"
+ },
+ {
+  "id": "ing_maiale_lonza",
+  "nome": "Lonza di maiale",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "macelleria",
+  "formatoAcquisto": {
+   "qta": 400,
+   "label": "confezione da ~400 g"
+  },
+  "conversioni": [
+   {
+    "label": "fetta",
+    "fattore": 120
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "maiale"
+ },
+ {
+  "id": "ing_salsiccia",
+  "nome": "Salsiccia",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "macelleria",
+  "formatoAcquisto": {
+   "qta": 250,
+   "label": "confezione da ~250 g"
+  },
+  "conversioni": [
+   {
+    "label": "salsiccia",
+    "fattore": 90
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "maiale"
+ },
+ {
+  "id": "ing_pancetta",
+  "nome": "Pancetta affumicata a cubetti",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "macelleria",
+  "formatoAcquisto": {
+   "qta": 130,
+   "label": "vaschetta da 130 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "maiale"
+ },
+ {
+  "id": "ing_prosciutto_cotto",
+  "nome": "Prosciutto cotto",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "macelleria",
+  "formatoAcquisto": {
+   "qta": 120,
+   "label": "vaschetta da ~120 g"
+  },
+  "conversioni": [
+   {
+    "label": "fetta",
+    "fattore": 25
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "salumi"
+ },
+ {
+  "id": "ing_prosciutto_crudo",
+  "nome": "Prosciutto crudo",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "macelleria",
+  "formatoAcquisto": {
+   "qta": 100,
+   "label": "vaschetta da ~100 g"
+  },
+  "conversioni": [
+   {
+    "label": "fetta",
+    "fattore": 20
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "salumi"
+ },
+ {
+  "id": "ing_bresaola",
+  "nome": "Bresaola",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "macelleria",
+  "formatoAcquisto": {
+   "qta": 100,
+   "label": "vaschetta da ~100 g"
+  },
+  "conversioni": [
+   {
+    "label": "fetta",
+    "fattore": 15
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "salumi"
+ },
+ {
+  "id": "ing_speck",
+  "nome": "Speck",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "macelleria",
+  "formatoAcquisto": {
+   "qta": 100,
+   "label": "vaschetta da ~100 g"
+  },
+  "conversioni": [
+   {
+    "label": "fetta",
+    "fattore": 15
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "salumi"
+ },
+ {
+  "id": "ing_tonno_scatola",
+  "nome": "Tonno in scatola sgocciolato",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 160,
+   "label": "2 scatolette da 80 g"
+  },
+  "conversioni": [
+   {
+    "label": "scatoletta",
+    "fattore": 80
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "pesce"
+ },
+ {
+  "id": "ing_sgombro_scatola",
+  "nome": "Sgombro in scatola sgocciolato",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 120,
+   "label": "scatoletta da 120 g"
+  },
+  "conversioni": [
+   {
+    "label": "scatoletta",
+    "fattore": 120
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "pesce"
+ },
+ {
+  "id": "ing_salmone_filetto",
+  "nome": "Filetto di salmone",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "pescheria",
+  "formatoAcquisto": {
+   "qta": 250,
+   "label": "2 filetti da ~125 g"
+  },
+  "conversioni": [
+   {
+    "label": "filetto",
+    "fattore": 125
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "pesce"
+ },
+ {
+  "id": "ing_merluzzo_filetto",
+  "nome": "Filetto di merluzzo",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "pescheria",
+  "formatoAcquisto": {
+   "qta": 300,
+   "label": "2 filetti da ~150 g"
+  },
+  "conversioni": [
+   {
+    "label": "filetto",
+    "fattore": 150
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "pesce"
+ },
+ {
+  "id": "ing_platessa",
+  "nome": "Filetto di platessa",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "surgelati",
+  "formatoAcquisto": {
+   "qta": 400,
+   "label": "confezione da 400 g"
+  },
+  "conversioni": [
+   {
+    "label": "filetto",
+    "fattore": 100
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "pesce"
+ },
+ {
+  "id": "ing_gamberi",
+  "nome": "Gamberi sgusciati",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "surgelati",
+  "formatoAcquisto": {
+   "qta": 300,
+   "label": "busta da 300 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "pesce"
+ },
+ {
+  "id": "ing_alici_marinate",
+  "nome": "Alici marinate",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "pescheria",
+  "formatoAcquisto": {
+   "qta": 150,
+   "label": "vaschetta da ~150 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "pesce"
+ },
+ {
+  "id": "ing_uova",
+  "nome": "Uova",
+  "macro": "proteina",
+  "unita": "pz",
+  "reparto": "latticini",
+  "formatoAcquisto": {
+   "qta": 6,
+   "label": "confezione da 6"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "uova"
+ },
+ {
+  "id": "ing_mozzarella",
+  "nome": "Mozzarella",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "latticini",
+  "formatoAcquisto": {
+   "qta": 125,
+   "label": "mozzarella da 125 g"
+  },
+  "conversioni": [
+   {
+    "label": "mozzarella",
+    "fattore": 125
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "formaggio"
+ },
+ {
+  "id": "ing_ricotta",
+  "nome": "Ricotta",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "latticini",
+  "formatoAcquisto": {
+   "qta": 250,
+   "label": "vaschetta da 250 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "formaggio"
+ },
+ {
+  "id": "ing_stracchino",
+  "nome": "Stracchino",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "latticini",
+  "formatoAcquisto": {
+   "qta": 100,
+   "label": "confezione da 100 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "formaggio"
+ },
+ {
+  "id": "ing_feta",
+  "nome": "Feta",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "latticini",
+  "formatoAcquisto": {
+   "qta": 200,
+   "label": "confezione da 200 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "formaggio"
+ },
+ {
+  "id": "ing_scamorza",
+  "nome": "Scamorza",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "latticini",
+  "formatoAcquisto": {
+   "qta": 250,
+   "label": "scamorza da ~250 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "formaggio"
+ },
+ {
+  "id": "ing_yogurt_greco",
+  "nome": "Yogurt greco",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "latticini",
+  "formatoAcquisto": {
+   "qta": 170,
+   "label": "vasetto da 170 g"
+  },
+  "conversioni": [
+   {
+    "label": "vasetto",
+    "fattore": 170
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "latticini"
+ },
+ {
+  "id": "ing_latte",
+  "nome": "Latte",
+  "macro": "proteina",
+  "unita": "ml",
+  "reparto": "latticini",
+  "formatoAcquisto": {
+   "qta": 1000,
+   "label": "bottiglia da 1 l"
+  },
+  "conversioni": [
+   {
+    "label": "bicchiere",
+    "fattore": 200
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "latticini"
+ },
+ {
+  "id": "ing_ceci_lessati",
+  "nome": "Ceci lessati",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 240,
+   "label": "barattolo da 400 g (240 g sgocciolati)"
+  },
+  "conversioni": [
+   {
+    "label": "barattolo",
+    "fattore": 240
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "legumi"
+ },
+ {
+  "id": "ing_cannellini",
+  "nome": "Fagioli cannellini lessati",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 240,
+   "label": "barattolo da 400 g (240 g sgocciolati)"
+  },
+  "conversioni": [
+   {
+    "label": "barattolo",
+    "fattore": 240
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "legumi"
+ },
+ {
+  "id": "ing_borlotti",
+  "nome": "Fagioli borlotti lessati",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 240,
+   "label": "barattolo da 400 g (240 g sgocciolati)"
+  },
+  "conversioni": [
+   {
+    "label": "barattolo",
+    "fattore": 240
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "legumi"
+ },
+ {
+  "id": "ing_lenticchie",
+  "nome": "Lenticchie secche",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "confezione da 500 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "legumi"
+ },
+ {
+  "id": "ing_tofu",
+  "nome": "Tofu naturale",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 200,
+   "label": "panetto da 200 g"
+  },
+  "conversioni": [
+   {
+    "label": "panetto",
+    "fattore": 200
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "legumi"
+ },
+ {
+  "id": "ing_pasta_corta",
+  "nome": "Pasta corta",
+  "macro": "carboidrato",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "confezione da 500 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_spaghetti",
+  "nome": "Spaghetti",
+  "macro": "carboidrato",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "confezione da 500 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_riso",
+  "nome": "Riso",
+  "macro": "carboidrato",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 1000,
+   "label": "confezione da 1 kg"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_riso_venere",
+  "nome": "Riso venere",
+  "macro": "carboidrato",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "confezione da 500 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_farro",
+  "nome": "Farro perlato",
+  "macro": "carboidrato",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "confezione da 500 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_orzo",
+  "nome": "Orzo perlato",
+  "macro": "carboidrato",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "confezione da 500 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_bulgur",
+  "nome": "Bulgur",
+  "macro": "carboidrato",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "confezione da 500 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_cous_cous",
+  "nome": "Cous cous",
+  "macro": "carboidrato",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "confezione da 500 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_quinoa",
+  "nome": "Quinoa",
+  "macro": "carboidrato",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 400,
+   "label": "confezione da 400 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_pane",
+  "nome": "Pane",
+  "macro": "carboidrato",
+  "unita": "g",
+  "reparto": "panetteria",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "pagnotta da ~500 g"
+  },
+  "conversioni": [
+   {
+    "label": "fetta",
+    "fattore": 50
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_piadina",
+  "nome": "Piadina",
+  "macro": "carboidrato",
+  "unita": "pz",
+  "reparto": "panetteria",
+  "formatoAcquisto": {
+   "qta": 4,
+   "label": "confezione da 4"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_gnocchi",
+  "nome": "Gnocchi di patate",
+  "macro": "carboidrato",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "confezione da 500 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_tortellini",
+  "nome": "Tortellini",
+  "macro": "carboidrato",
+  "unita": "g",
+  "reparto": "latticini",
+  "formatoAcquisto": {
+   "qta": 250,
+   "label": "confezione da 250 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": "banco frigo"
+ },
+ {
+  "id": "ing_patate",
+  "nome": "Patate",
+  "macro": "carboidrato",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 1000,
+   "label": "sacchetto da 1 kg"
+  },
+  "conversioni": [
+   {
+    "label": "patata",
+    "fattore": 150
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_polenta",
+  "nome": "Farina per polenta",
+  "macro": "carboidrato",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "confezione da 500 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_farina",
+  "nome": "Farina 00",
+  "macro": "carboidrato",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 1000,
+   "label": "confezione da 1 kg"
+  },
+  "conversioni": [
+   {
+    "label": "cucchiaio",
+    "fattore": 10
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_pangrattato",
+  "nome": "Pangrattato",
+  "macro": "carboidrato",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 400,
+   "label": "confezione da 400 g"
+  },
+  "conversioni": [
+   {
+    "label": "cucchiaio",
+    "fattore": 10
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_mais",
+  "nome": "Mais dolce",
+  "macro": "carboidrato",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 150,
+   "label": "barattolo da 150 g sgocciolati"
+  },
+  "conversioni": [
+   {
+    "label": "barattolo",
+    "fattore": 150
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_zucchine",
+  "nome": "Zucchine",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "~3 zucchine"
+  },
+  "conversioni": [
+   {
+    "label": "zucchina",
+    "fattore": 180
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_melanzane",
+  "nome": "Melanzane",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "2 melanzane"
+  },
+  "conversioni": [
+   {
+    "label": "melanzana",
+    "fattore": 250
+   }
+  ],
+  "stagioni": [
+   6,
+   7,
+   8,
+   9
+  ],
+  "note": ""
+ },
+ {
+  "id": "ing_peperoni",
+  "nome": "Peperoni",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 400,
+   "label": "2 peperoni"
+  },
+  "conversioni": [
+   {
+    "label": "peperone",
+    "fattore": 200
+   }
+  ],
+  "stagioni": [
+   6,
+   7,
+   8,
+   9
+  ],
+  "note": ""
+ },
+ {
+  "id": "ing_pomodorini",
+  "nome": "Pomodorini",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "vassoio da 500 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_pomodori",
+  "nome": "Pomodori da insalata",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "~3 pomodori"
+  },
+  "conversioni": [
+   {
+    "label": "pomodoro",
+    "fattore": 150
+   }
+  ],
+  "stagioni": [
+   5,
+   6,
+   7,
+   8,
+   9
+  ],
+  "note": ""
+ },
+ {
+  "id": "ing_insalata",
+  "nome": "Insalata mista",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 200,
+   "label": "busta da 200 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_rucola",
+  "nome": "Rucola",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 100,
+   "label": "busta da 100 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_spinaci",
+  "nome": "Spinaci",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 300,
+   "label": "busta da 300 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_broccoli",
+  "nome": "Broccoli",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "~1 broccolo"
+  },
+  "conversioni": [],
+  "stagioni": [
+   10,
+   11,
+   12,
+   1,
+   2,
+   3
+  ],
+  "note": ""
+ },
+ {
+  "id": "ing_cavolfiore",
+  "nome": "Cavolfiore",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 700,
+   "label": "1 cavolfiore"
+  },
+  "conversioni": [],
+  "stagioni": [
+   10,
+   11,
+   12,
+   1,
+   2,
+   3
+  ],
+  "note": ""
+ },
+ {
+  "id": "ing_verza",
+  "nome": "Verza",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 800,
+   "label": "1 verza"
+  },
+  "conversioni": [],
+  "stagioni": [
+   10,
+   11,
+   12,
+   1,
+   2
+  ],
+  "note": ""
+ },
+ {
+  "id": "ing_cicoria",
+  "nome": "Cicoria",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "mazzo da ~500 g"
+  },
+  "conversioni": [],
+  "stagioni": [
+   10,
+   11,
+   12,
+   1,
+   2,
+   3,
+   4
+  ],
+  "note": ""
+ },
+ {
+  "id": "ing_radicchio",
+  "nome": "Radicchio",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 300,
+   "label": "2 cespi"
+  },
+  "conversioni": [],
+  "stagioni": [
+   9,
+   10,
+   11,
+   12,
+   1,
+   2
+  ],
+  "note": ""
+ },
+ {
+  "id": "ing_fagiolini",
+  "nome": "Fagiolini",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 400,
+   "label": "busta da 400 g"
+  },
+  "conversioni": [],
+  "stagioni": [
+   6,
+   7,
+   8,
+   9
+  ],
+  "note": ""
+ },
+ {
+  "id": "ing_carote",
+  "nome": "Carote",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "busta da 500 g"
+  },
+  "conversioni": [
+   {
+    "label": "carota",
+    "fattore": 80
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_finocchi",
+  "nome": "Finocchi",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "2 finocchi"
+  },
+  "conversioni": [
+   {
+    "label": "finocchio",
+    "fattore": 250
+   }
+  ],
+  "stagioni": [
+   11,
+   12,
+   1,
+   2,
+   3,
+   4
+  ],
+  "note": ""
+ },
+ {
+  "id": "ing_asparagi",
+  "nome": "Asparagi",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "mazzo da 500 g"
+  },
+  "conversioni": [],
+  "stagioni": [
+   3,
+   4,
+   5
+  ],
+  "note": ""
+ },
+ {
+  "id": "ing_carciofi",
+  "nome": "Carciofi",
+  "macro": "fibra",
+  "unita": "pz",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 4,
+   "label": "confezione da 4"
+  },
+  "conversioni": [],
+  "stagioni": [
+   11,
+   12,
+   1,
+   2,
+   3,
+   4
+  ],
+  "note": ""
+ },
+ {
+  "id": "ing_zucca",
+  "nome": "Zucca",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 600,
+   "label": "fetta da ~600 g"
+  },
+  "conversioni": [],
+  "stagioni": [
+   9,
+   10,
+   11,
+   12
+  ],
+  "note": ""
+ },
+ {
+  "id": "ing_funghi",
+  "nome": "Funghi champignon",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 250,
+   "label": "vaschetta da 250 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_cetriolo",
+  "nome": "Cetriolo",
+  "macro": "fibra",
+  "unita": "pz",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 2,
+   "label": "2 cetrioli"
+  },
+  "conversioni": [],
+  "stagioni": [
+   6,
+   7,
+   8,
+   9
+  ],
+  "note": ""
+ },
+ {
+  "id": "ing_sedano",
+  "nome": "Sedano",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 300,
+   "label": "1 cespo"
+  },
+  "conversioni": [
+   {
+    "label": "costa",
+    "fattore": 60
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_piselli",
+  "nome": "Piselli",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "surgelati",
+  "formatoAcquisto": {
+   "qta": 450,
+   "label": "busta da 450 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_minestrone",
+  "nome": "Misto per minestrone",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "surgelati",
+  "formatoAcquisto": {
+   "qta": 450,
+   "label": "busta da 450 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_pelati",
+  "nome": "Pomodori pelati",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 400,
+   "label": "barattolo da 400 g"
+  },
+  "conversioni": [
+   {
+    "label": "barattolo",
+    "fattore": 400
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_passata",
+  "nome": "Passata di pomodoro",
+  "macro": "fibra",
+  "unita": "ml",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 700,
+   "label": "bottiglia da 700 ml"
+  },
+  "conversioni": [
+   {
+    "label": "bicchiere",
+    "fattore": 200
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_olio_evo",
+  "nome": "Olio extravergine di oliva",
+  "macro": "grasso",
+  "unita": "ml",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 1000,
+   "label": "bottiglia da 1 l"
+  },
+  "conversioni": [
+   {
+    "label": "cucchiaio",
+    "fattore": 10
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_burro",
+  "nome": "Burro",
+  "macro": "grasso",
+  "unita": "g",
+  "reparto": "latticini",
+  "formatoAcquisto": {
+   "qta": 250,
+   "label": "panetto da 250 g"
+  },
+  "conversioni": [
+   {
+    "label": "noce",
+    "fattore": 15
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_noci",
+  "nome": "Noci sgusciate",
+  "macro": "grasso",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 200,
+   "label": "confezione da 200 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_pinoli",
+  "nome": "Pinoli",
+  "macro": "grasso",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 50,
+   "label": "confezione da 50 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_mandorle",
+  "nome": "Mandorle a lamelle",
+  "macro": "grasso",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 100,
+   "label": "confezione da 100 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_sesamo",
+  "nome": "Semi di sesamo",
+  "macro": "grasso",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 100,
+   "label": "confezione da 100 g"
+  },
+  "conversioni": [
+   {
+    "label": "cucchiaio",
+    "fattore": 10
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_cipolla",
+  "nome": "Cipolla",
+  "macro": "condimento",
+  "unita": "pz",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 3,
+   "label": "retina da 3"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_cipolla_rossa",
+  "nome": "Cipolla rossa",
+  "macro": "condimento",
+  "unita": "pz",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 3,
+   "label": "retina da 3"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_aglio",
+  "nome": "Aglio",
+  "macro": "condimento",
+  "unita": "pz",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 1,
+   "label": "1 testa (unità = spicchio)"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": "l'unità è lo spicchio"
+ },
+ {
+  "id": "ing_limone",
+  "nome": "Limone",
+  "macro": "condimento",
+  "unita": "pz",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 3,
+   "label": "retina da 3"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_prezzemolo",
+  "nome": "Prezzemolo",
+  "macro": "condimento",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 20,
+   "label": "mazzetto"
+  },
+  "conversioni": [
+   {
+    "label": "mazzetto",
+    "fattore": 20
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_basilico",
+  "nome": "Basilico",
+  "macro": "condimento",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 20,
+   "label": "vasetto"
+  },
+  "conversioni": [
+   {
+    "label": "foglie",
+    "fattore": 2
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_rosmarino",
+  "nome": "Rosmarino",
+  "macro": "condimento",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 10,
+   "label": "rametto"
+  },
+  "conversioni": [
+   {
+    "label": "rametto",
+    "fattore": 5
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_salvia",
+  "nome": "Salvia",
+  "macro": "condimento",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 10,
+   "label": "mazzetto"
+  },
+  "conversioni": [
+   {
+    "label": "foglia",
+    "fattore": 1
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_parmigiano",
+  "nome": "Parmigiano grattugiato",
+  "macro": "condimento",
+  "unita": "g",
+  "reparto": "latticini",
+  "formatoAcquisto": {
+   "qta": 100,
+   "label": "confezione da 100 g"
+  },
+  "conversioni": [
+   {
+    "label": "cucchiaio",
+    "fattore": 10
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_pecorino",
+  "nome": "Pecorino grattugiato",
+  "macro": "condimento",
+  "unita": "g",
+  "reparto": "latticini",
+  "formatoAcquisto": {
+   "qta": 100,
+   "label": "confezione da 100 g"
+  },
+  "conversioni": [
+   {
+    "label": "cucchiaio",
+    "fattore": 10
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_sale",
+  "nome": "Sale",
+  "macro": "condimento",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 1000,
+   "label": "confezione da 1 kg"
+  },
+  "conversioni": [
+   {
+    "label": "presa",
+    "fattore": 3
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_pepe",
+  "nome": "Pepe nero",
+  "macro": "condimento",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 50,
+   "label": "macinino da 50 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_aceto",
+  "nome": "Aceto di vino",
+  "macro": "condimento",
+  "unita": "ml",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "bottiglia da 500 ml"
+  },
+  "conversioni": [
+   {
+    "label": "cucchiaio",
+    "fattore": 10
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_balsamico",
+  "nome": "Aceto balsamico",
+  "macro": "condimento",
+  "unita": "ml",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 250,
+   "label": "bottiglia da 250 ml"
+  },
+  "conversioni": [
+   {
+    "label": "cucchiaio",
+    "fattore": 10
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_senape",
+  "nome": "Senape",
+  "macro": "condimento",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 200,
+   "label": "vasetto da 200 g"
+  },
+  "conversioni": [
+   {
+    "label": "cucchiaino",
+    "fattore": 5
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_olive",
+  "nome": "Olive nere denocciolate",
+  "macro": "condimento",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 150,
+   "label": "vasetto da 150 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_capperi",
+  "nome": "Capperi",
+  "macro": "condimento",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 100,
+   "label": "vasetto da 100 g"
+  },
+  "conversioni": [
+   {
+    "label": "cucchiaio",
+    "fattore": 10
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_pesto",
+  "nome": "Pesto alla genovese",
+  "macro": "condimento",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 190,
+   "label": "vasetto da 190 g"
+  },
+  "conversioni": [
+   {
+    "label": "cucchiaio",
+    "fattore": 20
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_brodo_granulare",
+  "nome": "Brodo granulare",
+  "macro": "condimento",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 100,
+   "label": "barattolo da 100 g"
+  },
+  "conversioni": [
+   {
+    "label": "cucchiaino",
+    "fattore": 5
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_curry",
+  "nome": "Curry in polvere",
+  "macro": "condimento",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 40,
+   "label": "barattolino da 40 g"
+  },
+  "conversioni": [
+   {
+    "label": "cucchiaino",
+    "fattore": 3
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_paprika",
+  "nome": "Paprika dolce",
+  "macro": "condimento",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 40,
+   "label": "barattolino da 40 g"
+  },
+  "conversioni": [
+   {
+    "label": "cucchiaino",
+    "fattore": 3
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_origano",
+  "nome": "Origano secco",
+  "macro": "condimento",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 20,
+   "label": "barattolino da 20 g"
+  },
+  "conversioni": [
+   {
+    "label": "pizzico",
+    "fattore": 1
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_peperoncino",
+  "nome": "Peperoncino secco",
+  "macro": "condimento",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 20,
+   "label": "barattolino da 20 g"
+  },
+  "conversioni": [
+   {
+    "label": "pizzico",
+    "fattore": 1
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_noce_moscata",
+  "nome": "Noce moscata",
+  "macro": "condimento",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 20,
+   "label": "barattolino da 20 g"
+  },
+  "conversioni": [
+   {
+    "label": "grattata",
+    "fattore": 1
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_vino_bianco",
+  "nome": "Vino bianco",
+  "macro": "condimento",
+  "unita": "ml",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 750,
+   "label": "bottiglia da 750 ml"
+  },
+  "conversioni": [
+   {
+    "label": "bicchiere",
+    "fattore": 100
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ }
+]

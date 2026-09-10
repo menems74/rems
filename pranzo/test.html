@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prove — Pranzo 2.0</title>
+<link rel="icon" href="data:,">
+<style>
+  body{font:15px/1.5 system-ui,sans-serif; margin:0; padding:16px; background:#f2f2f0; color:#1a1a1a;}
+  h1{font-size:1.2rem; margin:0 0 4px;}
+  #esito{font-family:ui-monospace,Menlo,monospace; margin:10px 0 16px; padding:10px 12px; background:#fff; border:1px solid #d8d8d4;}
+  #esito.ok{border-color:#1f6b45; color:#1f6b45;}
+  #esito.ko{border-color:#b3261e; color:#b3261e;}
+  ol{padding-left:22px;}
+  li{margin:3px 0;}
+  li.ko{color:#b3261e;}
+  code{font-family:ui-monospace,Menlo,monospace; font-size:.85em;}
+</style>
+</head>
+<body>
+<h1>Prove automatiche</h1>
+<p>Conversioni di unità, copertura dei macro, blacklist, validazione.</p>
+<p id="esito">esecuzione…</p>
+<ol id="elenco"></ol>
+<script type="module">
+  import { esegui } from './js/test/prove.js';
+  const risultati = esegui();
+  const falliti = risultati.filter(r => !r.ok);
+  const esito = document.getElementById('esito');
+  esito.textContent = falliti.length
+    ? `${falliti.length} prove fallite su ${risultati.length}`
+    : `tutte e ${risultati.length} le prove passano`;
+  esito.className = falliti.length ? 'ko' : 'ok';
+  const elenco = document.getElementById('elenco');
+  for (const r of risultati) {
+    const li = document.createElement('li');
+    li.className = r.ok ? 'ok' : 'ko';
+    li.textContent = (r.ok ? '✓ ' : '✗ ') + r.nome + (r.ok ? '' : ' — ' + r.errore);
+    elenco.appendChild(li);
+  }
+  window.__risultati = risultati;
+</script>
+</body>
+</html>
