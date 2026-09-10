@@ -1,0 +1,24 @@
+{
+  "name": "Pranzo 2.0",
+  "short_name": "Pranzo",
+  "description": "Pianifica i pranzi della settimana e genera la lista della spesa. Funziona senza rete.",
+  "lang": "it",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6f6f3",
+  "theme_color": "#f6f6f3",
+  "categories": ["food", "lifestyle", "productivity"],
+  "icons": [
+    { "src": "icons/icona-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icona-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icona-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icona-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Lista della spesa", "url": "./#/spesa" },
+    { "name": "Settimana", "url": "./#/settimana" }
+  ]
+}

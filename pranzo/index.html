@@ -4,11 +4,30 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Pranzo 2.0</title>
-<meta name="description" content="Pianifica i pranzi della settimana e genera la lista della spesa.">
-<meta name="color-scheme" content="light">
-<!-- icone e manifest arrivano in M6: per ora nessuna richiesta di favicon -->
-<link rel="icon" href="data:,">
+<meta name="description" content="Pianifica i pranzi della settimana e genera la lista della spesa. Funziona senza rete.">
+<meta name="theme-color" content="#f6f6f3">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+<link rel="icon" href="icons/icona-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pranzo">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="stylesheet" href="css/app.css">
+<script>
+  /* Il tema prima del primo disegno, per non far lampeggiare il bianco.
+     La copia in localStorage è solo un promemoria di aspetto: i dati veri
+     stanno in IndexedDB. */
+  (function () {
+    try {
+      var t = localStorage.getItem('pranzo.tema') || 'chiaro';
+      document.documentElement.dataset.tema = t;
+      var scuro = t === 'scuro' || (t === 'auto' &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.style.colorScheme = scuro ? 'dark' : 'light';
+    } catch (e) { document.documentElement.dataset.tema = 'chiaro'; }
+  })();
+</script>
 <script type="module" src="js/app.js"></script>
 </head>
 <body>

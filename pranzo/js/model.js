@@ -42,8 +42,7 @@ export function preferenzePredefinite() {
     amoPiatti: [],
     amoIngredienti: [],
     ordineReparti: REPARTI.slice(),
-    tema: 'auto',
-    apiKey: ''
+    tema: 'chiaro'         // 'scuro' e 'auto' si scelgono dalle impostazioni
   };
 }
 
@@ -262,13 +261,37 @@ export function validaVoto(x) {
 
 /* ---------------------------------------------------------- formattazione */
 
-/** "400 g", "2 pz", "1,5 pz": virgola decimale e niente zeri inutili. */
+/**
+ * Plurale delle unità "parlate": "2 cucchiai", non "2 cucchiaio".
+ * Solo le etichette che compaiono davvero nelle ricette — niente
+ * grammatica generale, che sbaglierebbe più di quanto aggiusti.
+ */
+const PLURALE_UNITA = {
+  fetta: 'fette', fettina: 'fettine', filetto: 'filetti', coscia: 'cosce',
+  salsiccia: 'salsicce', scatoletta: 'scatolette', barattolo: 'barattoli',
+  vasetto: 'vasetti', bicchiere: 'bicchieri', panetto: 'panetti',
+  mozzarella: 'mozzarelle', patata: 'patate', zucchina: 'zucchine',
+  melanzana: 'melanzane', peperone: 'peperoni', pomodoro: 'pomodori',
+  carota: 'carote', finocchio: 'finocchi', costa: 'coste', noce: 'noci',
+  mazzetto: 'mazzetti', rametto: 'rametti', foglia: 'foglie', foglie: 'foglie',
+  cucchiaio: 'cucchiai', cucchiaino: 'cucchiaini', presa: 'prese',
+  pizzico: 'pizzichi', grattata: 'grattate', spicchio: 'spicchi',
+  testa: 'teste', confezione: 'confezioni', busta: 'buste', mazzo: 'mazzi'
+};
+
+/** L'unità come va scritta accanto a quel numero. */
+export function etichettaUnita(unita, qta) {
+  if (qta === 1 || !PLURALE_UNITA[unita]) return unita;
+  return PLURALE_UNITA[unita];
+}
+
+/** "400 g", "2 pz", "1,5 pz", "2 cucchiai": virgola decimale e plurali. */
 export function formattaQta(qta, unita) {
   const arrotondato = Math.round(qta * 100) / 100;
   const testo = Number.isInteger(arrotondato)
     ? String(arrotondato)
     : String(arrotondato).replace('.', ',');
-  return `${testo} ${unita}`;
+  return `${testo} ${etichettaUnita(unita, arrotondato)}`;
 }
 
 export function formattaTempo(minuti) {

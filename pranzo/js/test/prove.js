@@ -1139,3 +1139,111 @@ prova('l\'esempio dentro il prompt è importabile dall\'app stessa', () => {
   uguale(true, e.accettabile);
   uguale(0, e.ingredientiNuovi.length);
 });
+
+/* ==========================================================================
+   PROVE DI M6: plurali delle unità, backup e istantanee.
+   Il backup è l'unica rete di sicurezza contro il gesto sbagliato: la
+   verifica deve rifiutare un file rotto prima di toccare l'archivio.
+   ========================================================================== */
+
+import * as B from '../backup.js';
+
+prova('le unità parlate vanno al plurale', () => {
+  uguale('2 cucchiai', M.formattaQta(2, 'cucchiaio'));
+  uguale('1 cucchiaio', M.formattaQta(1, 'cucchiaio'));
+  uguale('3 fette', M.formattaQta(3, 'fetta'));
+  uguale('2 spicchi', M.formattaQta(2, 'spicchio'));
+  uguale('4 foglie', M.formattaQta(4, 'foglie'));
+  uguale('2 scatolette', M.formattaQta(2, 'scatoletta'));
+  // le unità canoniche non si toccano
+  uguale('400 g', M.formattaQta(400, 'g'));
+  uguale('2 pz', M.formattaQta(2, 'pz'));
+  uguale('250 ml', M.formattaQta(250, 'ml'));
+  // un'etichetta che non conosco resta com'è, invece di essere storpiata
+  uguale('2 vaschetta', M.formattaQta(2, 'vaschetta'));
+});
+
+const BACKUP_BUONO = {
+  app: 'pranzo', formato: 1, esportato: '2026-09-10T12:00:00.000Z',
+  dati: {
+    ingredienti: [
+      { id: 'i_riso', nome: 'Riso', macro: 'carboidrato', unita: 'g', reparto: 'dispensa',
+        formatoAcquisto: { qta: 1000 }, conversioni: [], stagioni: [] },
+      { id: 'i_pollo', nome: 'Pollo', macro: 'proteina', unita: 'g', reparto: 'macelleria',
+        formatoAcquisto: { qta: 300 }, conversioni: [], stagioni: [], famiglia: 'pollame' },
+      { id: 'i_spinaci', nome: 'Spinaci', macro: 'fibra', unita: 'g', reparto: 'ortofrutta',
+        formatoAcquisto: { qta: 300 }, conversioni: [], stagioni: [] }
+    ],
+    piatti: [{
+      id: 'p_uno', nome: 'Riso con pollo', tipo: 'unico', tempoMin: 25, difficolta: 1,
+      passi: ['x'], stagioni: [], tags: [], attivo: true, origine: 'base',
+      ingredienti: [{ ingredienteId: 'i_riso', qta: 90, unita: 'g' },
+                    { ingredienteId: 'i_pollo', qta: 150, unita: 'g' },
+                    { ingredienteId: 'i_spinaci', qta: 150, unita: 'g' }]
+    }],
+    preferenze: [M.preferenzePredefinite()],
+    voti: [{ id: 'v1', piattoId: 'p_uno', stelle: 4, motivo: 'buono', data: '2026-09-01' }],
+    menu: [], listeSpesa: [], dispensa: [], cucinato: [], suggerimenti: []
+  }
+};
+
+prova('un backup buono passa la verifica, coi conteggi giusti', () => {
+  const v = B.verifica(BACKUP_BUONO);
+  uguale([], v.errori);
+  uguale(true, v.ok);
+  uguale(1, v.conteggi.piatti);
+  uguale(3, v.conteggi.ingredienti);
+  uguale(1, v.conteggi.voti);
+});
+
+prova('un file di un\'altra app non entra', () => {
+  const v = B.verifica(Object.assign({}, BACKUP_BUONO, { app: 'dart' }));
+  uguale(false, v.ok);
+  if (!v.errori.some((x) => /altra app/.test(x))) throw new Error('doveva dirlo');
+});
+
+prova('un backup di una versione futura non entra', () => {
+  uguale(false, B.verifica(Object.assign({}, BACKUP_BUONO, { formato: 99 })).ok);
+});
+
+prova('un backup con dati rotti non entra', () => {
+  const rotto = JSON.parse(JSON.stringify(BACKUP_BUONO));
+  rotto.dati.piatti[0].tipo = 'contornino';
+  const v = B.verifica(rotto);
+  uguale(false, v.ok);
+  if (!v.errori.some((x) => /piatti non validi/.test(x))) throw new Error('doveva contarli');
+
+  const senzaIngredienti = JSON.parse(JSON.stringify(BACKUP_BUONO));
+  senzaIngredienti.dati.ingredienti = [];
+  uguale(false, B.verifica(senzaIngredienti).ok);
+
+  uguale(false, B.verifica(null).ok);
+  uguale(false, B.verifica({ dati: { ingredienti: 'no', piatti: [] } }).ok);
+});
+
+prova('un piatto che punta a un ingrediente assente non entra', () => {
+  const rotto = JSON.parse(JSON.stringify(BACKUP_BUONO));
+  rotto.dati.ingredienti = rotto.dati.ingredienti.filter((i) => i.id !== 'i_pollo');
+  uguale(false, B.verifica(rotto).ok);
+});
+
+prova('senza impostazioni si avvisa, ma si carica', () => {
+  const senza = JSON.parse(JSON.stringify(BACKUP_BUONO));
+  senza.dati.preferenze = [];
+  const v = B.verifica(senza);
+  uguale(true, v.ok);
+  if (!v.avvisi.length) throw new Error('doveva avvisare');
+});
+
+prova('istantanea: una al giorno, non una per apertura', () => {
+  const oggi = new Date('2026-09-10T18:00:00');
+  uguale(true, B.serveIstantanea([], oggi));
+  uguale(false, B.serveIstantanea([{ data: '2026-09-10T08:00:00.000Z' }], oggi));
+  uguale(true, B.serveIstantanea([{ data: '2026-09-09T08:00:00.000Z' }], oggi));
+});
+
+prova('nomi di file e date leggibili', () => {
+  uguale('pranzo-2026-09-10-1432.json', B.nomeFile(new Date(2026, 8, 10, 14, 32)));
+  uguale('10 set 2026, 14:32', B.quando(new Date(2026, 8, 10, 14, 32).toISOString()));
+  uguale('3 kB', B.peso('x'.repeat(3000)));
+});

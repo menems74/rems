@@ -14,6 +14,8 @@ import * as Spesa from './ui/shopping.js';
 import * as Dispensa from './ui/pantry.js';
 import * as Gusti from './ui/tastes.js';
 import * as Nuovi from './ui/import.js';
+import * as Impostazioni from './ui/settings.js';
+import * as B from './backup.js';
 import * as G from './tastes.js';
 import { chiudiDettaglio } from './ui/dish.js';
 
@@ -39,6 +41,7 @@ const ROTTE = {
   gusti:     { titolo: 'Gusti', render: (c) => Gusti.render(c, stato) },
   dispensa:  { titolo: 'Dispensa', render: (c) => Dispensa.render(c, stato) },
   nuovi:     { titolo: 'Nuovi piatti', render: (c) => Nuovi.render(c, stato) },
+  impostazioni: { titolo: 'Impostazioni', render: (c) => Impostazioni.render(c, stato) },
   altro:     { titolo: 'Altro', render: (c) => altro(c) }
 };
 
@@ -54,8 +57,13 @@ function altro(contenitore) {
     { testo: 'Dispensa', nota: 'quello che hai in casa', href: '#/dispensa' },
     { testo: 'Gusti', nota: 'liste, voti e suggerimenti', href: '#/gusti' },
     { testo: 'Nuovi piatti', nota: 'farsi aiutare da un\'AI', href: '#/nuovi' },
-    { testo: 'Impostazioni e backup', nota: 'milestone M6', href: null }
+    { testo: 'Impostazioni e backup', nota: 'pranzi, spesa, aspetto, backup', href: '#/impostazioni' }
   ];
+  if (Impostazioni.siPuoInstallare()) {
+    voci.unshift({ testo: 'Installa sul telefono', nota: 'diventa un\'icona, funziona offline',
+                   href: '#/impostazioni' });
+  }
+
   const elenco = el('div', { class: 'elencoAltro' });
   for (const v of voci) {
     elenco.appendChild(v.href
@@ -90,13 +98,45 @@ async function avvia() {
     generaLista, segnaComprato, segnaInCasa, aggiungiLibera, togliLibera,
     salvaDispensa, cucinato,
     salvaVoto, eliminaVoto, aggiungiGusto, togliGusto,
-    confermaSuggerimento, scartaSuggerimento, importaPiatto
+    confermaSuggerimento, scartaSuggerimento, importaPiatto,
+    salvaPreferenze, ricarica
   };
 
+  applicaTema(stato.preferenze.tema);
   window.addEventListener('hashchange', disegna);
   document.getElementById('pannelloChiudi').addEventListener('click', chiudiDettaglio);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') chiudiDettaglio(); });
   disegna();
+
+  // dopo il primo disegno, così non rallentano l'avvio
+  registraServiceWorker();
+  B.istantaneaSeServe().catch((e) => console.warn('istantanea non fatta:', e.message));
+}
+
+/** Il tema: 'chiaro', 'scuro' o 'auto' (come il telefono). */
+function applicaTema(tema) {
+  const scelto = ['chiaro', 'scuro', 'auto'].includes(tema) ? tema : 'chiaro';
+  const radice = document.documentElement;
+  radice.dataset.tema = scelto;
+  const scuro = scelto === 'scuro' ||
+    (scelto === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  radice.style.colorScheme = scuro ? 'dark' : 'light';
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', scuro ? '#15171a' : '#f6f6f3');
+  // copia per il primo disegno al prossimo avvio: evita il lampo di bianco
+  try { localStorage.setItem('pranzo.tema', scelto); } catch (e) { /* pazienza */ }
+}
+
+if (window.matchMedia) {
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if ((stato.preferenze.tema || 'chiaro') === 'auto') applicaTema('auto');
+  });
+}
+
+function registraServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.register('sw.js')
+    .catch((errore) => console.warn('service worker non registrato:', errore.message));
 }
 
 async function seedSeServe() {
@@ -426,11 +466,6 @@ async function cucinato(piattoId, scarichi) {
    Voti, liste e suggerimenti. Le liste dei gusti cambiano solo qui, e solo
    per un gesto dell'utente: nessuna funzione le tocca da sola.            */
 
-async function salvaPreferenze(nuove) {
-  stato.preferenze = nuove;
-  await DB.scrivi(DB.STORE.preferenze, nuove);
-}
-
 /**
  * Dopo un voto ricalcola le proposte sugli ingredienti e salva quelle nuove.
  * @returns quante proposte nuove sono comparse
@@ -470,17 +505,14 @@ async function eliminaVoto(votoId) {
 }
 
 async function aggiungiGusto(lista, id) {
+  // salvaPreferenze salva, applica il tema e ridisegna: qui basta il messaggio
   await salvaPreferenze(G.aggiungiAllaLista(stato.preferenze, lista, id));
   avviso(messaggioGusto(lista, id, true));
-  chiudiDettaglio();
-  disegna();
 }
 
 async function togliGusto(lista, id) {
   await salvaPreferenze(G.togliDallaLista(stato.preferenze, lista, id));
   avviso(messaggioGusto(lista, id, false));
-  chiudiDettaglio();
-  disegna();
 }
 
 function messaggioGusto(lista, id, aggiunto) {
@@ -545,6 +577,22 @@ async function importaPiatto(piatto, ingredientiNuovi) {
   return true;
 }
 
+/* ------------------------------------------------------ impostazioni ----- */
+
+async function salvaPreferenze(nuove) {
+  stato.preferenze = nuove;
+  await DB.scrivi(DB.STORE.preferenze, nuove);
+  applicaTema(nuove.tema);
+  disegna();
+}
+
+/** Ricarica tutto dall'archivio: serve dopo un import o un ripristino. */
+async function ricarica() {
+  await caricaStato();
+  applicaTema(stato.preferenze.tema);
+  disegna();
+}
+
 /* ------------------------------------------------------------ router ----- */
 
 function rottaCorrente() {
@@ -556,7 +604,8 @@ function disegna() {
   const nome = rottaCorrente();
   const rotta = ROTTE[nome];
   document.getElementById('titolo').textContent = rotta.titolo;
-  const attiva = (nome === 'dispensa' || nome === 'nuovi') ? 'altro' : nome;
+  const sottoAltro = ['dispensa', 'nuovi', 'impostazioni'];
+  const attiva = sottoAltro.includes(nome) ? 'altro' : nome;
   for (const link of document.querySelectorAll('nav a')) {
     link.setAttribute('aria-current', link.dataset.rotta === attiva ? 'page' : 'false');
   }

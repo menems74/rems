@@ -27,7 +27,7 @@
 }
 
 *{box-sizing:border-box; margin:0;}
-html{color-scheme:light; -webkit-text-size-adjust:100%;}
+html{-webkit-text-size-adjust:100%;}   /* color-scheme: lo mette il tema */
 body{
   background:var(--carta); color:var(--inchiostro);
   font:17px/1.45 var(--testo);
@@ -456,3 +456,105 @@ nav a:active{background:var(--premuto);}
   min-height:var(--tocco); display:flex; align-items:center;
 }
 .testuale:disabled{color:var(--matita); text-decoration:none; font-weight:400; cursor:default;}
+
+/* ======================================================= TEMA SCURO =====
+   Stessa carta, altra luce: cambiano solo i token, non una regola di
+   struttura. Il blu della biro si schiarisce, altrimenti su fondo scuro
+   non si legge più.                                                       */
+:root[data-tema="scuro"]{
+  --carta:#15171a;
+  --inchiostro:#e9e7e1;
+  --matita:#9aa0a6;
+  --biro:#8fb0ff;
+  --spunta:#6fca92;
+  --rosso:#ff8a80;
+
+  --filetto:rgba(233,231,225,.16);
+  --filetto-forte:rgba(233,231,225,.30);
+  --margine-riga:rgba(143,176,255,.40);
+  --premuto:rgba(233,231,225,.08);
+}
+:root[data-tema="scuro"] .azione{color:#10131a;}
+:root[data-tema="scuro"] .macro.si{color:#10131a;}
+:root[data-tema="scuro"] .giorno.oggi{background:rgba(143,176,255,.08);}
+:root[data-tema="scuro"] #avviso{background:rgba(111,202,146,.12);}
+:root[data-tema="scuro"] #avviso[data-tipo="errore"]{background:rgba(255,138,128,.12);}
+:root[data-tema="scuro"] .filo{border-bottom-color:rgba(233,231,225,.34);}
+
+@media (prefers-color-scheme:dark){
+  :root[data-tema="auto"]{
+    --carta:#15171a;
+    --inchiostro:#e9e7e1;
+    --matita:#9aa0a6;
+    --biro:#8fb0ff;
+    --spunta:#6fca92;
+    --rosso:#ff8a80;
+
+    --filetto:rgba(233,231,225,.16);
+    --filetto-forte:rgba(233,231,225,.30);
+    --margine-riga:rgba(143,176,255,.40);
+    --premuto:rgba(233,231,225,.08);
+  }
+  :root[data-tema="auto"] .azione{color:#10131a;}
+  :root[data-tema="auto"] .macro.si{color:#10131a;}
+  :root[data-tema="auto"] .giorno.oggi{background:rgba(143,176,255,.08);}
+  :root[data-tema="auto"] #avviso{background:rgba(111,202,146,.12);}
+  :root[data-tema="auto"] #avviso[data-tipo="errore"]{background:rgba(255,138,128,.12);}
+  :root[data-tema="auto"] .filo{border-bottom-color:rgba(233,231,225,.34);}
+}
+
+/* ===================================================== IMPOSTAZIONI =====
+   Un'impostazione per riga: etichetta, controllo, e una frase che dice a
+   cosa serve. Il numero si tocca con − e +, non solo con la tastiera.     */
+.campoImpostazione{padding:10px 0 12px; border-bottom:1px solid var(--filetto);}
+.etichettaImpostazione{font-size:1rem; font-weight:600; margin-bottom:6px;}
+.campoImpostazione .spiega{margin-top:4px;}
+
+.controlloNumero{display:flex; align-items:center; gap:8px;}
+.controlloNumero input{
+  width:82px; min-height:var(--tocco); padding:0 8px; text-align:center;
+  font-family:var(--num); font-size:1.1rem; font-variant-numeric:tabular-nums;
+  background:transparent; color:var(--inchiostro);
+  border:1px solid var(--filetto-forte); border-radius:2px;
+}
+.passoNumero{
+  width:var(--tocco); height:var(--tocco); flex:none;
+  display:grid; place-items:center; font-size:1.35rem; line-height:1;
+  color:var(--biro); border:1px solid var(--filetto-forte); border-radius:2px;
+}
+.passoNumero:active{background:var(--premuto);}
+.controlloNumero .unita{color:var(--matita); font-size:.85rem;}
+
+.giorniScelta{display:flex; gap:6px; flex-wrap:wrap;}
+.giornoTasto{
+  flex:1 1 0; min-width:42px; min-height:var(--tocco); padding:0 4px;
+  font-family:var(--num); font-size:.9rem; color:var(--matita);
+  border:1px solid var(--filetto-forte); border-radius:2px;
+}
+.giornoTasto.scelto{
+  color:#fff; background:var(--biro); border-color:var(--biro); font-weight:650;
+}
+:root[data-tema="scuro"] .giornoTasto.scelto,
+:root[data-tema="auto"] .giornoTasto.scelto{color:#10131a;}
+
+.numeroReparto{
+  flex:none; width:22px; color:var(--matita); font-size:.85rem; text-align:right;
+}
+.rigaGiornoTempo{
+  display:flex; align-items:center; gap:12px;
+  padding:4px 0; border-bottom:1px solid var(--filetto);
+}
+.rigaGiornoTempo .nomeGusto{font-family:var(--num); font-size:.9rem;}
+.rigaGiornoTempo input{
+  width:76px; min-height:var(--tocco); padding:0 8px; text-align:right;
+  font-family:var(--num); background:transparent; color:var(--inchiostro);
+  border:1px solid var(--filetto-forte); border-radius:2px;
+}
+
+.passiInstalla{padding-left:20px; color:var(--inchiostro); font-size:.95rem;}
+.passiInstalla li{margin:6px 0;}
+
+.nascosto{position:absolute; width:1px; height:1px; opacity:0; pointer-events:none;}
+.comeBottone{display:inline-flex; align-items:center; cursor:pointer;}
+.dentroRiga{display:block; margin:0;}
+.rigaGusto .nomeGusto{flex-direction:column; align-items:flex-start; justify-content:center;}
