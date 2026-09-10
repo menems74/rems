@@ -26,6 +26,7 @@ pranzo/
     backup.js             export, import, istantanee
     app.js                avvio, seed, router a hash, azioni
     ui/                   una schermata per file; non parlano col database
+      home.js             la prima pagina: oggi e l'indice delle sezioni
   data/
     seed-*.json           catalogo di partenza (107 ingredienti, 80 piatti)
     generatori/           gli script Python che hanno prodotto i seed e le icone
@@ -38,6 +39,8 @@ Le regole che tengono in piedi il resto:
   pure: non toccano il database, quindi si possono provare in isolamento;
 - le schermate in `js/ui/` non leggono e non scrivono: chiedono a
   `stato.azioni`, che sta in `app.js`;
+- la prima pagina non è un menu di bottoni: ogni riga porta il suo dato vero
+  ("24 da prendere", "1 suggerimento"), in blu quando c'è qualcosa da fare;
 - le quantità si salvano sempre per **una** porzione e si moltiplicano quando
   serve; la conversione all'unità canonica avviene prima di sommare, mai dopo;
 - i macro coperti non si salvano sul piatto: si calcolano dagli ingredienti,

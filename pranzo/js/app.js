@@ -8,6 +8,7 @@ import * as M from './model.js';
 import * as P from './planner.js';
 import { el, svuotaNodo, avviso } from './ui/dom.js';
 import * as S from './shopping.js';
+import * as Casa from './ui/home.js';
 import * as Settimana from './ui/week.js';
 import * as Catalogo from './ui/catalog.js';
 import * as Spesa from './ui/shopping.js';
@@ -35,6 +36,7 @@ const stato = {
 };
 
 const ROTTE = {
+  casa:      { titolo: 'Pranzo 2.0', render: (c) => Casa.render(c, stato) },
   settimana: { titolo: 'Settimana', render: (c) => Settimana.render(c, stato) },
   spesa:     { titolo: 'Lista spesa', render: (c) => Spesa.render(c, stato) },
   catalogo:  { titolo: 'Catalogo', render: (c) => Catalogo.render(c, stato) },
@@ -597,16 +599,16 @@ async function ricarica() {
 
 function rottaCorrente() {
   const nome = (location.hash || '').replace(/^#\/?/, '').split('/')[0];
-  return ROTTE[nome] ? nome : 'settimana';
+  return ROTTE[nome] ? nome : 'casa';
 }
 
 function disegna() {
   const nome = rottaCorrente();
   const rotta = ROTTE[nome];
   document.getElementById('titolo').textContent = rotta.titolo;
-  const sottoAltro = ['dispensa', 'nuovi', 'impostazioni'];
+  const sottoAltro = ['dispensa', 'nuovi', 'impostazioni', 'gusti'];
   const attiva = sottoAltro.includes(nome) ? 'altro' : nome;
-  for (const link of document.querySelectorAll('nav a')) {
+  for (const link of document.querySelectorAll('.barra a')) {
     link.setAttribute('aria-current', link.dataset.rotta === attiva ? 'page' : 'false');
   }
   chiudiDettaglio();
