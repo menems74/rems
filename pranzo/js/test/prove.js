@@ -218,3 +218,188 @@ prova('tempi leggibili', () => {
 });
 
 export function esegui() { return risultati; }
+
+/* ==========================================================================
+   PROVE DEL PLANNER (M2)
+   Un catalogo finto ma completo, per verificare i vincoli senza il database.
+   ========================================================================== */
+
+import * as P from '../planner.js';
+
+const ING2 = M.indicizza([
+  { id: 'i_pasta', nome: 'Pasta', macro: 'carboidrato', unita: 'g', reparto: 'dispensa',
+    formatoAcquisto: { qta: 500, label: 'conf' }, conversioni: [], stagioni: [] },
+  { id: 'i_riso', nome: 'Riso', macro: 'carboidrato', unita: 'g', reparto: 'dispensa',
+    formatoAcquisto: { qta: 1000, label: 'conf' }, conversioni: [], stagioni: [] },
+  { id: 'i_pollo', nome: 'Pollo', macro: 'proteina', unita: 'g', reparto: 'macelleria',
+    formatoAcquisto: { qta: 300, label: 'conf' }, conversioni: [], stagioni: [], famiglia: 'pollame' },
+  { id: 'i_tonno', nome: 'Tonno', macro: 'proteina', unita: 'g', reparto: 'dispensa',
+    formatoAcquisto: { qta: 160, label: 'conf' }, conversioni: [], stagioni: [], famiglia: 'pesce' },
+  { id: 'i_ceci', nome: 'Ceci', macro: 'proteina', unita: 'g', reparto: 'dispensa',
+    formatoAcquisto: { qta: 240, label: 'barattolo' }, conversioni: [], stagioni: [], famiglia: 'legumi' },
+  { id: 'i_uova', nome: 'Uova', macro: 'proteina', unita: 'pz', reparto: 'latticini',
+    formatoAcquisto: { qta: 6, label: 'conf' }, conversioni: [], stagioni: [], famiglia: 'uova' },
+  { id: 'i_zucchine', nome: 'Zucchine', macro: 'fibra', unita: 'g', reparto: 'ortofrutta',
+    formatoAcquisto: { qta: 500, label: 'conf' }, conversioni: [], stagioni: [] },
+  { id: 'i_spinaci', nome: 'Spinaci', macro: 'fibra', unita: 'g', reparto: 'ortofrutta',
+    formatoAcquisto: { qta: 300, label: 'busta' }, conversioni: [], stagioni: [] },
+  { id: 'i_pomodorini', nome: 'Pomodorini', macro: 'fibra', unita: 'g', reparto: 'ortofrutta',
+    formatoAcquisto: { qta: 500, label: 'vassoio' }, conversioni: [], stagioni: [] },
+  { id: 'i_broccoli', nome: 'Broccoli', macro: 'fibra', unita: 'g', reparto: 'ortofrutta',
+    formatoAcquisto: { qta: 500, label: 'conf' }, conversioni: [], stagioni: [] }
+]);
+
+function unico(id, proteina, fibra, tempo = 20) {
+  return { id, nome: id, tipo: 'unico', tempoMin: tempo, difficolta: 1, stagioni: [],
+    passi: ['x'], origine: 'base', tags: [], attivo: true,
+    ingredienti: [
+      { ingredienteId: 'i_pasta', qta: 100, unita: 'g' },
+      { ingredienteId: proteina, qta: proteina === 'i_uova' ? 3 : 150, unita: proteina === 'i_uova' ? 'pz' : 'g' },
+      { ingredienteId: fibra, qta: 150, unita: 'g' }
+    ] };
+}
+const CATALOGO = [
+  unico('u_pollo_zucchine', 'i_pollo', 'i_zucchine'),
+  unico('u_pollo_spinaci', 'i_pollo', 'i_spinaci'),
+  unico('u_tonno_pomodorini', 'i_tonno', 'i_pomodorini'),
+  unico('u_tonno_broccoli', 'i_tonno', 'i_broccoli'),
+  unico('u_ceci_spinaci', 'i_ceci', 'i_spinaci'),
+  unico('u_ceci_zucchine', 'i_ceci', 'i_zucchine'),
+  unico('u_uova_pomodorini', 'i_uova', 'i_pomodorini'),
+  unico('u_uova_broccoli', 'i_uova', 'i_broccoli'),
+  { id: 'pr_pasta_pomodorini', nome: 'primo', tipo: 'primo', tempoMin: 15, difficolta: 1, stagioni: [],
+    passi: ['x'], origine: 'base', tags: [], attivo: true,
+    ingredienti: [{ ingredienteId: 'i_pasta', qta: 100, unita: 'g' },
+                  { ingredienteId: 'i_pomodorini', qta: 150, unita: 'g' }] },
+  { id: 'se_pollo', nome: 'secondo pollo', tipo: 'secondo', tempoMin: 20, difficolta: 1, stagioni: [],
+    passi: ['x'], origine: 'base', tags: [], attivo: true,
+    ingredienti: [{ ingredienteId: 'i_pollo', qta: 150, unita: 'g' }] },
+  { id: 'se_uova', nome: 'secondo uova', tipo: 'secondo', tempoMin: 12, difficolta: 1, stagioni: [],
+    passi: ['x'], origine: 'base', tags: [], attivo: true,
+    ingredienti: [{ ingredienteId: 'i_uova', qta: 3, unita: 'pz' }] },
+  { id: 'co_broccoli', nome: 'contorno', tipo: 'contorno', tempoMin: 15, difficolta: 1, stagioni: [],
+    passi: ['x'], origine: 'base', tags: [], attivo: true,
+    ingredienti: [{ ingredienteId: 'i_broccoli', qta: 200, unita: 'g' }] }
+];
+
+function ctxProva(extra = {}) {
+  return Object.assign({
+    piatti: CATALOGO, indiceIngredienti: ING2, preferenze: M.preferenzePredefinite(),
+    voti: {}, ultimaVolta: new Map(), dispensa: new Set(), mese: 6, oggi: new Date('2026-06-15')
+  }, extra);
+}
+
+prova('la settimana ha cinque giorni, tutti completi', () => {
+  const e = P.generaSettimana(ctxProva());
+  uguale(5, e.giorni.length);
+  for (const g of e.giorni) {
+    uguale([], M.macroMancanti(g.piattiOggetti, ING2), g.giorno);
+  }
+});
+prova('nessun piatto ripetuto nella settimana', () => {
+  const e = P.generaSettimana(ctxProva());
+  const usati = e.giorni.flatMap((g) => g.piatti);
+  uguale(usati.length, new Set(usati).size);
+});
+prova('mai la stessa proteina in due giorni consecutivi', () => {
+  for (let giro = 0; giro < 20; giro++) {
+    const e = P.generaSettimana(ctxProva());
+    let precedente = null;
+    for (const g of e.giorni) {
+      const fam = g.piattiOggetti.map((p) => M.famigliaProteinaPrincipale(p, ING2)).filter(Boolean)[0];
+      if (fam && fam === precedente) throw new Error(`proteina ${fam} ripetuta nel giorno ${g.giorno}`);
+      precedente = fam;
+    }
+  }
+});
+prova('almeno tre proteine e tre fibre diverse nella settimana', () => {
+  for (let giro = 0; giro < 20; giro++) {
+    const e = P.generaSettimana(ctxProva());
+    const prot = new Set(), fib = new Set();
+    for (const g of e.giorni) for (const p of g.piattiOggetti) {
+      const f = M.famigliaProteinaPrincipale(p, ING2); if (f) prot.add(f);
+      for (const x of M.fibrePrincipali(p, ING2)) fib.add(x);
+    }
+    if (prot.size < 3) throw new Error('solo ' + prot.size + ' proteine');
+    if (fib.size < 3) throw new Error('solo ' + fib.size + ' fibre');
+  }
+});
+prova('un ingrediente escluso non entra mai, e la blacklist non si rilassa', () => {
+  const pref = Object.assign(M.preferenzePredefinite(), { escludiIngredienti: ['i_pollo', 'i_tonno'] });
+  for (let giro = 0; giro < 10; giro++) {
+    const e = P.generaSettimana(ctxProva({ preferenze: pref }));
+    for (const g of e.giorni) for (const p of g.piattiOggetti) {
+      for (const v of p.ingredienti) {
+        if (v.ingredienteId === 'i_pollo' || v.ingredienteId === 'i_tonno') {
+          throw new Error(`${p.id} contiene un ingrediente escluso`);
+        }
+      }
+    }
+  }
+});
+prova('i giorni bloccati non vengono toccati', () => {
+  const fisso = {
+    modalita: 'unico', piatti: ['u_ceci_spinaci'], macroCoperti: M.MACRO_NUTRIENTI,
+    piattiOggetti: [CATALOGO.find((p) => p.id === 'u_ceci_spinaci')]
+  };
+  const e = P.generaSettimana(ctxProva(), { giorniFissi: { mer: fisso } });
+  const mercoledi = e.giorni.find((g) => g.giorno === 'mer');
+  uguale(['u_ceci_spinaci'], mercoledi.piatti);
+  uguale(true, mercoledi.bloccato);
+});
+prova('giorno con poco tempo: piatto unico, come da §4.1', () => {
+  const pref = Object.assign(M.preferenzePredefinite(), { tempoMaxPerGiorno: { mer: 20 } });
+  const e = P.generaSettimana(ctxProva({ preferenze: pref }));
+  uguale('unico', e.giorni.find((g) => g.giorno === 'mer').modalita);
+});
+prova('tetto ai giorni con primo + secondo', () => {
+  const pref = Object.assign(M.preferenzePredefinite(), { maxGiorniPrimoSecondo: 1 });
+  for (let giro = 0; giro < 15; giro++) {
+    const e = P.generaSettimana(ctxProva({ preferenze: pref }));
+    const quanti = e.giorni.filter((g) => g.modalita === 'primoSecondo').length;
+    if (quanti > 1) throw new Error('giorni primo+secondo: ' + quanti);
+  }
+});
+prova('vincoli impossibili: nessun giorno e un avviso, non un silenzio', () => {
+  const pref = Object.assign(M.preferenzePredefinite(), {
+    escludiIngredienti: ['i_pollo', 'i_tonno', 'i_ceci', 'i_uova']   // via tutte le proteine
+  });
+  const e = P.generaSettimana(ctxProva({ preferenze: pref }));
+  uguale(0, e.giorni.length);
+  if (!e.avvisi.length) throw new Error('doveva avvisare');
+});
+prova('catalogo appena sufficiente: rilassa e lo dichiara', () => {
+  // solo due unici disponibili per cinque giorni: il cooldown va rilassato
+  const pochi = CATALOGO.filter((p) => ['u_pollo_zucchine', 'u_ceci_spinaci', 'u_uova_broccoli',
+    'pr_pasta_pomodorini', 'se_pollo', 'se_uova', 'co_broccoli'].includes(p.id));
+  const ultima = new Map([['u_pollo_zucchine', '2026-06-08'], ['u_ceci_spinaci', '2026-06-08']]);
+  const e = P.generaSettimana(ctxProva({ piatti: pochi, ultimaVolta: ultima }));
+  if (e.giorni.length && !e.rilassamenti.length && !e.avvisi.length) {
+    throw new Error('ha riempito la settimana senza dichiarare nulla');
+  }
+});
+prova('media dei voti pesata sui più recenti', () => {
+  // pesi 0.7^n: (5*1 + 1*0.7)/1.7 = 3.35, sopra la media semplice 3
+  const salito = P.votoMedio([{ stelle: 5, data: '2026-09-01' }, { stelle: 1, data: '2026-08-01' }]);
+  const scesa = P.votoMedio([{ stelle: 1, data: '2026-09-01' }, { stelle: 5, data: '2026-08-01' }]);
+  if (!(salito > 3)) throw new Error('un 5 recente deve alzare la media: ' + salito);
+  if (!(scesa < 3)) throw new Error('un 1 recente deve abbassarla: ' + scesa);
+  if (!(salito > scesa)) throw new Error('l ordine dei voti deve contare');
+  uguale(4, Math.round(P.votoMedio([{ stelle: 4, data: '2026-09-01' }])));
+});
+prova('punteggio: i componenti spiegano il totale', () => {
+  const p = CATALOGO[0];
+  const pref = Object.assign(M.preferenzePredefinite(), { amoPiatti: [p.id] });
+  const r = P.punteggio(p, ctxProva({ preferenze: pref }), { senzaCaso: true, slotNovitaLibero: true });
+  const somma = r.componenti.reduce((a, c) => a + c.valore, 0);
+  uguale(r.totale, somma);
+  if (!r.componenti.some((c) => c.etichetta === 'piatto che ami')) throw new Error('manca il bonus');
+});
+prova('id e date della settimana', () => {
+  const lunedi = P.lunediDi(new Date('2026-09-16T12:00:00'));   // mercoledì
+  uguale('2026-09-14', P.iso(lunedi));
+  uguale('men_2026_w38', P.idMenu(lunedi));
+  const giorni = P.conDate([{ giorno: 'lun' }, { giorno: 'ven' }], lunedi);
+  uguale('2026-09-14', giorni[0].data);
+  uguale('2026-09-18', giorni[1].data);
+});

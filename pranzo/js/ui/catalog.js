@@ -110,7 +110,7 @@ function riga(piatto, blocco, stato) {
   const nodo = el('button', {
     class: 'piatto' + (blocco ? ' bloccato' : ''),
     type: 'button',
-    onclick: () => mostraDettaglio(piatto, stato)
+    onclick: () => mostraDettaglio(piatto, stato, null)
   }, [
     el('span', { class: 'nome' }, piatto.nome),
     el('span', { class: 'meta' }, [

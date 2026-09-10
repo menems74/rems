@@ -4,7 +4,7 @@
 import { el, svuotaNodo } from './dom.js';
 import * as M from '../model.js';
 
-export function mostraDettaglio(piatto, stato) {
+export function mostraDettaglio(piatto, stato, perche) {
   const pannello = document.getElementById('pannello');
   const corpo = document.getElementById('pannelloCorpo');
   svuotaNodo(corpo);
@@ -26,6 +26,15 @@ export function mostraDettaglio(piatto, stato) {
 
   if (piatto.stagioni && piatto.stagioni.length) {
     corpo.appendChild(el('p', { class: 'conteggio' }, 'stagione: mesi ' + piatto.stagioni.join(', ')));
+  }
+
+  if (perche && perche.length) {
+    corpo.appendChild(el('h3', {}, 'Perché questo piatto'));
+    corpo.appendChild(el('ul', { class: 'perche' }, perche.map((c) => el('li', {}, [
+      el('span', {}, c.etichetta),
+      el('span', { class: 'num' + (c.valore < 0 ? ' meno' : ' piu') },
+         (c.valore > 0 ? '+' : '') + c.valore)
+    ]))));
   }
 
   corpo.appendChild(el('h3', {}, 'Ingredienti per 1 porzione'));

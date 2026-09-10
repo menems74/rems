@@ -1,82 +1,215 @@
 /* =====================================================================
-   app.css — IMPALCATURA TEMPORANEA
-   Volutamente neutro: la direzione visiva è in attesa di approvazione.
-   Qui c'è solo quel minimo che serve a leggere i dati e a toccare le
-   cose con il pollice (target 44 px). Verrà riscritto interamente.
+   app.css — Pranzo 2.0
+   Quaderno di cucina: margine a sinistra, righe orizzontali, nessuna
+   cornice dove basta una linea. I numeri sono in monospazio e allineati,
+   perché la quantità è un dato e si legge da lontano.
+   Caratteri solo di sistema: l'app deve funzionare offline.
    ===================================================================== */
+
 :root{
-  --carta:#ffffff; --fondo:#f2f2f0; --linea:#d8d8d4;
-  --testo:#1a1a1a; --tenue:#6a6a66; --segnale:#1a1a1a;
-  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --carta:#f6f6f3;
+  --inchiostro:#16181a;
+  --matita:#6b6f73;
+  --biro:#22458f;
+  --spunta:#1f6b45;
+  --rosso:#b3261e;
+
+  --filetto:rgba(22,24,26,.14);
+  --filetto-forte:rgba(22,24,26,.28);
+  --margine-riga:rgba(34,69,143,.30);
+  --premuto:rgba(22,24,26,.06);
+
+  --testo: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --num: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+  --colonna:52px;          /* larghezza del margine del quaderno */
+  --tocco:44px;            /* area minima toccabile */
 }
+
 *{box-sizing:border-box; margin:0;}
+html{color-scheme:light; -webkit-text-size-adjust:100%;}
 body{
-  background:var(--fondo); color:var(--testo);
-  font:16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  padding:0 0 72px; -webkit-text-size-adjust:100%;
+  background:var(--carta); color:var(--inchiostro);
+  font:17px/1.45 var(--testo);
+  padding:0 0 calc(60px + env(safe-area-inset-bottom));
 }
-header{padding:14px 14px 10px; background:var(--carta); border-bottom:1px solid var(--linea);}
-header h1{font-size:1.35rem; font-weight:700;}
-.sotto{color:var(--tenue); font-size:.78rem; margin-top:2px;}
-#avviso{margin:10px 14px; padding:10px 12px; background:#fff; border:1px solid var(--linea); font-size:.86rem;}
-main{padding:12px 14px;}
+button{font:inherit; color:inherit; background:none; border:0; padding:0; cursor:pointer;}
+:focus-visible{outline:2px solid var(--biro); outline-offset:2px;}
+.num{font-family:var(--num); font-variant-numeric:tabular-nums;}
 
-/* filtri */
-.filtri{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;}
-.filtri input[type=search], .filtri select{
-  min-height:44px; padding:0 10px; font:inherit; background:var(--carta);
-  border:1px solid var(--linea); color:var(--testo); flex:1 1 45%;
+/* --------------------------------------------------------- intestazione -- */
+header{
+  padding:14px 16px 10px;
+  border-bottom:1px solid var(--filetto-forte);
+  display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
 }
-.filtri label.inline{display:flex; align-items:center; gap:8px; min-height:44px; font-size:.9rem; flex:1 1 100%;}
-.filtri input[type=checkbox]{width:22px; height:22px;}
+header h1{font-size:1.45rem; font-weight:700; letter-spacing:-.015em;}
+header .sotto{margin-left:auto; color:var(--matita); font-size:.78rem; font-family:var(--num);}
 
-/* elenco piatti */
-.conteggio{color:var(--tenue); font-size:.8rem; margin:4px 0 10px; font-family:var(--mono);}
-.vuoto{color:var(--tenue); padding:24px 0; text-align:center;}
-.elenco{display:flex; flex-direction:column;}
-.piatto{
-  display:flex; flex-direction:column; gap:4px; align-items:flex-start; text-align:left;
-  width:100%; min-height:56px; padding:12px 4px; background:none; border:0;
-  border-bottom:1px solid var(--linea); font:inherit; color:inherit; cursor:pointer;
+main{padding:14px 16px 24px;}
+
+/* --------------------------------------------------------------- avvisi -- */
+#avviso{
+  margin:0; padding:11px 16px; font-size:.92rem;
+  border-bottom:1px solid var(--filetto);
+  background:rgba(31,107,69,.08); color:var(--spunta);
 }
-.piatto:active{background:#eaeae7;}
-.piatto .nome{font-weight:600;}
-.piatto .meta{display:flex; flex-wrap:wrap; gap:10px; color:var(--tenue); font-size:.78rem; font-family:var(--mono);}
-.piatto .tipo{text-transform:none;}
-.piatto.bloccato .nome{color:var(--tenue); text-decoration:line-through;}
-.piatto .motivo{font-size:.78rem; color:#8a2f22;}
-.pastiglie{display:inline-flex; gap:4px;}
+#avviso[data-tipo="errore"]{background:rgba(179,38,30,.08); color:var(--rosso);}
+.rilassato{
+  font-size:.88rem; color:var(--rosso); margin:0 0 12px;
+  padding-left:11px; border-left:3px solid var(--rosso);
+}
+.errore{color:var(--rosso);}
+.nota{color:var(--matita); font-size:.82rem; margin-top:10px;}
+.vuoto{color:var(--matita); padding:26px 0 18px; text-align:center;}
+
+/* -------------------------------------------------------------- azioni --- */
+.azione{
+  display:block; width:100%; min-height:56px; margin-top:18px;
+  background:var(--biro); color:#fff; font-weight:650; font-size:1.02rem;
+  border-radius:2px;
+}
+.azione:active{background:#1b3872;}
+.testuale{
+  min-height:var(--tocco); padding:0 2px; color:var(--biro);
+  font-size:.9rem; text-decoration:underline; text-decoration-thickness:1px;
+  text-underline-offset:3px;
+}
+.testuale:active{color:#1b3872;}
+.testuale.acceso{color:var(--spunta); font-weight:650;}
+
+/* ==================================================== SCHERMATA SETTIMANA */
+.periodo{
+  display:flex; gap:12px; flex-wrap:wrap; align-items:baseline;
+  color:var(--matita); font-size:.85rem; margin-bottom:14px;
+}
+.periodo .num{color:var(--inchiostro);}
+
+.settimana{border-top:1px solid var(--filetto);}
+.giorno{
+  display:grid; grid-template-columns:var(--colonna) 1fr;
+  border-bottom:1px solid var(--filetto);
+}
+.giorno.oggi{background:rgba(34,69,143,.045);}
+
+/* il margine del quaderno: riga verticale blu e giorno in monospazio */
+.margine{
+  border-right:1px solid var(--margine-riga);
+  padding:12px 8px 12px 0; text-align:right;
+  display:flex; flex-direction:column; align-items:flex-end; gap:2px;
+}
+.margine .gg{font-family:var(--num); font-size:.86rem; color:var(--biro);}
+.margine .dd{font-family:var(--num); font-size:1.35rem; line-height:1; color:var(--inchiostro);}
+.margine .lucchetto{font-size:.9rem; color:var(--spunta); line-height:1;}
+
+.corpoGiorno{padding:10px 0 8px 14px; min-width:0;}
+.piatti{display:flex; flex-direction:column; align-items:flex-start;}
+.nomePiatto{
+  min-height:var(--tocco); display:flex; align-items:center; text-align:left;
+  font-size:1.05rem; font-weight:600; line-height:1.25;
+  color:var(--inchiostro); text-decoration:underline; text-decoration-color:var(--filetto-forte);
+  text-decoration-thickness:1px; text-underline-offset:4px;
+}
+.nomePiatto:active{background:var(--premuto);}
+.assente{color:var(--matita); min-height:var(--tocco); display:flex; align-items:center;}
+
+.datiGiorno{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:4px;}
+.datiGiorno .tempo{font-size:.9rem;}
+.datiGiorno .modalita{font-size:.78rem; color:var(--matita);}
+
+/* i tre macro: lettera piena se coperto, rossa se manca */
+.pastiglie{display:inline-flex; gap:5px;}
 .macro{
-  display:inline-grid; place-items:center; width:20px; height:20px;
-  border:1px solid var(--linea); font-family:var(--mono); font-size:.7rem; color:var(--tenue);
+  display:inline-grid; place-items:center; width:23px; height:23px;
+  font-family:var(--num); font-size:.78rem; line-height:1;
+  border:1px solid var(--filetto-forte); color:var(--matita); border-radius:2px;
 }
-.macro.si{background:var(--segnale); color:#fff; border-color:var(--segnale);}
+.macro.si{background:var(--spunta); border-color:var(--spunta); color:#fff;}
+.macro.no{border-color:var(--rosso); border-style:dashed; color:var(--rosso);}
 
-/* dettaglio */
+.azioniGiorno{display:flex; column-gap:16px; row-gap:0; flex-wrap:wrap; margin-top:2px;}
+
+/* ==================================================== SCHERMATA CATALOGO */
+.filtri{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;}
+.filtri input[type=search], .filtri select{
+  min-height:var(--tocco); padding:0 10px; font:inherit; color:var(--inchiostro);
+  background:transparent; border:1px solid var(--filetto-forte); border-radius:2px;
+  flex:1 1 46%;
+}
+.filtri select{font-size:.92rem;}
+.filtri label.inline{
+  display:flex; align-items:center; gap:9px; min-height:var(--tocco);
+  font-size:.92rem; flex:1 1 100%; color:var(--matita);
+}
+.filtri input[type=checkbox]{width:22px; height:22px; accent-color:var(--biro);}
+
+.conteggio{color:var(--matita); font-size:.82rem; font-family:var(--num); margin:0 0 10px;}
+.elenco{border-top:1px solid var(--filetto);}
+.piatto{
+  display:flex; flex-direction:column; align-items:flex-start; gap:5px;
+  width:100%; min-height:60px; padding:12px 0; text-align:left;
+  border-bottom:1px solid var(--filetto);
+}
+.piatto:active{background:var(--premuto);}
+.piatto .nome{font-size:1.02rem; font-weight:600;}
+.piatto .meta{
+  display:flex; flex-wrap:wrap; gap:12px; align-items:center;
+  color:var(--matita); font-size:.8rem; font-family:var(--num);
+}
+.piatto.bloccato .nome{color:var(--matita); text-decoration:line-through;}
+.piatto .motivo{font-size:.8rem; color:var(--rosso);}
+.motivo{color:var(--rosso);}
+
+/* ================================================== PANNELLO DEL PIATTO */
 #pannello{
-  position:fixed; inset:0; z-index:10; background:var(--carta); overflow-y:auto;
-  padding:14px 14px calc(24px + env(safe-area-inset-bottom));
+  position:fixed; inset:0; z-index:20; background:var(--carta); overflow-y:auto;
+  padding:12px 16px calc(28px + env(safe-area-inset-bottom));
 }
-#pannello h2{font-size:1.25rem; margin-bottom:4px;}
-#pannello h3{font-size:.95rem; margin:16px 0 6px;}
-#pannelloChiudi{min-height:44px; padding:0 16px; margin-bottom:12px; font:inherit;
-  background:var(--carta); border:1px solid var(--linea);}
+#pannelloChiudi{
+  min-height:var(--tocco); padding:0 4px; margin-bottom:10px;
+  color:var(--biro); text-decoration:underline; text-underline-offset:3px;
+}
+#pannello h2{font-size:1.4rem; font-weight:700; letter-spacing:-.015em; margin-bottom:4px;}
+#pannello h3{
+  font-size:.95rem; font-weight:650; margin:20px 0 6px;
+  padding-bottom:5px; border-bottom:1px solid var(--filetto-forte);
+}
 .ingredienti{list-style:none;}
-.ingredienti li{display:flex; justify-content:space-between; gap:12px; padding:7px 0; border-bottom:1px solid var(--linea);}
-.ingredienti .qta{font-family:var(--mono); white-space:nowrap;}
-.passi{padding-left:20px;}
-.passi li{margin:6px 0;}
-.motivo{color:#8a2f22; font-size:.9rem; margin:8px 0;}
+.ingredienti li{
+  display:flex; justify-content:space-between; align-items:baseline; gap:12px;
+  padding:8px 0; border-bottom:1px solid var(--filetto);
+}
+.ingredienti .qta{font-family:var(--num); white-space:nowrap; font-variant-numeric:tabular-nums;}
+.passi{padding-left:22px;}
+.passi li{margin:8px 0;}
+.perche{list-style:none;}
+.perche li{
+  display:flex; justify-content:space-between; gap:12px;
+  padding:6px 0; border-bottom:1px solid var(--filetto); font-size:.94rem;
+}
+.perche .piu{color:var(--spunta);}
+.perche .meno{color:var(--rosso);}
 
-/* navigazione */
+/* ---------------------------------------------------------- navigazione -- */
 nav{
-  position:fixed; left:0; right:0; bottom:0; display:flex; background:var(--carta);
-  border-top:1px solid var(--linea); padding-bottom:env(safe-area-inset-bottom);
+  position:fixed; left:0; right:0; bottom:0; z-index:15;
+  display:flex; background:var(--carta);
+  border-top:1px solid var(--filetto-forte);
+  padding-bottom:env(safe-area-inset-bottom);
 }
 nav a{
-  flex:1; min-height:52px; display:grid; place-items:center; text-decoration:none;
-  color:var(--tenue); font-size:.78rem;
+  flex:1; min-height:54px; display:grid; place-items:center;
+  text-decoration:none; color:var(--matita); font-size:.8rem;
 }
-nav a[aria-current="page"]{color:var(--testo); font-weight:700; box-shadow:inset 0 -2px 0 var(--testo);}
+nav a[aria-current="page"]{
+  color:var(--biro); font-weight:650;
+  box-shadow:inset 0 -2px 0 var(--biro);
+}
+nav a:active{background:var(--premuto);}
 
+@media (min-width:620px){
+  header, main, #avviso{max-width:620px; margin-left:auto; margin-right:auto;}
+  nav{justify-content:center;}
+  nav a{max-width:124px;}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important;}}
