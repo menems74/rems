@@ -272,7 +272,7 @@ document.addEventListener('keydown', function(e){
 
 /* -------------------------------------------------------------- avvio */
 initCfg();
-D.pwa({sw:'sw.js'});
+D.pwa({sw:'sw.js', installId:'__none', stateId:'__none'});
 show(match && !match.over ? 'setup' : 'setup');
 window.DCLOCK = {state: function(){ return match; }, total: total};
 })();

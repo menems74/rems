@@ -274,7 +274,7 @@ $('#wipeBtn').addEventListener('click', function(){
   D.wipeAll(); D.toast('Dati cancellati'); show('home');
 });
 
-D.pwa({installId:'install', stateId:'stateText', sw:'sw.js'});
+D.pwa({installId:'install', stateId:'stateText', helpId:'installHelp', sw:'sw.js'});
 
 /* i giochi possono aprire direttamente una sezione, es. index.html#stats */
 function fromHash(){

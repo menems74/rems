@@ -56,7 +56,16 @@
     </div>
 
     <div style="margin-top:auto; display:flex; flex-direction:column; align-items:center; gap:9px; padding-top:16px">
-      <button class="cta" id="install" hidden style="max-width:280px; margin:0">Installa la app</button>
+      <button class="ghost" id="install">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
+        Installa la app
+      </button>
+      <div class="card" id="installHelp" hidden style="width:100%; text-align:left">
+        <span class="lbl">Come installarla</span>
+        <p class="hint" data-os="android" style="margin-top:8px">Apri il menu di Chrome (i tre puntini in alto a destra) e scegli <b>Installa app</b>, oppure <b>Aggiungi a schermata Home</b>.</p>
+        <p class="hint" data-os="ios" hidden style="margin-top:8px">In Safari premi il tasto <b>Condividi</b> in basso, poi <b>Aggiungi a Home</b>. Su iPhone funziona solo da Safari.</p>
+        <p class="hint">Se l'avevi già installata e non te la ripropone: chiudi la finestra dell'app dalle app recenti, disinstalla l'icona dalla schermata Home, poi riapri questo indirizzo nel browser.</p>
+      </div>
       <p class="sub" style="font-size:.74rem"><span id="stateText">Online</span></p>
     </div>
   </div>

@@ -307,35 +307,62 @@ function toast(msg, bad){
   toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2600);
 }
 
-/* Barra di installazione e stato rete, uguale su tutte le pagine. */
+/* Barra di installazione e stato rete, uguale su tutte le pagine.
+   Il bottone resta visibile anche quando il browser non offre l'evento di
+   installazione: in quel caso spiega come farlo a mano, perche' su iOS non
+   esiste alcun invito automatico e su Android a volte non arriva. */
 function pwa(opts){
   opts = opts || {};
-  var btn = document.getElementById(opts.installId || 'install');
-  var txt = document.getElementById(opts.stateId || 'stateText');
-  var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  var btn  = document.getElementById(opts.installId || 'install');
+  var txt  = document.getElementById(opts.stateId || 'stateText');
+  var help = document.getElementById(opts.helpId || 'installHelp');
+  var asApp = window.matchMedia('(display-mode: standalone)').matches ||
+              window.matchMedia('(display-mode: fullscreen)').matches ||
+              window.navigator.standalone === true;
+
   function paint(){
-    if(!txt) return;
-    txt.textContent = navigator.onLine
-      ? (standalone ? 'App installata' : 'Online')
-      : 'Offline — la app funziona comunque';
+    if(txt){
+      txt.textContent = !navigator.onLine
+        ? 'Offline — la app funziona comunque'
+        : (asApp ? 'Aperta come app' : 'Aperta nel browser');
+    }
+    if(btn) btn.hidden = asApp;      // dentro la app non c'e' nulla da installare
+    if(help && asApp) help.hidden = true;
   }
   window.addEventListener('online', paint);
   window.addEventListener('offline', paint);
-  paint();
 
   var deferred = null;
   window.addEventListener('beforeinstallprompt', function(e){
     e.preventDefault(); deferred = e;
-    if(btn && !standalone) btn.hidden = false;
+    paint();
   });
   if(btn) btn.addEventListener('click', function(){
-    if(!deferred) return;
-    deferred.prompt();
-    deferred.userChoice.then(function(){ deferred = null; btn.hidden = true; });
+    if(deferred){
+      deferred.prompt();
+      deferred.userChoice.then(function(){ deferred = null; paint(); });
+      return;
+    }
+    // nessun invito dal browser: mostro le istruzioni per il dispositivo
+    if(help){
+      var ios = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      help.hidden = false;
+      help.querySelectorAll('[data-os]').forEach(function(el){
+        el.hidden = el.dataset.os !== (ios ? 'ios' : 'android');
+      });
+      help.scrollIntoView({block:'nearest', behavior:'smooth'});
+    } else {
+      toast('Usa il menu del browser: Installa app', false);
+    }
   });
   window.addEventListener('appinstalled', function(){
-    standalone = true; if(btn) btn.hidden = true; paint();
+    deferred = null;
+    if(help) help.hidden = true;
+    toast('App installata');
+    paint();
   });
+  paint();
 
   if('serviceWorker' in navigator){
     window.addEventListener('load', function(){

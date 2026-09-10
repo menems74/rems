@@ -475,7 +475,7 @@ $('#backdrop').addEventListener('click', function(){
 });
 
 /* -------------------------------------------------------------- avvio */
-D.pwa({installId:'installGame', stateId:'stateTextGame', sw:'sw.js'});
+D.pwa({sw:'sw.js', installId:'__none', stateId:'__none'});
 initCfg();
 show('setup');
 
