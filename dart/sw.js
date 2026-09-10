@@ -3,7 +3,7 @@
    Rete-prima per le pagine (gli aggiornamenti si vedono subito), cache-prima
    per fogli di stile, script e icone. */
 
-const VERSION = 'v2';
+const VERSION = 'v3';
 const CACHE = 'dart-' + VERSION;
 
 const SHELL = [
@@ -17,9 +17,10 @@ const SHELL = [
   './game501.js',
   './gameclock.js',
   './manifest.webmanifest',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/icon-maskable-512.png',
+  './icons/logo-192.png',
+  './icons/logo-512.png',
+  './icons/logo-maskable-512.png',
+  './icons/apple-touch-icon.png',
   './icons/favicon-64.png'
 ];
 
