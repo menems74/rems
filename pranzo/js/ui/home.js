@@ -24,6 +24,7 @@ export function render(contenitore, stato) {
   svuotaNodo(contenitore);
   contenitore.appendChild(copertina(stato));
   contenitore.appendChild(scorciatoie(stato));
+  contenitore.appendChild(el('p', { class: 'firma' }, 'powered by Rems'));
 }
 
 /* ---------------------------------------------------------- la copertina -

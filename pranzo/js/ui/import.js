@@ -46,11 +46,11 @@ function passoChiedi(stato) {
   });
   blocco.appendChild(richiesta);
 
-  const scelte = el('div', { class: 'quantiPiatti' }, [3, 5, 8].map((n) =>
+  const scelte = el('div', { class: 'quantiPiatti' }, [1, 3, 5].map((n) =>
     el('button', {
       class: 'testuale' + (bozza.quanti === n ? ' acceso' : ''), type: 'button',
       onclick: () => { bozza.quanti = n; ridisegna(stato); }
-    }, `${n} piatti`)));
+    }, n === 1 ? 'un piatto' : `${n} piatti`)));
   blocco.appendChild(scelte);
 
   const testoPrompt = () => IA.creaPrompt(contestoPrompt(stato),

@@ -486,8 +486,6 @@ main{padding:14px 16px 24px;}
 :root[data-tema="scuro"] .azione{color:#10131a;}
 :root[data-tema="scuro"] .macro.si{color:#10131a;}
 :root[data-tema="scuro"] .giorno.oggi{background:rgba(143,176,255,.08);}
-:root[data-tema="scuro"] #avviso{background:rgba(111,202,146,.12);}
-:root[data-tema="scuro"] #avviso[data-tipo="errore"]{background:rgba(255,138,128,.12);}
 :root[data-tema="scuro"] .filo{border-bottom-color:rgba(233,231,225,.34);}
 
 @media (prefers-color-scheme:dark){
@@ -507,8 +505,6 @@ main{padding:14px 16px 24px;}
   :root[data-tema="auto"] .azione{color:#10131a;}
   :root[data-tema="auto"] .macro.si{color:#10131a;}
   :root[data-tema="auto"] .giorno.oggi{background:rgba(143,176,255,.08);}
-  :root[data-tema="auto"] #avviso{background:rgba(111,202,146,.12);}
-  :root[data-tema="auto"] #avviso[data-tipo="errore"]{background:rgba(255,138,128,.12);}
   :root[data-tema="auto"] .filo{border-bottom-color:rgba(233,231,225,.34);}
 }
 
@@ -615,3 +611,9 @@ main{padding:14px 16px 24px;}
   font-family:var(--num); font-size:.8rem; color:var(--matita);
 }
 .datoScorciatoia.dafare{color:var(--biro); font-weight:650;}
+
+/* la firma in fondo alla prima pagina: piccola, come un timbro a piè di pagina */
+.firma{
+  margin-top:24px; text-align:center;
+  color:var(--matita); font-size:.72rem; letter-spacing:.04em;
+}

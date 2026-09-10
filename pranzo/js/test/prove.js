@@ -1247,3 +1247,10 @@ prova('nomi di file e date leggibili', () => {
   uguale('10 set 2026, 14:32', B.quando(new Date(2026, 8, 10, 14, 32).toISOString()));
   uguale('3 kB', B.peso('x'.repeat(3000)));
 });
+
+prova('un piatto solo: il prompt lo chiede al singolare', () => {
+  const uno = IA.creaPrompt(ctxIA(), { quanti: 1 });
+  if (!/un'idea per il pranzo/.test(uno)) throw new Error('doveva essere singolare: ' + uno.split('\n')[0]);
+  const tre = IA.creaPrompt(ctxIA(), { quanti: 3 });
+  if (!/3 idee per il pranzo/.test(tre)) throw new Error('e plurale con più di uno');
+});

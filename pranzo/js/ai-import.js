@@ -34,7 +34,9 @@ export function creaPrompt(ctx, opzioni = {}) {
   const mese = ctx.mese || M.mesecorrente();
   const righe = [];
 
-  righe.push(`Propongimi ${quanti} idee per il pranzo, una persona, una porzione a testa.`);
+  righe.push(quanti === 1
+    ? 'Propongimi un\'idea per il pranzo, una persona, una porzione.'
+    : `Propongimi ${quanti} idee per il pranzo, una persona, una porzione a testa.`);
   righe.push('');
   righe.push('Come sono fatti i miei pranzi:');
   righe.push('- ogni pranzo deve avere proteine, carboidrati e fibre;');
