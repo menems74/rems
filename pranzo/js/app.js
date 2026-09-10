@@ -12,6 +12,8 @@ import * as Settimana from './ui/week.js';
 import * as Catalogo from './ui/catalog.js';
 import * as Spesa from './ui/shopping.js';
 import * as Dispensa from './ui/pantry.js';
+import * as Gusti from './ui/tastes.js';
+import * as G from './tastes.js';
 import { chiudiDettaglio } from './ui/dish.js';
 
 const stato = {
@@ -24,6 +26,7 @@ const stato = {
   dispensa: new Set(),      // ingredienti presenti, per il punteggio
   dispensaMappa: new Map(), // ingredienteId -> qta
   dispensaRighe: [],
+  suggerimenti: [],       // proposte sugli ingredienti, da confermare
   lista: null,
   azioni: {}
 };
@@ -32,7 +35,7 @@ const ROTTE = {
   settimana: { titolo: 'Settimana', render: (c) => Settimana.render(c, stato) },
   spesa:     { titolo: 'Lista spesa', render: (c) => Spesa.render(c, stato) },
   catalogo:  { titolo: 'Catalogo', render: (c) => Catalogo.render(c, stato) },
-  gusti:     { titolo: 'Gusti', render: (c) => inArrivo(c, 'M4', 'le liste dei gusti e i voti') },
+  gusti:     { titolo: 'Gusti', render: (c) => Gusti.render(c, stato) },
   dispensa:  { titolo: 'Dispensa', render: (c) => Dispensa.render(c, stato) },
   altro:     { titolo: 'Altro', render: (c) => altro(c) }
 };
@@ -47,7 +50,7 @@ function altro(contenitore) {
   svuotaNodo(contenitore);
   const voci = [
     { testo: 'Dispensa', nota: 'quello che hai in casa', href: '#/dispensa' },
-    { testo: 'Gusti', nota: 'liste e voti — milestone M4', href: '#/gusti' },
+    { testo: 'Gusti', nota: 'liste, voti e suggerimenti', href: '#/gusti' },
     { testo: 'Nuovi piatti', nota: 'suggerimenti — milestone M5', href: null },
     { testo: 'Impostazioni e backup', nota: 'milestone M6', href: null }
   ];
@@ -83,7 +86,9 @@ async function avvia() {
   stato.azioni = {
     generaSettimana, rigeneraGiorno, bloccaGiorno, cambiaModalita,
     generaLista, segnaComprato, segnaInCasa, aggiungiLibera, togliLibera,
-    salvaDispensa, cucinato
+    salvaDispensa, cucinato,
+    salvaVoto, eliminaVoto, aggiungiGusto, togliGusto,
+    confermaSuggerimento, scartaSuggerimento
   };
 
   window.addEventListener('hashchange', disegna);
@@ -140,14 +145,15 @@ async function scarica(percorso) {
 }
 
 async function caricaStato() {
-  const [ingredienti, piatti, preferenze, voti, cucinato, dispensa, menu] = await Promise.all([
+  const [ingredienti, piatti, preferenze, voti, cucinato, dispensa, menu, suggerimenti] = await Promise.all([
     DB.leggiTutti(DB.STORE.ingredienti),
     DB.leggiTutti(DB.STORE.piatti),
     DB.leggi(DB.STORE.preferenze, 'preferenze'),
     DB.leggiTutti(DB.STORE.voti),
     DB.leggiTutti(DB.STORE.cucinato),
     DB.leggiTutti(DB.STORE.dispensa),
-    DB.leggiTutti(DB.STORE.menu)
+    DB.leggiTutti(DB.STORE.menu),
+    DB.leggiTutti(DB.STORE.suggerimenti)
   ]);
 
   stato.ingredienti = ingredienti;
@@ -158,6 +164,8 @@ async function caricaStato() {
 
   stato.voti = {};
   for (const v of voti) (stato.voti[v.piattoId] = stato.voti[v.piattoId] || []).push(v);
+
+  stato.suggerimenti = suggerimenti.sort((a, b) => (a.data || '').localeCompare(b.data || ''));
 
   // "ultima volta" = il più recente tra ciò che ho cucinato e i menù passati
   stato.ultimaVolta = new Map();
@@ -409,6 +417,106 @@ async function cucinato(piattoId, scarichi) {
     ? `Segnato come cucinato, dispensa aggiornata su ${scarichi.length} ingredienti.`
     : 'Segnato come cucinato.');
   chiudiDettaglio();
+  disegna();
+}
+
+/* -------------------------------------------------------------- gusti ----
+   Voti, liste e suggerimenti. Le liste dei gusti cambiano solo qui, e solo
+   per un gesto dell'utente: nessuna funzione le tocca da sola.            */
+
+async function salvaPreferenze(nuove) {
+  stato.preferenze = nuove;
+  await DB.scrivi(DB.STORE.preferenze, nuove);
+}
+
+/**
+ * Dopo un voto ricalcola le proposte sugli ingredienti e salva quelle nuove.
+ * @returns quante proposte nuove sono comparse
+ */
+async function aggiornaSuggerimenti() {
+  const nuovi = G.suggerimentiDaVoti(contesto(), stato.suggerimenti);
+  for (const s of nuovi) await DB.scrivi(DB.STORE.suggerimenti, s);
+  stato.suggerimenti = stato.suggerimenti.concat(nuovi);
+  return nuovi.length;
+}
+
+async function salvaVoto(piattoId, bozza) {
+  let voto;
+  try {
+    voto = G.nuovoVoto({ piattoId, stelle: bozza.stelle, motivo: bozza.motivo, note: bozza.note });
+  } catch (errore) {
+    avviso(errore.message, 'errore');
+    return;
+  }
+  await DB.scrivi(DB.STORE.voti, voto);
+  await caricaStato();
+  const nuovi = await aggiornaSuggerimenti();
+
+  const piatto = stato.indicePiatti.get(piattoId);
+  avviso(`Voto salvato: ${bozza.stelle} su 5 a ${piatto ? piatto.nome : piattoId}.` +
+         (nuovi ? ' Ho notato una cosa: guarda in Gusti.' : ''));
+  chiudiDettaglio();
+  disegna();
+}
+
+async function eliminaVoto(votoId) {
+  await DB.elimina(DB.STORE.voti, votoId);
+  await caricaStato();
+  avviso('Voto eliminato.');
+  chiudiDettaglio();
+  disegna();
+}
+
+async function aggiungiGusto(lista, id) {
+  await salvaPreferenze(G.aggiungiAllaLista(stato.preferenze, lista, id));
+  avviso(messaggioGusto(lista, id, true));
+  chiudiDettaglio();
+  disegna();
+}
+
+async function togliGusto(lista, id) {
+  await salvaPreferenze(G.togliDallaLista(stato.preferenze, lista, id));
+  avviso(messaggioGusto(lista, id, false));
+  chiudiDettaglio();
+  disegna();
+}
+
+function messaggioGusto(lista, id, aggiunto) {
+  const cosa = G.LISTE[lista].cosa === 'piatti'
+    ? (stato.indicePiatti.get(id) || {}).nome
+    : (stato.indiceIngredienti.get(id) || {}).nome;
+  const nome = cosa || id;
+  if (!aggiunto) return `${nome} non è più in "${G.LISTE[lista].titolo.toLowerCase()}".`;
+  if (lista === 'escludiIngredienti') {
+    const quanti = stato.piatti.filter((p) =>
+      (p.ingredienti || []).some((v) => v.ingredienteId === id)).length;
+    return `${nome} escluso: ${quanti} piatti restano fuori dal menù.`;
+  }
+  return `${nome} è in "${G.LISTE[lista].titolo.toLowerCase()}".`;
+}
+
+async function confermaSuggerimento(id) {
+  const sugg = stato.suggerimenti.find((s) => s.id === id);
+  if (!sugg) return;
+  const nuove = G.applicaSuggerimento(stato.preferenze, sugg);
+  const registrato = Object.assign({}, sugg, { stato: 'accettato', deciso: P.iso(new Date()) });
+  await DB.transazione([DB.STORE.preferenze, DB.STORE.suggerimenti], 'readwrite', async (stores) => {
+    await stores[DB.STORE.preferenze].scrivi(nuove);
+    await stores[DB.STORE.suggerimenti].scrivi(registrato);
+  });
+  stato.preferenze = nuove;
+  stato.suggerimenti = stato.suggerimenti.map((s) => (s.id === id ? registrato : s));
+  avviso(messaggioGusto(sugg.lista, sugg.ingredienteId, true));
+  disegna();
+}
+
+async function scartaSuggerimento(id) {
+  const sugg = stato.suggerimenti.find((s) => s.id === id);
+  if (!sugg) return;
+  const registrato = Object.assign({}, sugg, { stato: 'scartato', deciso: P.iso(new Date()) });
+  await DB.scrivi(DB.STORE.suggerimenti, registrato);
+  stato.suggerimenti = stato.suggerimenti.map((s) => (s.id === id ? registrato : s));
+  avviso('Va bene, non te lo chiedo più.');
   disegna();
 }
 

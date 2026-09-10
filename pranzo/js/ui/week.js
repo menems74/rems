@@ -106,6 +106,16 @@ function rigaGiorno(giorno, menu, stato) {
     el('span', { class: 'num modalita' }, giorno.modalita === 'primoSecondo' ? 'primo + secondo' : 'piatto unico')
   ]);
 
+  // un gusto cambiato dopo la generazione può rendere un piatto non più
+  // ammesso: meglio dirlo qui che lasciare un menù che non rispetta le liste
+  const nonPiuAmmessi = piatti
+    .map((p) => ({ p, blocco: M.motivoIndisponibilita(p, {
+      indiceIngredienti: stato.indiceIngredienti,
+      preferenze: stato.preferenze,
+      mese: M.mesecorrente()
+    }) }))
+    .filter((x) => x.blocco);
+
   const azioni = el('div', { class: 'azioniGiorno' }, [
     el('button', { class: 'testuale', type: 'button', onclick: () => stato.azioni.rigeneraGiorno(giorno.giorno) },
       'rigenera'),
@@ -121,8 +131,12 @@ function rigaGiorno(giorno, menu, stato) {
     }, giorno.bloccato ? 'sblocca' : 'blocca')
   ]);
 
-  return el('div', { class: 'giorno' + (giorno.data === oggi ? ' oggi' : '') }, [
-    margine,
-    el('div', { class: 'corpoGiorno' }, [nomi, dati, azioni])
-  ]);
+  const corpo = el('div', { class: 'corpoGiorno' }, [nomi, dati]);
+  for (const { p, blocco } of nonPiuAmmessi) {
+    corpo.appendChild(el('p', { class: 'motivo piccolo' },
+      `${p.nome}: ${blocco.motivo}. Rigenera il giorno.`));
+  }
+  corpo.appendChild(azioni);
+
+  return el('div', { class: 'giorno' + (giorno.data === oggi ? ' oggi' : '') }, [margine, corpo]);
 }

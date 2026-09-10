@@ -306,3 +306,94 @@ nav a:active{background:var(--premuto);}
 .rigaScarico input[type=checkbox]{width:22px; height:22px; accent-color:var(--biro); flex:none;}
 .nomeScarico{flex:1;}
 .rigaScarico .num{color:var(--matita); font-size:.82rem; text-align:right;}
+
+/* ============================================================ GUSTI ======
+   Quattro liste e i suggerimenti. Stessa disciplina del resto: titoli su
+   filetto, righe separate da una linea, il numero a destra in monospazio.
+   L'unico blocco che "parla" è la proposta, con il filetto blu della biro. */
+.gruppoGusti{margin-bottom:26px;}
+.titoloGusti{
+  display:flex; align-items:baseline; gap:12px; justify-content:space-between;
+  font-size:.95rem; font-weight:650; margin:0 0 6px;
+  padding-bottom:5px; border-bottom:1px solid var(--filetto-forte);
+}
+.titoloGusti .quanti{color:var(--matita); font-size:.82rem;}
+
+.proposte{margin-bottom:30px;}
+.proposta{
+  padding:2px 0 8px 12px; margin-bottom:10px;
+  border-left:3px solid var(--biro);
+}
+.testoProposta{font-size:1.02rem; line-height:1.35; margin-bottom:4px;}
+.proposta .conteggio{margin-bottom:2px;}
+.azioniProposta{display:flex; column-gap:20px; row-gap:0; flex-wrap:wrap;}
+
+.elencoGusti{border-top:1px solid var(--filetto);}
+.rigaGusto, .rigaVoto{
+  display:flex; align-items:center; gap:12px;
+  min-height:var(--tocco); padding:6px 0; border-bottom:1px solid var(--filetto);
+}
+.nomeGusto{
+  flex:1; min-width:0; font-size:1rem; text-align:left;
+  min-height:var(--tocco); display:flex; align-items:center;
+}
+.nomeGusto.collegato{
+  text-decoration:underline; text-decoration-color:var(--filetto-forte);
+  text-decoration-thickness:1px; text-underline-offset:4px; font-weight:600;
+}
+.nomeGusto.collegato:disabled{text-decoration:none; color:var(--matita);}
+/* nel voto il nome del piatto prende una riga sua: stelle, data e "toglie"
+   vanno a capo sotto, altrimenti su un telefono si accavallano */
+.rigaVoto{flex-wrap:wrap; row-gap:0; padding:2px 0 6px;}
+.rigaVoto .nomeGusto{flex:1 1 100%;}
+.rigaVoto .stelleVoto{flex:none; color:var(--biro); font-size:.95rem; letter-spacing:1px;}
+.rigaVoto .datoVoto{flex:1 1 auto; margin:0; min-width:0;}
+
+.cercaGusti{margin-top:8px;}
+.cercaGusti input[type=search]{
+  width:100%; min-height:var(--tocco); padding:0 10px; font:inherit;
+  color:var(--inchiostro); background:transparent;
+  border:1px solid var(--filetto-forte); border-radius:2px;
+}
+.risultatiGusti:not(:empty){margin-top:4px; border-top:1px solid var(--filetto);}
+.risultatoGusti{
+  display:flex; align-items:center; gap:12px; justify-content:space-between;
+  width:100%; min-height:var(--tocco); padding:6px 0; text-align:left;
+  border-bottom:1px solid var(--filetto); font-size:1rem;
+}
+.risultatoGusti:active{background:var(--premuto);}
+.risultatoGusti .piu{color:var(--biro); font-size:1.2rem; font-weight:650;}
+
+/* --------------------------------------------- il voto dentro il piatto -- */
+.sceltaGusti{display:flex; column-gap:20px; flex-wrap:wrap; margin-top:2px;}
+.testuale.spentoAcceso{color:var(--rosso); font-weight:650;}
+
+.zonaVoto{margin-top:22px;}
+.stelle{display:flex; gap:6px; margin:8px 0 12px;}
+.stella{
+  flex:1; min-height:56px; font-size:1.75rem; line-height:1;
+  color:var(--filetto-forte);
+  border:1px solid var(--filetto); border-radius:2px;
+}
+.stella.piena{color:var(--biro); border-color:var(--margine-riga);}
+.stella:active{background:var(--premuto);}
+
+.campiVoto{display:flex; gap:10px; flex-wrap:wrap;}
+.campiVoto select, .campiVoto input{
+  flex:1 1 46%; min-height:var(--tocco); padding:0 10px; font:inherit;
+  color:var(--inchiostro); background:transparent;
+  border:1px solid var(--filetto-forte); border-radius:2px;
+}
+.azione.secondaria{
+  background:transparent; color:var(--biro);
+  border:1.5px solid var(--biro); min-height:52px;
+}
+.azione.secondaria:active{background:rgba(34,69,143,.08);}
+.azione:disabled, .azione.secondaria:disabled{
+  background:transparent; color:var(--matita);
+  border:1px dashed var(--filetto-forte); font-weight:400;
+}
+
+.ingredienti li.escluso span:first-child{color:var(--rosso);}
+.ingredienti li.amato span:first-child{color:var(--spunta);}
+.motivo.piccolo{font-size:.82rem; margin-top:2px;}

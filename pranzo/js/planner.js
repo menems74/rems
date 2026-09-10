@@ -6,23 +6,15 @@
    ========================================================================= */
 
 import * as M from './model.js';
+import { votoMedio, tempoPercepito } from './tastes.js';
+
+/* La media pesata dei voti vive con i gusti, ma serve qui per il punteggio:
+   si ri-esporta perché planner resta l'unico punto d'ingresso del motore. */
+export { votoMedio };
 
 /* ------------------------------------------------------------ contesto ---
    { piatti, indiceIngredienti, preferenze, voti, ultimaVolta (Map
    piattoId -> 'AAAA-MM-GG'), dispensa (Set ingredienteId), mese, oggi }   */
-
-/** Media dei voti pesata sui più recenti: peso 0.7^n dal più recente. */
-export function votoMedio(voti) {
-  if (!voti || !voti.length) return null;
-  const ordinati = voti.slice().sort((a, b) => (b.data || '').localeCompare(a.data || ''));
-  let somma = 0, pesi = 0;
-  ordinati.forEach((v, n) => {
-    const peso = Math.pow(0.7, n);
-    somma += v.stelle * peso;
-    pesi += peso;
-  });
-  return somma / pesi;
-}
 
 export function settimaneDa(dataISO, oggi) {
   if (!dataISO) return null;
@@ -49,6 +41,12 @@ export function punteggio(piatto, ctx, opzioni = {}) {
 
   if ((pref.amoPiatti || []).includes(piatto.id)) {
     totale += 15; componenti.push({ etichetta: 'piatto che ami', valore: 15 });
+    // le specifiche chiedono che un piatto amato torni almeno ogni 2 settimane:
+    // non come vincolo rigido (romperebbe i macro), ma con una spinta forte
+    const da = settimaneDa(ctx.ultimaVolta && ctx.ultimaVolta.get(piatto.id), oggi || new Date());
+    if (da == null || da >= 2) {
+      totale += 25; componenti.push({ etichetta: 'lo ami e manca da 2 settimane', valore: 25 });
+    }
   }
 
   const amati = (piatto.ingredienti || [])
@@ -86,9 +84,18 @@ export function punteggio(piatto, ctx, opzioni = {}) {
     componenti.push({ etichetta: `fatto ${Math.max(0, Math.round(settimane))} settimane fa`, valore: penalita });
   }
 
+  // il tempo che conta è quello percepito: se l'ho segnato "troppo lungo",
+  // il piatto pesa come se durasse di più anche se la ricetta dice altro
   const tempoMax = opzioni.tempoMax || pref.tempoMaxMin;
-  if (piatto.tempoMin > tempoMax) {
-    totale -= 15; componenti.push({ etichetta: `più lungo di ${tempoMax} min`, valore: -15 });
+  const tempo = tempoPercepito(piatto, (ctx.voti || {})[piatto.id]);
+  if (tempo > tempoMax) {
+    totale -= 15;
+    componenti.push({
+      etichetta: tempo > piatto.tempoMin
+        ? `l'hai trovato lungo: conta ${tempo} min su ${tempoMax}`
+        : `più lungo di ${tempoMax} min`,
+      valore: -15
+    });
   }
 
   if (piatto.difficolta === 3) {

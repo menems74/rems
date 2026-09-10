@@ -1,9 +1,12 @@
-/* ui/dish.js — dettaglio del piatto (M1: sola lettura).
-   Voti, "perché questo piatto" e "cucinato" arrivano nelle milestone dopo. */
+/* =========================================================================
+   ui/dish.js — dettaglio del piatto: ingredienti, procedimento,
+   "perché questo piatto", voto e "cucinato oggi".
+   ========================================================================= */
 
 import { el, svuotaNodo } from './dom.js';
 import * as M from '../model.js';
 import * as S from '../shopping.js';
+import * as G from '../tastes.js';
 
 export function mostraDettaglio(piatto, stato, perche) {
   const pannello = document.getElementById('pannello');
@@ -16,6 +19,7 @@ export function mostraDettaglio(piatto, stato, perche) {
     preferenze: stato.preferenze,
     mese: M.mesecorrente()
   });
+  const riepilogo = G.riepilogoPiatto(piatto.id, stato);
 
   corpo.appendChild(el('h2', {}, piatto.nome));
   corpo.appendChild(el('p', { class: 'conteggio' }, [
@@ -23,11 +27,19 @@ export function mostraDettaglio(piatto, stato, perche) {
     macro.length ? ' · copre ' + macro.map((m) => M.NOME_MACRO[m]).join(', ') : ' · non copre nulla'
   ].join('')));
 
+  corpo.appendChild(el('p', { class: 'conteggio' },
+    (riepilogo.media != null
+      ? `${G.stelle(riepilogo.media)} ${riepilogo.media.toFixed(1).replace('.', ',')} su ${riepilogo.quanti} vot${riepilogo.quanti === 1 ? 'o' : 'i'}`
+      : 'mai votato') +
+    ' · ' + G.quandoUltimaVolta(riepilogo.ultimaVolta)));
+
   if (blocco) corpo.appendChild(el('p', { class: 'motivo' }, 'Non disponibile: ' + blocco.motivo));
 
   if (piatto.stagioni && piatto.stagioni.length) {
     corpo.appendChild(el('p', { class: 'conteggio' }, 'stagione: mesi ' + piatto.stagioni.join(', ')));
   }
+
+  if (stato.azioni && stato.azioni.aggiungiGusto) corpo.appendChild(sceltaGusti(piatto, stato));
 
   if (perche && perche.length) {
     corpo.appendChild(el('h3', {}, 'Perché questo piatto'));
@@ -48,8 +60,10 @@ export function mostraDettaglio(piatto, stato, perche) {
       try { canonica = ' (' + M.formattaQta(M.inCanonica(ing, voce.qta, voce.unita), ing.unita) + ')'; }
       catch (e) { canonica = ' (unità non convertibile)'; }
     }
-    lista.appendChild(el('li', {}, [
-      el('span', {}, nome),
+    const escluso = (stato.preferenze.escludiIngredienti || []).includes(voce.ingredienteId);
+    const amato = (stato.preferenze.amoIngredienti || []).includes(voce.ingredienteId);
+    lista.appendChild(el('li', { class: escluso ? 'escluso' : (amato ? 'amato' : null) }, [
+      el('span', {}, nome + (escluso ? ' — lo escludi' : (amato ? ' — ti piace' : ''))),
       el('span', { class: 'qta' }, M.formattaQta(voce.qta, voce.unita) + canonica)
     ]));
   }
@@ -64,6 +78,8 @@ export function mostraDettaglio(piatto, stato, perche) {
     corpo.appendChild(el('p', { class: 'conteggio' }, 'tag: ' + piatto.tags.join(', ')));
   }
 
+  if (stato.azioni && stato.azioni.salvaVoto) corpo.appendChild(zonaVoto(piatto, stato, riepilogo));
+
   // "cucinato": segna la data e propone di scalare la dispensa. Proposta,
   // non automatismo: le specifiche sono chiare su questo punto.
   if (stato.azioni && stato.azioni.cucinato) {
@@ -76,6 +92,7 @@ export function mostraDettaglio(piatto, stato, perche) {
   }
 
   pannello.hidden = false;
+  pannello.scrollTop = 0;
   document.getElementById('pannelloChiudi').focus();
 }
 
@@ -83,6 +100,101 @@ export function chiudiDettaglio() {
   document.getElementById('pannello').hidden = true;
 }
 
+/* ---------------------------------------------------- amo / escludo ------ */
+
+function sceltaGusti(piatto, stato) {
+  const amato = (stato.preferenze.amoPiatti || []).includes(piatto.id);
+  const escluso = (stato.preferenze.escludiPiatti || []).includes(piatto.id);
+
+  return el('div', { class: 'sceltaGusti' }, [
+    el('button', {
+      class: 'testuale' + (amato ? ' acceso' : ''), type: 'button',
+      onclick: () => amato
+        ? stato.azioni.togliGusto('amoPiatti', piatto.id)
+        : stato.azioni.aggiungiGusto('amoPiatti', piatto.id)
+    }, amato ? 'lo ami ✓' : 'lo amo'),
+    el('button', {
+      class: 'testuale' + (escluso ? ' spentoAcceso' : ''), type: 'button',
+      onclick: () => escluso
+        ? stato.azioni.togliGusto('escludiPiatti', piatto.id)
+        : stato.azioni.aggiungiGusto('escludiPiatti', piatto.id)
+    }, escluso ? 'lo escludi ✓' : 'escludilo')
+  ]);
+}
+
+/* ------------------------------------------------------------- il voto --- */
+
+/**
+ * Voto del piatto: stelle, motivo e nota. Il motivo conta davvero — "troppo
+ * lungo" abbassa il piatto ma non insegna niente sugli ingredienti.
+ */
+function zonaVoto(piatto, stato, riepilogo) {
+  const zona = el('div', { class: 'zonaVoto' });
+  zona.appendChild(el('h3', {}, 'Com\'è andato?'));
+
+  const bozza = { stelle: 0, motivo: 'buono', note: '' };
+
+  const fila = el('div', { class: 'stelle', role: 'group', 'aria-label': 'Voto da 1 a 5 stelle' });
+  const bottoni = [];
+  for (let n = 1; n <= 5; n++) {
+    const b = el('button', {
+      class: 'stella', type: 'button', 'aria-label': `${n} stelle`, 'aria-pressed': 'false',
+      onclick: () => {
+        bozza.stelle = n;
+        bottoni.forEach((x, i) => {
+          x.classList.toggle('piena', i < n);
+          x.setAttribute('aria-pressed', i < n ? 'true' : 'false');
+        });
+        salva.disabled = false;
+        salva.textContent = `Salva il voto: ${n} stell${n === 1 ? 'a' : 'e'}`;
+      }
+    }, '★');
+    bottoni.push(b);
+    fila.appendChild(b);
+  }
+  zona.appendChild(fila);
+
+  const selMotivo = el('select', {
+    'aria-label': 'Perché questo voto',
+    onchange: (e) => { bozza.motivo = e.target.value; }
+  }, M.MOTIVI_VOTO.map((m) => el('option', { value: m }, G.ETICHETTA_MOTIVO[m] || m)));
+
+  const nota = el('input', {
+    type: 'text', placeholder: 'una nota, se vuoi', 'aria-label': 'Nota sul piatto',
+    oninput: (e) => { bozza.note = e.target.value; }
+  });
+
+  zona.appendChild(el('div', { class: 'campiVoto' }, [selMotivo, nota]));
+
+  // "Cucinato oggi" resta l'unica azione piena della schermata: il voto è
+  // importante ma viene dopo, quindi ha il bottone contornato
+  const salva = el('button', {
+    class: 'azione secondaria', type: 'button', disabled: 'disabled',
+    onclick: () => stato.azioni.salvaVoto(piatto.id, bozza)
+  }, 'Tocca le stelle per votare');
+  zona.appendChild(salva);
+
+  if (riepilogo.voti.length) {
+    const elenco = el('div', { class: 'elencoGusti' });
+    for (const v of riepilogo.voti) {
+      elenco.appendChild(el('div', { class: 'rigaVoto' }, [
+        el('span', { class: 'stelleVoto num' }, G.stelle(v.stelle)),
+        el('span', { class: 'conteggio datoVoto' },
+          [G.dataBreve(v.data), G.ETICHETTA_MOTIVO[v.motivo] || v.motivo, v.note]
+            .filter(Boolean).join(' · ')),
+        el('button', {
+          class: 'testuale', type: 'button',
+          onclick: () => stato.azioni.eliminaVoto(v.id)
+        }, 'toglie')
+      ]));
+    }
+    zona.appendChild(elenco);
+  }
+
+  return zona;
+}
+
+/* --------------------------------------------------- cucinato e scarico -- */
 
 /**
  * Mostra la proposta di scarico dalla dispensa. Nulla viene toccato finché

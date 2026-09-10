@@ -605,3 +605,262 @@ prova('scarico: non va sotto zero', () => {
   });
   uguale(0, righe[0].restante);
 });
+
+/* ==========================================================================
+   PROVE DEI GUSTI (M4)
+   Apprendimento sugli ingredienti, suggerimenti da confermare e l'effetto
+   di un voto basso sul menù. Le liste dei gusti non devono mai cambiare
+   da sole: qui si verifica anche questo.
+   ========================================================================== */
+
+import * as G from '../tastes.js';
+
+const voto = (piattoId, stelle, data, motivo = 'buono') => ({
+  id: `v_${piattoId}_${data}`, piattoId, stelle, data, motivo, note: ''
+});
+
+function ctxGusti(voti, extra = {}) {
+  return Object.assign(ctxProva({ voti }), extra);
+}
+
+prova('un voto "troppo lungo" non parla di gusto', () => {
+  const voti = [voto('u_pollo_zucchine', 2, '2026-06-01', 'troppoLungo'),
+                voto('u_pollo_zucchine', 4, '2026-06-02', 'buono')];
+  uguale(1, G.votiDiGusto(voti).length);
+  uguale('buono', G.votiDiGusto(voti)[0].motivo);
+});
+
+prova('tempo percepito: ogni "troppo lungo" fa pesare un quarto in più', () => {
+  const piatto = { tempoMin: 40 };
+  uguale(40, G.tempoPercepito(piatto, []));
+  uguale(50, G.tempoPercepito(piatto, [voto('x', 3, '2026-06-01', 'troppoLungo')]));
+  uguale(60, G.tempoPercepito(piatto, [voto('x', 3, '2026-06-01', 'troppoLungo'),
+                                       voto('x', 3, '2026-06-02', 'troppoLungo')]));
+  // il tetto è tre volte: oltre non ha senso gonfiare
+  const molti = [1, 2, 3, 4, 5].map((n) => voto('x', 3, '2026-06-0' + n, 'troppoLungo'));
+  uguale(70, G.tempoPercepito(piatto, molti));
+});
+
+prova('punteggio implicito dell\'ingrediente: vale solo da tre piatti', () => {
+  const due = G.punteggiIngredienti(ctxGusti({
+    u_tonno_broccoli: [voto('u_tonno_broccoli', 1, '2026-06-01')],
+    u_uova_broccoli: [voto('u_uova_broccoli', 2, '2026-06-02')]
+  }));
+  uguale(2, due.get('i_broccoli').quantiPiatti);
+  uguale(false, due.get('i_broccoli').valido);
+
+  const tre = G.punteggiIngredienti(ctxGusti({
+    u_tonno_broccoli: [voto('u_tonno_broccoli', 1, '2026-06-01')],
+    u_uova_broccoli: [voto('u_uova_broccoli', 2, '2026-06-02')],
+    co_broccoli: [voto('co_broccoli', 1, '2026-06-03')]
+  }));
+  const b = tre.get('i_broccoli');
+  uguale(3, b.quantiPiatti);
+  uguale(true, b.valido);
+  uguale(1.33, Math.round(b.media * 100) / 100);      // (1 + 2 + 1) / 3
+});
+
+prova('sale, olio e spezie non entrano nell\'apprendimento', () => {
+  const idx = M.indicizza([
+    { id: 'i_sale', nome: 'Sale', macro: 'condimento', unita: 'g', reparto: 'dispensa',
+      formatoAcquisto: { qta: 1000, label: 'conf' }, conversioni: [], stagioni: [], dispensaBase: true },
+    { id: 'i_riso', nome: 'Riso', macro: 'carboidrato', unita: 'g', reparto: 'dispensa',
+      formatoAcquisto: { qta: 1000, label: 'conf' }, conversioni: [], stagioni: [] }
+  ]);
+  const piatti = ['a', 'b', 'c'].map((n) => ({
+    id: 'p_' + n, nome: n, tipo: 'unico', tempoMin: 10, difficolta: 1, passi: ['x'],
+    ingredienti: [{ ingredienteId: 'i_sale', qta: 3, unita: 'g' },
+                  { ingredienteId: 'i_riso', qta: 100, unita: 'g' }]
+  }));
+  const voti = {};
+  for (const p of piatti) voti[p.id] = [voto(p.id, 1, '2026-06-01')];
+  const punteggi = G.punteggiIngredienti({ piatti, indiceIngredienti: idx, voti });
+  uguale(undefined, punteggi.get('i_sale'));
+  uguale(true, punteggi.get('i_riso').valido);
+});
+
+prova('sotto 2,2 su tre piatti l\'app propone di escludere l\'ingrediente', () => {
+  const ctx = ctxGusti({
+    u_tonno_broccoli: [voto('u_tonno_broccoli', 1, '2026-06-01')],
+    u_uova_broccoli: [voto('u_uova_broccoli', 2, '2026-06-02')],
+    co_broccoli: [voto('co_broccoli', 1, '2026-06-03')]
+  });
+  const proposte = G.suggerimentiDaVoti(ctx).filter((s) => s.ingredienteId === 'i_broccoli');
+  uguale(1, proposte.length);
+  uguale('escludi', proposte[0].tipo);
+  uguale('escludiIngredienti', proposte[0].lista);
+  uguale('pendente', proposte[0].stato);
+  uguale(3, proposte[0].quantiPiatti);
+  if (!/broccoli/i.test(proposte[0].testo)) throw new Error('il testo non nomina l\'ingrediente');
+});
+
+prova('sopra 4,3 su tre piatti propone il preferito', () => {
+  const ctx = ctxGusti({
+    u_tonno_broccoli: [voto('u_tonno_broccoli', 5, '2026-06-01')],
+    u_uova_broccoli: [voto('u_uova_broccoli', 5, '2026-06-02')],
+    co_broccoli: [voto('co_broccoli', 5, '2026-06-03')]
+  });
+  const proposte = G.suggerimentiDaVoti(ctx).filter((s) => s.ingredienteId === 'i_broccoli');
+  uguale('amo', proposte[0].tipo);
+  uguale('amoIngredienti', proposte[0].lista);
+});
+
+prova('due soli piatti votati: nessuna proposta', () => {
+  const ctx = ctxGusti({
+    u_tonno_broccoli: [voto('u_tonno_broccoli', 1, '2026-06-01')],
+    co_broccoli: [voto('co_broccoli', 1, '2026-06-03')]
+  });
+  uguale(0, G.suggerimentiDaVoti(ctx).filter((s) => s.ingredienteId === 'i_broccoli').length);
+});
+
+prova('tre volte "troppo lungo" non fa proporre di escludere l\'ingrediente', () => {
+  const ctx = ctxGusti({
+    u_tonno_broccoli: [voto('u_tonno_broccoli', 1, '2026-06-01', 'troppoLungo')],
+    u_uova_broccoli: [voto('u_uova_broccoli', 1, '2026-06-02', 'troppoLungo')],
+    co_broccoli: [voto('co_broccoli', 1, '2026-06-03', 'troppoLungo')]
+  });
+  uguale(0, G.suggerimentiDaVoti(ctx).length);
+});
+
+prova('un suggerimento scartato non torna a chiedere', () => {
+  const ctx = ctxGusti({
+    u_tonno_broccoli: [voto('u_tonno_broccoli', 1, '2026-06-01')],
+    u_uova_broccoli: [voto('u_uova_broccoli', 2, '2026-06-02')],
+    co_broccoli: [voto('co_broccoli', 1, '2026-06-03')]
+  });
+  const primo = G.suggerimentiDaVoti(ctx)[0];
+  const dopo = G.suggerimentiDaVoti(ctx, [Object.assign({}, primo, { stato: 'scartato' })]);
+  uguale(0, dopo.filter((s) => s.id === primo.id).length);
+});
+
+prova('niente proposte per ciò che è già nella lista giusta', () => {
+  const pref = Object.assign(M.preferenzePredefinite(), { escludiIngredienti: ['i_broccoli'] });
+  const ctx = ctxGusti({
+    u_tonno_broccoli: [voto('u_tonno_broccoli', 1, '2026-06-01')],
+    u_uova_broccoli: [voto('u_uova_broccoli', 2, '2026-06-02')],
+    co_broccoli: [voto('co_broccoli', 1, '2026-06-03')]
+  }, { preferenze: pref });
+  uguale(0, G.suggerimentiDaVoti(ctx).filter((s) => s.ingredienteId === 'i_broccoli').length);
+});
+
+prova('le liste non si mordono: amare toglie da escludere', () => {
+  const pref = Object.assign(M.preferenzePredefinite(), { escludiIngredienti: ['i_broccoli'] });
+  const dopo = G.aggiungiAllaLista(pref, 'amoIngredienti', 'i_broccoli');
+  uguale(['i_broccoli'], dopo.amoIngredienti);
+  uguale([], dopo.escludiIngredienti);
+  uguale(['i_broccoli'], pref.escludiIngredienti);      // l'originale non si tocca
+});
+
+prova('togliere dalla lista non tocca le altre', () => {
+  let pref = M.preferenzePredefinite();
+  pref = G.aggiungiAllaLista(pref, 'amoPiatti', 'u_pollo_zucchine');
+  pref = G.aggiungiAllaLista(pref, 'escludiPiatti', 'u_tonno_broccoli');
+  pref = G.togliDallaLista(pref, 'amoPiatti', 'u_pollo_zucchine');
+  uguale([], pref.amoPiatti);
+  uguale(['u_tonno_broccoli'], pref.escludiPiatti);
+});
+
+prova('confermare un suggerimento è l\'unico modo di cambiare la lista', () => {
+  const ctx = ctxGusti({
+    u_tonno_broccoli: [voto('u_tonno_broccoli', 1, '2026-06-01')],
+    u_uova_broccoli: [voto('u_uova_broccoli', 2, '2026-06-02')],
+    co_broccoli: [voto('co_broccoli', 1, '2026-06-03')]
+  });
+  const sugg = G.suggerimentiDaVoti(ctx)[0];
+  uguale([], ctx.preferenze.escludiIngredienti);        // il calcolo non ha cambiato nulla
+  const dopo = G.applicaSuggerimento(ctx.preferenze, sugg);
+  uguale(['i_broccoli'], dopo.escludiIngredienti);
+});
+
+prova('voto valido o niente', () => {
+  const buono = G.nuovoVoto({ piattoId: 'u_pollo_zucchine', stelle: 4, motivo: 'buono' });
+  uguale(4, buono.stelle);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(buono.data)) throw new Error('data non impostata');
+  lancia(() => G.nuovoVoto({ piattoId: 'x', stelle: 9 }), 'stelle fuori scala');
+  lancia(() => G.nuovoVoto({ piattoId: 'x', stelle: 3, motivo: 'perché' }), 'motivo inventato');
+  lancia(() => G.nuovoVoto({ stelle: 3 }), 'senza piatto');
+});
+
+prova('un voto basso abbassa il punteggio del piatto', () => {
+  const senza = P.punteggio(CATALOGO[0], ctxProva(), { senzaCaso: true }).totale;
+  const basso = P.punteggio(CATALOGO[0], ctxGusti({
+    u_pollo_zucchine: [voto('u_pollo_zucchine', 1, '2026-06-01')]
+  }), { senzaCaso: true }).totale;
+  const alto = P.punteggio(CATALOGO[0], ctxGusti({
+    u_pollo_zucchine: [voto('u_pollo_zucchine', 5, '2026-06-01')]
+  }), { senzaCaso: true }).totale;
+  uguale(senza - 24, basso);                            // (1 - 3) * 12
+  uguale(senza + 24, alto);
+});
+
+prova('"troppo lungo" penalizza il tempo anche se la ricetta è corta', () => {
+  const pref = Object.assign(M.preferenzePredefinite(), { tempoMaxMin: 25 });
+  const piatto = CATALOGO[0];                           // tempoMin 20, sotto la soglia
+  const prima = P.punteggio(piatto, ctxProva({ preferenze: pref }), { senzaCaso: true });
+  const dopo = P.punteggio(piatto, ctxGusti({
+    u_pollo_zucchine: [voto('u_pollo_zucchine', 3, '2026-06-01', 'troppoLungo'),
+                       voto('u_pollo_zucchine', 3, '2026-06-02', 'troppoLungo')]
+  }, { preferenze: pref }), { senzaCaso: true });
+  uguale(0, prima.componenti.filter((c) => c.valore === -15).length);
+  uguale(1, dopo.componenti.filter((c) => c.valore === -15).length);
+});
+
+prova('un piatto amato che manca da due settimane ha la spinta in più', () => {
+  const pref = Object.assign(M.preferenzePredefinite(), { amoPiatti: ['u_pollo_zucchine'] });
+  const recente = P.punteggio(CATALOGO[0], ctxProva({
+    preferenze: pref, ultimaVolta: new Map([['u_pollo_zucchine', '2026-06-12']])
+  }), { senzaCaso: true }).componenti.map((c) => c.etichetta);
+  const vecchio = P.punteggio(CATALOGO[0], ctxProva({
+    preferenze: pref, ultimaVolta: new Map([['u_pollo_zucchine', '2026-05-01']])
+  }), { senzaCaso: true }).componenti.map((c) => c.etichetta);
+  uguale(false, recente.includes('lo ami e manca da 2 settimane'));
+  uguale(true, vecchio.includes('lo ami e manca da 2 settimane'));
+});
+
+prova('escludere un ingrediente svuota il menù di tutti i piatti che lo usano', () => {
+  const pref = Object.assign(M.preferenzePredefinite(), { escludiIngredienti: ['i_broccoli'] });
+  const esito = P.generaSettimana(ctxProva({ preferenze: pref }));
+  uguale(5, esito.giorni.length);
+  for (const g of esito.giorni) {
+    for (const p of g.piattiOggetti) {
+      if ((p.ingredienti || []).some((v) => v.ingredienteId === 'i_broccoli')) {
+        throw new Error(`${p.id} contiene un ingrediente escluso`);
+      }
+    }
+  }
+});
+
+prova('un voto basso cambia il menù: il piatto bocciato perde il posto', () => {
+  // due soli piatti unici possibili, uno bocciato: vince l'altro
+  const soli = CATALOGO.filter((p) => p.id === 'u_pollo_zucchine' || p.id === 'u_ceci_spinaci');
+  const pref = Object.assign(M.preferenzePredefinite(), { giorni: ['lun'], quotaNovita: 0 });
+  const ctx = ctxProva({
+    piatti: soli, preferenze: pref,
+    voti: { u_pollo_zucchine: [voto('u_pollo_zucchine', 1, '2026-06-01')] }
+  });
+  let bocciato = 0;
+  for (let i = 0; i < 40; i++) {
+    const esito = P.generaSettimana(ctx);
+    if (esito.giorni[0].piatti.includes('u_pollo_zucchine')) bocciato++;
+  }
+  // con -24 contro +0 l'estrazione pesata lo sceglie molto di rado
+  if (bocciato > 15) throw new Error(`scelto ${bocciato} volte su 40 nonostante il voto 1`);
+});
+
+prova('quando ultima volta, in italiano', () => {
+  const oggi = new Date('2026-06-15T12:00:00');
+  uguale('mai cucinato', G.quandoUltimaVolta(null, oggi));
+  uguale('oggi', G.quandoUltimaVolta('2026-06-15', oggi));
+  uguale('ieri', G.quandoUltimaVolta('2026-06-14', oggi));
+  uguale('3 giorni fa', G.quandoUltimaVolta('2026-06-12', oggi));
+  uguale('una settimana fa', G.quandoUltimaVolta('2026-06-08', oggi));
+  uguale('3 settimane fa', G.quandoUltimaVolta('2026-05-25', oggi));
+});
+
+prova('stelle e date brevi', () => {
+  uguale('★★★★☆', G.stelle(4));
+  uguale('★★★☆☆', G.stelle(3.4));
+  uguale('☆☆☆☆☆', G.stelle(0));
+  uguale('14 set', G.dataBreve('2026-09-14'));
+  uguale('1 gen', G.dataBreve('2026-01-01'));
+});
