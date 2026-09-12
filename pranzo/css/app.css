@@ -136,6 +136,19 @@ main{padding:14px 16px 24px;}
 
 .azioniGiorno{display:flex; column-gap:16px; row-gap:0; flex-wrap:wrap; margin-top:2px;}
 
+/* i due pasti dentro il giorno: pranzo sopra, cena sotto, separati da un
+   filetto leggero. L'etichetta del pasto è in blu e minuscola: deve dire
+   di cosa si tratta, non fare da titolo. */
+.pasto{padding:2px 0;}
+.divisorePasto{border-top:1px dashed var(--filetto); margin:8px 0;}
+.etichettaPasto{
+  display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;
+  font-size:.82rem; font-weight:650; color:var(--biro); margin-bottom:2px;
+}
+.etichettaPasto .lucchetto{color:var(--spunta); font-weight:400;}
+.segnoAvanzi{font-size:.78rem; font-weight:400; color:var(--matita);}
+.pasto.bloccato{opacity:.92;}
+
 /* ==================================================== SCHERMATA CATALOGO */
 .filtri{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;}
 .filtri input[type=search], .filtri select{
@@ -593,6 +606,15 @@ main{padding:14px 16px 24px;}
 .nienteOggi{font-size:1.15rem; color:var(--matita); padding:6px 0 2px;}
 .datiOggi{display:flex; align-items:center; gap:12px; margin-top:8px;}
 .datiOggi .num{font-size:.9rem; color:var(--matita);}
+
+/* in prima pagina i pasti di oggi stanno uno sotto l'altro: l'etichetta
+   piccola in blu, il nome grande sotto. */
+.pastoOggi{padding-top:6px;}
+.pastoOggi:first-of-type{padding-top:2px;}
+.etichettaOggi{
+  display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;
+  font-size:.82rem; font-weight:650; color:var(--biro);
+}
 
 /* l'indice: una riga per sezione, il dato vero a destra */
 .scorciatoie{

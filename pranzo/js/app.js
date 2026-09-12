@@ -98,7 +98,7 @@ async function avvia() {
     DB.motoreInUso() === 'indexeddb' ? 'IndexedDB' : 'localStorage';
 
   stato.azioni = {
-    generaSettimana, rigeneraGiorno, bloccaGiorno, cambiaModalita,
+    generaSettimana, rigeneraPasto, bloccaPasto, cambiaModalita, avanziDalPranzo,
     generaLista, segnaComprato, segnaInCasa, aggiungiLibera, togliLibera,
     salvaDispensa, cucinato,
     salvaVoto, eliminaVoto, aggiungiGusto, togliGusto,
@@ -214,7 +214,10 @@ async function caricaStato() {
   stato.piatti = piatti;
   stato.indiceIngredienti = M.indicizza(ingredienti);
   stato.indicePiatti = M.indicizza(piatti);
-  stato.preferenze = preferenze || M.preferenzePredefinite();
+  // le preferenze salvate dalla 1.x non hanno le chiavi nuove (i pasti, il
+  // tempo della cena, gli avanzi): i predefiniti fanno da fondo, quello che
+  // c'è già vince. Così nessuno si ritrova senza cena senza averlo chiesto.
+  stato.preferenze = Object.assign(M.preferenzePredefinite(), preferenze || {});
 
   stato.voti = {};
   for (const v of voti) (stato.voti[v.piattoId] = stato.voti[v.piattoId] || []).push(v);
@@ -232,8 +235,8 @@ async function caricaStato() {
   for (const c of cucinato) segna(c.piattoId, c.data);
   const oggi = P.iso(new Date());
   for (const m of menu) {
-    for (const g of m.giorni || []) {
-      if (g.data && g.data <= oggi) for (const id of g.piatti || []) segna(id, g.data);
+    for (const g of M.normalizzaMenu(m).giorni || []) {
+      if (g.data && g.data <= oggi) for (const id of M.piattiDelGiorno(g)) segna(id, g.data);
     }
   }
 
@@ -243,7 +246,7 @@ async function caricaStato() {
 
   const lunedi = P.lunediDi(new Date());
   const idSettimana = P.idMenu(lunedi);
-  stato.menu = menu.find((m) => m.id === idSettimana) || null;
+  stato.menu = M.normalizzaMenu(menu.find((m) => m.id === idSettimana) || null);
   stato.lista = stato.menu ? (await DB.leggi(DB.STORE.listeSpesa, stato.menu.id)) || null : null;
   // i menù delle settimane passate diventano archiviati
   for (const m of menu) {
@@ -269,19 +272,24 @@ function contesto() {
   };
 }
 
-/** Il menù salvato non porta gli oggetti piatto, solo gli id. */
+/**
+ * Il menù salvato non porta gli oggetti piatto, solo gli id — e non porta i
+ * macro coperti, che si ricalcolano sempre dagli ingredienti.
+ */
 function perSalvare(menu) {
   return {
     id: menu.id,
     dataInizio: menu.dataInizio,
+    formato: M.FORMATO_MENU,
     stato: menu.stato || 'attivo',
     rilassamenti: menu.rilassamenti || [],
     avvisi: menu.avvisi || [],
     perche: menu.perche || {},
-    giorni: (menu.giorni || []).map((g) => ({
-      giorno: g.giorno, data: g.data, modalita: g.modalita,
-      piatti: g.piatti || [], macroCoperti: g.macroCoperti || [], bloccato: !!g.bloccato
-    }))
+    giorni: (menu.giorni || []).map((g) => {
+      const pasti = {};
+      for (const [nome, pasto] of M.pastiDi(g)) pasti[nome] = M.pastoPulito(pasto);
+      return { giorno: g.giorno, data: g.data || null, pasti };
+    })
   };
 }
 
@@ -291,15 +299,15 @@ async function generaSettimana() {
   const lunedi = P.lunediDi(new Date());
   const ctx = contesto();
 
-  // i giorni bloccati restano come sono
+  // i pasti bloccati restano come sono, anche se si rigenera tutto
   const fissi = {};
   for (const g of (stato.menu && stato.menu.giorni) || []) {
-    if (g.bloccato) {
-      fissi[g.giorno] = {
-        modalita: g.modalita, piatti: g.piatti, macroCoperti: g.macroCoperti,
-        piattiOggetti: (g.piatti || []).map((id) => stato.indicePiatti.get(id)).filter(Boolean),
-        data: g.data
-      };
+    for (const [nome, pasto] of M.pastiDi(g)) {
+      if (!pasto.bloccato) continue;
+      fissi[g.giorno] = fissi[g.giorno] || {};
+      fissi[g.giorno][nome] = Object.assign({}, pasto, {
+        piattiOggetti: (pasto.piatti || []).map((id) => stato.indicePiatti.get(id)).filter(Boolean)
+      });
     }
   }
 
@@ -319,66 +327,107 @@ async function generaSettimana() {
     avvisi: esito.avvisi
   };
 
-  await DB.scrivi(DB.STORE.menu, perSalvare(menu));
-  stato.menu = perSalvare(menu);
+  await salvaMenu(menu);
   avviso('Settimana generata.');
   disegna();
 }
 
-async function rigeneraGiorno(giorno) {
-  if (!stato.menu) return;
-  const riga = stato.menu.giorni.find((g) => g.giorno === giorno);
-  if (riga && riga.bloccato) { avviso('Il giorno è bloccato: sbloccalo prima.'); return; }
+async function salvaMenu(menu) {
+  const pulito = perSalvare(menu);
+  await DB.scrivi(DB.STORE.menu, pulito);
+  stato.menu = M.normalizzaMenu(pulito);
+}
 
-  const menuConOggetti = Object.assign({}, stato.menu, {
-    giorni: stato.menu.giorni.map((g) => Object.assign({}, g, {
-      piattiOggetti: (g.piatti || []).map((id) => stato.indicePiatti.get(id)).filter(Boolean)
-    }))
+/** Il menù con dentro gli oggetti piatto: serve al motore per rigenerare. */
+function menuConOggetti() {
+  return Object.assign({}, stato.menu, {
+    giorni: (stato.menu.giorni || []).map((g) => {
+      const pasti = {};
+      for (const [nome, pasto] of M.pastiDi(g)) {
+        pasti[nome] = Object.assign({}, pasto, {
+          piattiOggetti: (pasto.piatti || []).map((id) => stato.indicePiatti.get(id)).filter(Boolean)
+        });
+      }
+      return Object.assign({}, g, { pasti });
+    })
   });
+}
 
-  const esito = P.rigeneraGiorno(contesto(), menuConOggetti, giorno);
-  if (!esito) { avviso('Nessun piatto disponibile per questo giorno con i vincoli attuali.', 'errore'); return; }
+function trovaPasto(giorno, pasto) {
+  const riga = (stato.menu && stato.menu.giorni || []).find((g) => g.giorno === giorno);
+  return riga ? (riga.pasti || {})[pasto] : null;
+}
 
-  const nuovo = Object.assign({}, stato.menu);
-  nuovo.giorni = nuovo.giorni.map((g) => (g.giorno === giorno ? esito.giorno : g));
+/** Sostituisce un pasto dentro il menù, senza toccare il resto. */
+function conPastoCambiato(giorno, pasto, nuovo) {
+  return Object.assign({}, stato.menu, {
+    giorni: stato.menu.giorni.map((g) => {
+      if (g.giorno !== giorno) return g;
+      return Object.assign({}, g, { pasti: Object.assign({}, g.pasti, { [pasto]: nuovo }) });
+    })
+  });
+}
+
+async function rigeneraPasto(giorno, pasto) {
+  if (!stato.menu) return;
+  const attuale = trovaPasto(giorno, pasto);
+  if (attuale && attuale.bloccato) { avviso('Il pasto è bloccato: sbloccalo prima.'); return; }
+
+  const esito = P.rigeneraPasto(contesto(), menuConOggetti(), giorno, pasto);
+  if (!esito) { avviso('Nessun piatto disponibile per questo pasto con i vincoli attuali.', 'errore'); return; }
+
+  const nuovo = conPastoCambiato(giorno, pasto, esito.pasto);
   nuovo.perche = Object.assign({}, nuovo.perche || {}, esito.perche);
   nuovo.rilassamenti = esito.rilassamenti.length ? esito.rilassamenti : (nuovo.rilassamenti || []);
-
-  await DB.scrivi(DB.STORE.menu, perSalvare(nuovo));
-  stato.menu = perSalvare(nuovo);
+  await salvaMenu(nuovo);
   disegna();
 }
 
-async function bloccaGiorno(giorno) {
+async function bloccaPasto(giorno, pasto) {
   if (!stato.menu) return;
-  const nuovo = Object.assign({}, stato.menu);
-  nuovo.giorni = nuovo.giorni.map((g) => (g.giorno === giorno ? Object.assign({}, g, { bloccato: !g.bloccato }) : g));
-  await DB.scrivi(DB.STORE.menu, perSalvare(nuovo));
-  stato.menu = perSalvare(nuovo);
+  const attuale = trovaPasto(giorno, pasto);
+  if (!attuale) return;
+  await salvaMenu(conPastoCambiato(giorno, pasto,
+    Object.assign({}, attuale, { bloccato: !attuale.bloccato })));
   disegna();
 }
 
-async function cambiaModalita(giorno) {
+async function cambiaModalita(giorno, pasto, modalita) {
+  if (!stato.menu) return;
+  const attuale = trovaPasto(giorno, pasto);
+  if (!attuale) return;
+  if (attuale.bloccato) { avviso('Il pasto è bloccato: sbloccalo prima.'); return; }
+
+  const esito = P.rigeneraPasto(contesto(), menuConOggetti(), giorno, pasto, { modalita });
+  if (!esito) {
+    avviso(`Non riesco a comporre un ${M.NOME_MODALITA[modalita]} per questo pasto.`, 'errore');
+    return;
+  }
+  const nuovo = conPastoCambiato(giorno, pasto, esito.pasto);
+  nuovo.perche = Object.assign({}, nuovo.perche || {}, esito.perche);
+  await salvaMenu(nuovo);
+  disegna();
+}
+
+/** La cena con gli avanzi del pranzo: si accende e si spegne. */
+async function avanziDalPranzo(giorno) {
   if (!stato.menu) return;
   const riga = stato.menu.giorni.find((g) => g.giorno === giorno);
-  if (!riga) return;
-  if (riga.bloccato) { avviso('Il giorno è bloccato: sbloccalo prima.'); return; }
+  const pranzo = riga && (riga.pasti || {}).pranzo;
+  const cena = riga && (riga.pasti || {}).cena;
+  if (!pranzo || !cena) return;
+  if (cena.bloccato) { avviso('La cena è bloccata: sbloccala prima.'); return; }
 
-  const modalita = riga.modalita === 'primoSecondo' ? 'unico' : 'primoSecondo';
-  const menuConOggetti = Object.assign({}, stato.menu, {
-    giorni: stato.menu.giorni.map((g) => Object.assign({}, g, {
-      piattiOggetti: (g.piatti || []).map((id) => stato.indicePiatti.get(id)).filter(Boolean)
-    }))
-  });
+  if (cena.avanziDa) {
+    await rigeneraPasto(giorno, 'cena');       // torna una cena vera
+    return;
+  }
+  if (!(pranzo.piatti || []).length) { avviso('Prima serve un pranzo da avanzare.', 'errore'); return; }
 
-  const esito = P.rigeneraGiorno(contesto(), menuConOggetti, giorno, { modalita });
-  if (!esito) { avviso(`Non riesco a comporre un ${modalita === 'unico' ? 'piatto unico' : 'primo + secondo'} per questo giorno.`, 'errore'); return; }
-
-  const nuovo = Object.assign({}, stato.menu);
-  nuovo.giorni = nuovo.giorni.map((g) => (g.giorno === giorno ? esito.giorno : g));
-  nuovo.perche = Object.assign({}, nuovo.perche || {}, esito.perche);
-  await DB.scrivi(DB.STORE.menu, perSalvare(nuovo));
-  stato.menu = perSalvare(nuovo);
+  await salvaMenu(conPastoCambiato(giorno, 'cena', M.pastoPulito({
+    modalita: pranzo.modalita, piatti: pranzo.piatti, avanziDa: 'pranzo'
+  })));
+  avviso('Cena con gli avanzi: quel giorno cucini il doppio a pranzo.');
   disegna();
 }
 

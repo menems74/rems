@@ -84,11 +84,30 @@ export function punteggio(piatto, ctx, opzioni = {}) {
     componenti.push({ etichetta: `fatto ${Math.max(0, Math.round(settimane))} settimane fa`, valore: penalita });
   }
 
+  /* Quello che era l'obbligo (proteine, carboidrati e fibre a ogni pasto)
+     dalla 2.0 è una preferenza: un piatto che porta quello che al pasto
+     ancora manca vale qualche punto in più. L'app continua a proporre
+     giornate equilibrate, ma non si rifiuta più di comporre il pasto. */
+  const mancanti = opzioni.macroMancanti || [];
+  if (mancanti.length) {
+    const coperti = M.macroCoperti(piatto, idx);
+    const utili = mancanti.filter((m) => coperti.includes(m));
+    if (utili.length) {
+      const bonus = 8 * utili.length;
+      totale += bonus;
+      componenti.push({
+        etichetta: 'porta ' + utili.map((m) => M.NOME_MACRO[m]).join(' e '),
+        valore: bonus
+      });
+    }
+  }
+
   // il tempo che conta è quello percepito: se l'ho segnato "troppo lungo",
-  // il piatto pesa come se durasse di più anche se la ricetta dice altro
-  const tempoMax = opzioni.tempoMax || pref.tempoMaxMin;
+  // il piatto pesa come se durasse di più anche se la ricetta dice altro.
+  // tempoMax a 0 vuol dire nessun limite: è il caso della cena.
+  const tempoMax = opzioni.tempoMax != null ? opzioni.tempoMax : pref.tempoMaxMin;
   const tempo = tempoPercepito(piatto, (ctx.voti || {})[piatto.id]);
-  if (tempo > tempoMax) {
+  if (tempoMax > 0 && tempo > tempoMax) {
     totale -= 15;
     componenti.push({
       etichetta: tempo > piatto.tempoMin
@@ -140,20 +159,13 @@ function candidati(ctx, filtro, opzioni) {
     if (M.motivoIndisponibilita(piatto, { indiceIngredienti: idx, preferenze: pref, mese: ctx.mese })) continue;
     if (filtro.tipi && !filtro.tipi.includes(piatto.tipo)) continue;
 
-    // deve coprire almeno uno dei macro che mancano al giorno
-    if (filtro.macroRichiesti && filtro.macroRichiesti.length) {
-      const coperti = M.macroCoperti(piatto, idx);
-      const utile = filtro.macroRichiesti.every((m) => coperti.includes(m));
-      if (!utile) continue;
-    }
-
     // cooldown: dentro la finestra il piatto è escluso, non solo penalizzato
     if (cooldown > 0) {
       const s = settimaneDa(ctx.ultimaVolta && ctx.ultimaVolta.get(piatto.id), ctx.oggi || new Date());
       if (s != null && s < cooldown) continue;
     }
 
-    // mai la stessa proteina del giorno prima
+    // mai la stessa proteina del pasto precedente
     if (filtro.famigliaVietata) {
       const fam = M.famigliaProteinaPrincipale(piatto, idx);
       if (fam && fam === filtro.famigliaVietata) continue;
@@ -165,58 +177,46 @@ function candidati(ctx, filtro, opzioni) {
   out.sort((a, b) => b.punteggio - a.punteggio);
   return out;
 }
-
-/* --------------------------------------------------------- riempi giorno - */
+/* --------------------------------------------------------- componi pasto -
+   Un pasto ha una forma (piatto unico, primo + secondo, secondo + contorno)
+   e la si riempie un posto alla volta, scegliendo ogni volta tra i primi
+   cinque candidati. Dalla 2.0 non c'è più nessun obbligo nutrizionale: se
+   per un posto non c'è niente, si va avanti con quello che si è trovato.  */
 
 /**
- * Riempie un giorno. Restituisce {piatti:[...], modalita, componenti} oppure
- * null se con questi vincoli non ci sono candidati.
+ * Compone un pasto. Restituisce {piatti, modalita, perche} oppure null se
+ * davvero non c'è niente da mettere in tavola.
  */
-export function riempiGiorno(ctx, opzioni) {
+export function componiPasto(ctx, opzioni) {
   const idx = ctx.indiceIngredienti;
-  const modalita = opzioni.modalita;
+  const modalita = M.MODALITA.includes(opzioni.modalita) ? opzioni.modalita : 'unico';
   const scelti = [];
   const perche = {};
 
-  if (modalita === 'unico') {
-    const c = estraiPesato(candidati(ctx, {
-      tipi: ['unico'], macroRichiesti: M.MACRO_NUTRIENTI,
-      famigliaVietata: opzioni.famigliaVietata
-    }, opzioni));
-    if (!c) return null;
-    scelti.push(c.piatto);
-    perche[c.piatto.id] = c.componenti;
-  } else {
-    // primo: porta il carboidrato
-    const cPrimo = estraiPesato(candidati(ctx, {
-      tipi: ['primo'], macroRichiesti: ['carboidrato']
-    }, opzioni));
-    if (!cPrimo) return null;
-    scelti.push(cPrimo.piatto);
-    perche[cPrimo.piatto.id] = cPrimo.componenti;
-
-    // secondo: porta la proteina, e non ripete la proteina di ieri
-    const cSecondo = estraiPesato(candidati(ctx, {
-      tipi: ['secondo'], macroRichiesti: ['proteina'],
-      famigliaVietata: opzioni.famigliaVietata
-    }, Object.assign({}, opzioni, { giaUsati: (opzioni.giaUsati || []).concat(scelti.map((p) => p.id)) })));
-    if (!cSecondo) return null;
-    scelti.push(cSecondo.piatto);
-    perche[cSecondo.piatto.id] = cSecondo.componenti;
-
-    // se manca la fibra si aggiunge un contorno, come da specifiche
-    if (M.macroMancanti(scelti, idx).includes('fibra')) {
-      const cContorno = estraiPesato(candidati(ctx, {
-        tipi: ['contorno'], macroRichiesti: ['fibra']
-      }, Object.assign({}, opzioni, { giaUsati: (opzioni.giaUsati || []).concat(scelti.map((p) => p.id)) })));
-      if (!cContorno) return null;
-      scelti.push(cContorno.piatto);
-      perche[cContorno.piatto.id] = cContorno.componenti;
-    }
+  for (const tipo of M.TIPI_MODALITA[modalita]) {
+    aggiungi(tipo, tipo !== 'primo' && tipo !== 'contorno');
   }
 
-  if (M.macroMancanti(scelti, idx).length) return null;   // niente giorni incompleti
+  // un contorno in più se manca la fibra: non è un obbligo, è buona cucina
+  if (modalita === 'primoSecondo' && M.macroMancanti(scelti, idx).includes('fibra')) {
+    aggiungi('contorno', false);
+  }
+
+  if (!scelti.length) return null;
   return { piatti: scelti, modalita, perche };
+
+  function aggiungi(tipo, guardaProteina) {
+    const c = estraiPesato(candidati(ctx, {
+      tipi: [tipo],
+      famigliaVietata: guardaProteina ? opzioni.famigliaVietata : null
+    }, Object.assign({}, opzioni, {
+      giaUsati: (opzioni.giaUsati || []).concat(scelti.map((p) => p.id)),
+      macroMancanti: M.macroMancanti(scelti, idx)
+    })));
+    if (!c) return;
+    scelti.push(c.piatto);
+    perche[c.piatto.id] = c.componenti;
+  }
 }
 
 /* ------------------------------------------------------ genera settimana - */
@@ -229,14 +229,16 @@ const LIVELLI_RILASSAMENTO = [
 ];
 
 /**
- * Genera la settimana. `giorniFissi` è una mappa giorno -> {piatti, modalita}
- * per i giorni bloccati, che non vengono toccati.
+ * Genera la settimana, pranzo e cena.
+ * `giorniFissi` è una mappa giorno -> { pranzo: {...}, cena: {...} } con i
+ * pasti bloccati, che non vengono toccati.
  * Restituisce { giorni, rilassamenti, avvisi, perche }.
  */
 export function generaSettimana(ctx, opzioni = {}) {
   const pref = ctx.preferenze;
-  const idx = ctx.indiceIngredienti;
   const giorniRichiesti = opzioni.giorni || pref.giorni;
+  const pastiRichiesti = (opzioni.pasti || pref.pasti || ['pranzo'])
+    .filter((x) => M.PASTI.includes(x));
   const fissi = opzioni.giorniFissi || {};
 
   for (let livello = 0; livello < LIVELLI_RILASSAMENTO.length; livello++) {
@@ -247,12 +249,12 @@ export function generaSettimana(ctx, opzioni = {}) {
     };
 
     for (let tentativo = 0; tentativo < 60; tentativo++) {
-      const esito = unTentativo(ctx, giorniRichiesti, fissi, rilassa);
+      const esito = unTentativo(ctx, giorniRichiesti, pastiRichiesti, fissi, rilassa);
       if (!esito) continue;
 
       const avvisi = [];
       if (esito.novita < rilassa.quotaNovita) continue;      // riprova
-      if (rilassa.varietaProteine && (esito.proteine.size < 3 || esito.fibre.size < 3)) continue;
+      if (rilassa.varietaProteine && esito.proteine.size < 3) continue;
 
       const rilassamenti = LIVELLI_RILASSAMENTO.slice(1, livello + 1)
         .map((r) => r.etichetta).filter(Boolean);
@@ -268,11 +270,17 @@ export function generaSettimana(ctx, opzioni = {}) {
   return {
     giorni: [], perche: {}, rilassamenti: [],
     avvisi: ['Non riesco a comporre la settimana: i vincoli sono troppo stretti. ' +
-             'Controlla gli ingredienti esclusi e il tempo massimo.']
+             'Controlla gli ingredienti esclusi e il catalogo.']
   };
 }
 
-function unTentativo(ctx, giorniRichiesti, fissi, rilassa) {
+/** Il tempo massimo di un pasto: 0 vuol dire che non ce n'è. */
+export function tempoMassimo(pasto, giorno, pref) {
+  if (pasto === 'cena') return pref.tempoMaxCena || 0;
+  return (pref.tempoMaxPerGiorno || {})[giorno] || pref.tempoMaxMin;
+}
+
+function unTentativo(ctx, giorniRichiesti, pastiRichiesti, fissi, rilassa) {
   const idx = ctx.indiceIngredienti;
   const pref = ctx.preferenze;
   const giorni = [];
@@ -280,113 +288,134 @@ function unTentativo(ctx, giorniRichiesti, fissi, rilassa) {
   const proteine = new Set(), fibre = new Set();
   let novita = 0;
   let primoSecondoUsati = 0;
-  let famigliaIeri = null;
+  let famigliaPrecedente = null;      // la proteina del pasto appena messo
+  let avanziRimasti = Math.max(0, Math.min(pref.avanziASettimana || 0, giorniRichiesti.length));
   let perche = {};
 
-  for (const giorno of giorniRichiesti) {
-    const fisso = fissi[giorno];
-    if (fisso) {
-      giorni.push(Object.assign({}, fisso, { giorno, bloccato: true }));
-      for (const p of fisso.piattiOggetti || []) {
-        usati.push(p.id);
-        const fam = M.famigliaProteinaPrincipale(p, idx);
-        if (fam) proteine.add(fam);
-        for (const f of M.fibrePrincipali(p, idx)) fibre.add(f);
+  giorniRichiesti.forEach((giorno, indiceGiorno) => {
+    const pasti = {};
+
+    for (const pasto of pastiRichiesti) {
+      const fisso = (fissi[giorno] || {})[pasto];
+      if (fisso) {
+        pasti[pasto] = Object.assign({}, M.pastoPulito(fisso), { bloccato: true });
+        for (const p of fisso.piattiOggetti || []) segnaUsato(p, false);
+        famigliaPrecedente = ultimaFamiglia(fisso.piattiOggetti || []) || famigliaPrecedente;
+        if (fisso.modalita === 'primoSecondo') primoSecondoUsati++;
+        continue;
       }
-      famigliaIeri = (fisso.piattiOggetti || []).map((p) => M.famigliaProteinaPrincipale(p, idx))
-        .filter(Boolean)[0] || null;
-      if (fisso.modalita === 'primoSecondo') primoSecondoUsati++;
-      continue;
+
+      // la cena con gli avanzi non consuma catalogo: si ricucina il pranzo
+      if (pasto === 'cena' && pasti.pranzo && (pasti.pranzo.piatti || []).length &&
+          !pasti.pranzo.avanziDa && avanziRimasti > 0 &&
+          Math.random() < avanziRimasti / Math.max(1, giorniRichiesti.length - indiceGiorno)) {
+        pasti.cena = M.pastoPulito({ modalita: pasti.pranzo.modalita,
+                                     piatti: pasti.pranzo.piatti, avanziDa: 'pranzo' });
+        avanziRimasti--;
+        continue;
+      }
+
+      const tempoMax = tempoMassimo(pasto, giorno, pref);
+      const modalita = scegliModalita(pasto, pref, primoSecondoUsati, tempoMax);
+      const esito = componiPasto(ctx, {
+        modalita, tempoMax, cooldown: rilassa.cooldown, giaUsati: usati,
+        famigliaVietata: rilassa.varietaProteine ? famigliaPrecedente : null,
+        slotNovitaLibero: novita < rilassa.quotaNovita
+      }) || componiPasto(ctx, {
+        // ripiego: se quella forma non si riempie, si prova il piatto unico.
+        // La proteina resta vietata anche qui: due pasti di fila con la stessa
+        // si vedono, e se proprio non se ne esce ci pensa il rilassamento.
+        modalita: 'unico', tempoMax, cooldown: rilassa.cooldown, giaUsati: usati,
+        famigliaVietata: rilassa.varietaProteine ? famigliaPrecedente : null,
+        slotNovitaLibero: false
+      });
+      if (!esito) return;                     // giorno impossibile: tentativo fallito
+
+      if (esito.modalita === 'primoSecondo') primoSecondoUsati++;
+      for (const p of esito.piatti) segnaUsato(p, true);
+      famigliaPrecedente = ultimaFamiglia(esito.piatti) || famigliaPrecedente;
+      perche = Object.assign(perche, esito.perche);
+      pasti[pasto] = M.pastoPulito({ modalita: esito.modalita,
+                                     piatti: esito.piatti.map((p) => p.id) });
     }
 
-    const tempoMax = (pref.tempoMaxPerGiorno || {})[giorno] || pref.tempoMaxMin;
-    const modalita = scegliModalita(giorno, pref, primoSecondoUsati, tempoMax);
-    const slotNovitaLibero = novita < rilassa.quotaNovita;
+    if (!Object.keys(pasti).length) return;
+    giorni.push({ giorno, pasti });
+  });
 
-    const esito = riempiGiorno(ctx, {
-      modalita, tempoMax, cooldown: rilassa.cooldown,
-      giaUsati: usati, famigliaVietata: rilassa.varietaProteine ? famigliaIeri : null,
-      slotNovitaLibero
-    });
-    if (!esito) return null;
+  if (giorni.length !== giorniRichiesti.length) return null;
+  return { giorni, novita, proteine, fibre, perche };
 
-    if (modalita === 'primoSecondo') primoSecondoUsati++;
-    for (const p of esito.piatti) {
-      usati.push(p.id);
-      const fam = M.famigliaProteinaPrincipale(p, idx);
-      if (fam) proteine.add(fam);
-      for (const f of M.fibrePrincipali(p, idx)) fibre.add(f);
-      if (!(ctx.ultimaVolta && ctx.ultimaVolta.get(p.id))) novita++;
-    }
-    famigliaIeri = esito.piatti.map((p) => M.famigliaProteinaPrincipale(p, idx)).filter(Boolean)[0] || null;
-    perche = Object.assign(perche, esito.perche);
-
-    giorni.push({
-      giorno,
-      modalita: esito.modalita,
-      piattiOggetti: esito.piatti,
-      piatti: esito.piatti.map((p) => p.id),
-      macroCoperti: M.macroCopertiGiorno(esito.piatti, idx),
-      bloccato: false
-    });
+  function segnaUsato(piatto, contaNovita) {
+    usati.push(piatto.id);
+    const fam = M.famigliaProteinaPrincipale(piatto, idx);
+    if (fam) proteine.add(fam);
+    for (const f of M.fibrePrincipali(piatto, idx)) fibre.add(f);
+    if (contaNovita && !(ctx.ultimaVolta && ctx.ultimaVolta.get(piatto.id))) novita++;
   }
 
-  return { giorni, novita, proteine, fibre, perche };
+  function ultimaFamiglia(piatti) {
+    return piatti.map((p) => M.famigliaProteinaPrincipale(p, idx)).filter(Boolean)[0] || null;
+  }
 }
 
 /**
- * Scelta della modalità, §4.1: giorni corti al piatto unico, tetto ai giorni
- * con primo+secondo, poi caso pesato 60/40 per non avere settimane identiche.
+ * La forma del pasto, §4.1 aggiornato: i giorni corti vanno al piatto unico,
+ * c'è un tetto ai pranzi con primo e secondo, e la cena preferisce il piatto
+ * unico o un secondo con il contorno. Poi il caso, per non avere settimane
+ * tutte uguali.
  */
-export function scegliModalita(giorno, pref, primoSecondoUsati, tempoMax) {
-  if (tempoMax <= 25) return 'unico';
-  if (primoSecondoUsati >= (pref.maxGiorniPrimoSecondo != null ? pref.maxGiorniPrimoSecondo : 3)) return 'unico';
+export function scegliModalita(pasto, pref, primoSecondoUsati, tempoMax) {
+  if (pasto === 'cena') return Math.random() < 0.65 ? 'unico' : 'secondoContorno';
+  if (tempoMax > 0 && tempoMax <= 25) return 'unico';
+  if (primoSecondoUsati >= (pref.maxGiorniPrimoSecondo != null ? pref.maxGiorniPrimoSecondo : 3)) {
+    return 'unico';
+  }
   return Math.random() < 0.6 ? 'unico' : 'primoSecondo';
 }
 
-/* ---------------------------------------------------- rigenera un giorno - */
+/* ------------------------------------------------------ rigenera un pasto - */
 
-/** Rigenera un solo giorno, tenendo conto degli altri per non ripetere piatti. */
-export function rigeneraGiorno(ctx, menu, giorno, opzioni = {}) {
+/** Rigenera un solo pasto, tenendo conto degli altri per non ripetere piatti. */
+export function rigeneraPasto(ctx, menu, giorno, pasto, opzioni = {}) {
   const pref = ctx.preferenze;
   const idx = ctx.indiceIngredienti;
   const indice = menu.giorni.findIndex((g) => g.giorno === giorno);
   if (indice < 0) return null;
+  const attuale = (menu.giorni[indice].pasti || {})[pasto];
 
-  const usati = menu.giorni.filter((_, i) => i !== indice)
-    .flatMap((g) => g.piatti || []);
-  const precedente = menu.giorni[indice - 1];
-  const famigliaIeri = precedente
-    ? (precedente.piattiOggetti || []).map((p) => M.famigliaProteinaPrincipale(p, idx)).filter(Boolean)[0]
-    : null;
+  // tutti i piatti già in settimana, tranne quelli del pasto che si rifà
+  const usati = [];
+  menu.giorni.forEach((g, i) => {
+    for (const [nome, p] of M.pastiDi(g)) {
+      if (i === indice && nome === pasto) continue;
+      if (p.avanziDa) continue;              // gli avanzi non occupano un piatto
+      usati.push(...(p.piatti || []));
+    }
+  });
 
-  const tempoMax = (pref.tempoMaxPerGiorno || {})[giorno] || pref.tempoMaxMin;
-  const modalita = opzioni.modalita || menu.giorni[indice].modalita ||
-                   scegliModalita(giorno, pref, 0, tempoMax);
+  const famigliaPrecedente = famigliaPrimaDi(menu, indice, pasto, idx);
+  const tempoMax = tempoMassimo(pasto, giorno, pref);
+  const modalita = opzioni.modalita || (attuale && attuale.modalita) ||
+                   scegliModalita(pasto, pref, 0, tempoMax);
 
-  // stessa scala di rilassamenti, ma su un solo giorno
+  // stessa scala di rilassamenti, ma su un solo pasto
   for (const cooldown of [pref.cooldownSettimane, Math.floor(pref.cooldownSettimane / 2), 0]) {
-    for (const famiglia of [famigliaIeri, null]) {
+    for (const famiglia of [famigliaPrecedente, null]) {
       for (let t = 0; t < 30; t++) {
-        const esito = riempiGiorno(ctx, {
+        const esito = componiPasto(ctx, {
           modalita, tempoMax, cooldown, giaUsati: usati,
           famigliaVietata: famiglia, slotNovitaLibero: true
         });
         if (esito) {
           return {
-            giorno: {
-              giorno,
-              data: menu.giorni[indice].data,
-              modalita: esito.modalita,
-              piattiOggetti: esito.piatti,
-              piatti: esito.piatti.map((p) => p.id),
-              macroCoperti: M.macroCopertiGiorno(esito.piatti, idx),
-              bloccato: false
-            },
+            pasto: M.pastoPulito({ modalita: esito.modalita,
+                                   piatti: esito.piatti.map((p) => p.id) }),
+            piattiOggetti: esito.piatti,
             perche: esito.perche,
             rilassamenti: [
-              cooldown !== pref.cooldownSettimane ? 'cooldown ridotto per questo giorno' : null,
-              famiglia === null && famigliaIeri ? 'ripetuta la proteina del giorno prima' : null
+              cooldown !== pref.cooldownSettimane ? 'cooldown ridotto per questo pasto' : null,
+              famiglia === null && famigliaPrecedente ? 'ripetuta la proteina del pasto prima' : null
             ].filter(Boolean)
           };
         }
@@ -394,6 +423,19 @@ export function rigeneraGiorno(ctx, menu, giorno, opzioni = {}) {
     }
   }
   return null;
+}
+
+/** La proteina del pasto che viene subito prima di questo, nella settimana. */
+function famigliaPrimaDi(menu, indiceGiorno, pasto, idx) {
+  const sequenza = [];
+  menu.giorni.forEach((g, i) => {
+    for (const [nome, p] of M.pastiDi(g)) sequenza.push({ i, nome, p });
+  });
+  const posto = sequenza.findIndex((x) => x.i === indiceGiorno && x.nome === pasto);
+  const prima = posto > 0 ? sequenza[posto - 1] : null;
+  if (!prima) return null;
+  const piatti = (prima.p.piattiOggetti || []);
+  return piatti.map((p) => M.famigliaProteinaPrincipale(p, idx)).filter(Boolean)[0] || null;
 }
 
 /* ----------------------------------------------------------- date e id --- */

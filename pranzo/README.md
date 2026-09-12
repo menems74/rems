@@ -1,6 +1,7 @@
 # Pranzo 2.0
 
-Pianifica i pranzi della settimana e ne ricava la lista della spesa.
+Pianifica i pasti della settimana — pranzo e cena — e ne ricava la lista
+della spesa.
 HTML, CSS e JavaScript e nulla più: nessun framework, nessun passaggio di
 compilazione, nessuna dipendenza da CDN o da npm. I dati stanno nel telefono
 (IndexedDB, con ripiego su localStorage) e l'app funziona senza rete.
@@ -44,8 +45,15 @@ Le regole che tengono in piedi il resto:
   ("24 da prendere", "1 suggerimento"), in blu quando c'è qualcosa da fare;
 - le quantità si salvano sempre per **una** porzione e si moltiplicano quando
   serve; la conversione all'unità canonica avviene prima di sommare, mai dopo;
-- i macro coperti non si salvano sul piatto: si calcolano dagli ingredienti,
-  e la copertura è del **pranzo**, non del piatto;
+- un giorno ha due pasti, `pasti.pranzo` e `pasti.cena`; i menù della 1.x si
+  leggono come un giorno col solo pranzo, e si normalizzano in `model.js`
+  (`normalizzaMenu`), non nelle schermate;
+- la cena può essere "avanzi del pranzo": porta gli stessi id del pranzo, così
+  la spesa conta quel piatto due volte — che è appunto cucinarne il doppio;
+- i macro coperti non si salvano sul piatto: si calcolano dagli ingredienti, e
+  la copertura è della **giornata**, non del piatto. Dalla 2.0 coprirle tutte
+  non è un obbligo: conta nel punteggio e si mostra, ma un pasto incompleto
+  resta un pasto valido;
 - la lista dei piatti e degli ingredienti esclusi non si rilassa mai, in
   nessun ramo del codice; l'app non la modifica da sola, propone e aspetta;
 - le foto dei piatti stanno in uno store a parte, ridotte a 1000 px e sotto

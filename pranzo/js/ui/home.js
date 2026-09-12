@@ -2,7 +2,7 @@
    ui/home.js — la prima pagina.
 
    Non è un menu di bottoni: è la prima pagina del quaderno. In alto la data
-   e il pranzo di oggi, sotto le sezioni, ognuna con il suo dato vero
+   e i pasti di oggi (pranzo e cena), sotto le sezioni, ognuna col dato vero
    ("12 da prendere", "1 suggerimento"). Così aprendo l'app si sa già
    qualcosa, invece di dover scegliere dove andare a guardare.
    ========================================================================= */
@@ -54,28 +54,14 @@ function copertina(stato) {
     `${GIORNO_LUNGO[sigla]} ${oggi.getDate()} ${MESI[oggi.getMonth()]}`));
 
   const giorno = (stato.menu && (stato.menu.giorni || []).find((g) => g.data === iso)) || null;
-  const piatti = giorno
-    ? (giorno.piatti || []).map((id) => stato.indicePiatti.get(id)).filter(Boolean)
-    : [];
+  const pasti = giorno ? M.pastiDi(giorno) : [];
+  const conPiatti = pasti.filter(([, pasto]) => (pasto.piatti || []).length);
 
-  if (piatti.length) {
-    // un piatto solo si legge da lontano; due o tre stanno più stretti
-    const stretto = piatti.length > 1 ? ' stretto' : '';
-    for (const piatto of piatti) {
-      corpo.appendChild(el('button', {
-        class: 'piattoOggi' + stretto, type: 'button',
-        onclick: () => mostraDettaglio(piatto, stato, ((stato.menu || {}).perche || {})[piatto.id])
-      }, piatto.nome));
+  if (conPiatti.length) {
+    for (const [nome, pasto] of conPiatti) {
+      corpo.appendChild(bloccoPastoOggi(nome, pasto, stato));
     }
-    const minuti = piatti.reduce((n, p) => n + p.tempoMin, 0);
-    const coperti = M.macroCopertiGiorno(piatti, stato.indiceIngredienti);
-    corpo.appendChild(el('div', { class: 'datiOggi' }, [
-      el('span', { class: 'num' }, M.formattaTempo(minuti)),
-      el('div', { class: 'pastiglie' }, M.MACRO_NUTRIENTI.map((m) => el('span', {
-        class: 'macro ' + (coperti.includes(m) ? 'si' : 'no'),
-        title: (coperti.includes(m) ? 'copre ' : 'manca ') + M.NOME_MACRO[m]
-      }, M.ETICHETTA_MACRO[m])))
-    ]));
+    corpo.appendChild(rigaGiornata(giorno, stato));
   } else {
     corpo.appendChild(el('p', { class: 'nienteOggi' },
       stato.menu ? 'Oggi non è in programma.' : 'Ancora nessun menù.'));
@@ -100,12 +86,60 @@ function copertina(stato) {
   return el('section', { class: 'copertina' }, [margine, corpo]);
 }
 
+/** Un pasto di oggi: l'etichetta piccola e sotto i nomi, grandi. */
+function bloccoPastoOggi(nome, pasto, stato) {
+  const piatti = (pasto.piatti || [])
+    .map((id) => stato.indicePiatti.get(id)).filter(Boolean);
+  const blocco = el('div', { class: 'pastoOggi' });
+
+  blocco.appendChild(el('p', { class: 'etichettaOggi' }, [
+    el('span', {}, M.NOME_PASTO[nome]),
+    pasto.avanziDa ? el('span', { class: 'segnoAvanzi' }, 'avanzi del pranzo') : null
+  ]));
+
+  // un piatto solo si legge da lontano; due o tre stanno più stretti
+  const stretto = piatti.length > 1 ? ' stretto' : '';
+  for (const piatto of piatti) {
+    blocco.appendChild(el('button', {
+      class: 'piattoOggi' + stretto, type: 'button',
+      onclick: () => mostraDettaglio(piatto, stato, ((stato.menu || {}).perche || {})[piatto.id])
+    }, piatto.nome));
+  }
+  return blocco;
+}
+
+/**
+ * La riga sotto i pasti: quanto tempo ai fornelli oggi e cosa coprono i due
+ * pasti messi insieme. Dalla 2.0 le macro sono un'informazione, non un
+ * obbligo: se ne manca una si vede, e basta.
+ */
+function rigaGiornata(giorno, stato) {
+  let minuti = 0;
+  for (const [, pasto] of M.pastiDi(giorno)) {
+    if (pasto.avanziDa) continue;
+    for (const id of pasto.piatti || []) {
+      const p = stato.indicePiatti.get(id);
+      if (p) minuti += p.tempoMin;
+    }
+  }
+  const { coperti } = M.macroDellaGiornata(giorno, stato.indicePiatti, stato.indiceIngredienti);
+
+  return el('div', { class: 'datiOggi' }, [
+    el('span', { class: 'num' }, M.formattaTempo(minuti)),
+    el('div', { class: 'pastiglie' }, M.MACRO_NUTRIENTI.map((m) => el('span', {
+      class: 'macro ' + (coperti.includes(m) ? 'si' : 'no'),
+      title: (coperti.includes(m) ? 'copre ' : 'manca ') + M.NOME_MACRO[m]
+    }, M.ETICHETTA_MACRO[m])))
+  ]);
+}
+
 /** Il primo giorno pianificato dopo oggi: serve quando oggi è vuoto. */
 function prossimoGiorno(stato, iso) {
   if (!stato.menu) return null;
   for (const g of stato.menu.giorni || []) {
     if (!g.data || g.data <= iso) continue;
-    const nomi = (g.piatti || []).map((id) => (stato.indicePiatti.get(id) || {}).nome).filter(Boolean);
+    const nomi = M.piattiDelGiorno(g)
+      .map((id) => (stato.indicePiatti.get(id) || {}).nome).filter(Boolean);
     if (nomi.length) return { giorno: g.giorno, nomi };
   }
   return null;
@@ -131,7 +165,11 @@ function voci(stato) {
   const giorniMenu = (menu && menu.giorni) || [];
 
   // settimana
-  const settimana = giorniMenu.length ? `${giorniMenu.length} giorni` : 'da generare';
+  let quantiPasti = 0;
+  for (const g of giorniMenu) quantiPasti += M.pastiDi(g).length;
+  const settimana = giorniMenu.length
+    ? `${giorniMenu.length} giorni · ${quantiPasti} pasti`
+    : 'da generare';
 
   // spesa
   let spesa = 'lista da fare', spesaDaFare = true;

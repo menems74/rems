@@ -215,6 +215,41 @@ prova('voto: stelle 1-5 e data nel formato giusto', () => {
   uguale(false, M.validaVoto({ piattoId: 'p1', stelle: 3, motivo: 'boh', data: '2026-09-14' }).ok);
 });
 
+/* ------------------------------------------------- pranzo e cena (2.0) --- */
+
+prova('un menù della 1.x si legge come un giorno col solo pranzo', () => {
+  const vecchio = { id: 'm', giorni: [
+    { giorno: 'lun', data: '2026-09-14', modalita: 'unico', piatti: ['p_uno'], bloccato: true }
+  ] };
+  const nuovo = M.normalizzaMenu(vecchio);
+  uguale(2, nuovo.formato);
+  uguale(['pranzo'], M.pastiDi(nuovo.giorni[0]).map(([nome]) => nome));
+  uguale(['p_uno'], nuovo.giorni[0].pasti.pranzo.piatti);
+  uguale(true, nuovo.giorni[0].pasti.pranzo.bloccato);
+  uguale('2026-09-14', nuovo.giorni[0].data);
+});
+prova('normalizzare due volte non cambia niente', () => {
+  const vecchio = { id: 'm', giorni: [{ giorno: 'lun', modalita: 'unico', piatti: ['p_uno'] }] };
+  const una = M.normalizzaMenu(vecchio);
+  const due = M.normalizzaMenu(una);
+  uguale(JSON.stringify(una), JSON.stringify(due));
+});
+prova('i pasti escono nell\'ordine in cui si mangiano', () => {
+  const giorno = { giorno: 'lun', pasti: { cena: { piatti: ['b'] }, pranzo: { piatti: ['a'] } } };
+  uguale(['pranzo', 'cena'], M.pastiDi(giorno).map(([nome]) => nome));
+  uguale(['a', 'b'], M.piattiDelGiorno(giorno));
+});
+prova('la giornata dice cosa coprono i due pasti messi insieme', () => {
+  const soloProteina = { id: 'x', ingredienti: [{ ingredienteId: 'ing_pollo', qta: 150, unita: 'g' }] };
+  const soloFibra = { id: 'y', ingredienti: [{ ingredienteId: 'ing_asparagi', qta: 200, unita: 'g' }] };
+  const giorno = { giorno: 'lun', pasti: {
+    pranzo: { piatti: ['x'] }, cena: { piatti: ['y'] }
+  } };
+  const dati = M.macroDellaGiornata(giorno, M.indicizza([soloProteina, soloFibra]), ING);
+  uguale(['proteina', 'fibra'], dati.coperti);
+  uguale(['carboidrato'], dati.mancanti);
+});
+
 /* --------------------------------------------------- formattazione ------ */
 
 prova('quantità formattate all\'italiana', () => {
@@ -306,36 +341,87 @@ function ctxProva(extra = {}) {
   }, extra);
 }
 
-prova('la settimana ha cinque giorni, tutti completi', () => {
+/* Dalla 2.0 il motore restituisce solo gli id: gli oggetti si ripescano qui. */
+const IDX_CAT = M.indicizza(CATALOGO);
+function oggetti(ids, indice = IDX_CAT) {
+  return (ids || []).map((id) => indice.get(id)).filter(Boolean);
+}
+/** Tutti i pasti generati, in fila: [{giorno, nome, pasto, piatti}]. */
+function inFila(esito, indice = IDX_CAT) {
+  const fila = [];
+  for (const g of esito.giorni) {
+    for (const [nome, pasto] of M.pastiDi(g)) {
+      fila.push({ giorno: g.giorno, nome, pasto, piatti: oggetti(pasto.piatti, indice) });
+    }
+  }
+  return fila;
+}
+
+prova('la settimana ha cinque giorni, ognuno con pranzo e cena', () => {
   const e = P.generaSettimana(ctxProva());
   uguale(5, e.giorni.length);
   for (const g of e.giorni) {
-    uguale([], M.macroMancanti(g.piattiOggetti, ING2), g.giorno);
+    uguale(['pranzo', 'cena'], M.pastiDi(g).map(([nome]) => nome), g.giorno);
+    for (const [nome, pasto] of M.pastiDi(g)) {
+      if (!(pasto.piatti || []).length) throw new Error(`${g.giorno}: ${nome} vuoto`);
+    }
   }
 });
-prova('nessun piatto ripetuto nella settimana', () => {
-  const e = P.generaSettimana(ctxProva());
-  const usati = e.giorni.flatMap((g) => g.piatti);
+prova('un solo pasto se le preferenze dicono così', () => {
+  const pref = Object.assign(M.preferenzePredefinite(), { pasti: ['pranzo'] });
+  const e = P.generaSettimana(ctxProva({ preferenze: pref }));
+  for (const g of e.giorni) uguale(['pranzo'], M.pastiDi(g).map(([nome]) => nome), g.giorno);
+});
+prova('nessun piatto ripetuto nella settimana, a parte gli avanzi', () => {
+  const usati = [];
+  for (const x of inFila(P.generaSettimana(ctxProva()))) {
+    if (x.pasto.avanziDa) continue;          // gli avanzi sono lo stesso piatto, apposta
+    usati.push(...x.pasto.piatti);
+  }
   uguale(usati.length, new Set(usati).size);
 });
-prova('mai la stessa proteina in due giorni consecutivi', () => {
+prova('mai la stessa proteina in due pasti consecutivi', () => {
   for (let giro = 0; giro < 20; giro++) {
-    const e = P.generaSettimana(ctxProva());
     let precedente = null;
-    for (const g of e.giorni) {
-      const fam = g.piattiOggetti.map((p) => M.famigliaProteinaPrincipale(p, ING2)).filter(Boolean)[0];
-      if (fam && fam === precedente) throw new Error(`proteina ${fam} ripetuta nel giorno ${g.giorno}`);
+    for (const x of inFila(P.generaSettimana(ctxProva()))) {
+      const fam = x.piatti.map((p) => M.famigliaProteinaPrincipale(p, ING2)).filter(Boolean)[0];
+      if (fam && fam === precedente && !x.pasto.avanziDa) {
+        throw new Error(`proteina ${fam} ripetuta: ${x.giorno} ${x.nome}`);
+      }
       precedente = fam;
     }
   }
 });
+prova('un pasto che non copre tutte le macro è ammesso: non è più un obbligo', () => {
+  // un catalogo dove la fibra non c'è proprio: nella 1.x non usciva niente
+  const senzaFibra = ['i_pollo', 'i_uova', 'i_tonno', 'i_ceci'].map((proteina, i) => ({
+    id: 'sf_' + i, nome: 'senza fibra ' + i, tipo: 'unico', tempoMin: 15, difficolta: 1,
+    stagioni: [], passi: ['x'], origine: 'base', tags: [], attivo: true,
+    ingredienti: [
+      { ingredienteId: 'i_pasta', qta: 100, unita: 'g' },
+      { ingredienteId: proteina, qta: proteina === 'i_uova' ? 3 : 150,
+        unita: proteina === 'i_uova' ? 'pz' : 'g' }
+    ]
+  }));
+  const pref = Object.assign(M.preferenzePredefinite(), { giorni: ['lun', 'mar'], quotaNovita: 0 });
+  const e = P.generaSettimana(ctxProva({ piatti: senzaFibra, preferenze: pref }));
+  uguale(2, e.giorni.length);
+  for (const x of inFila(e, M.indicizza(senzaFibra))) {
+    uguale(['fibra'], M.macroMancanti(x.piatti, ING2), x.giorno + ' ' + x.nome);
+  }
+});
+prova('le macro mancanti restano un punteggio, non un divieto', () => {
+  const soloProteina = CATALOGO.find((p) => p.id === 'se_pollo');
+  const con = P.punteggio(soloProteina, ctxProva(), { senzaCaso: true, macroMancanti: ['proteina'] });
+  const senza = P.punteggio(soloProteina, ctxProva(), { senzaCaso: true, macroMancanti: [] });
+  if (!(con.totale > senza.totale)) throw new Error('portare una macro mancante deve valere di più');
+});
 prova('almeno tre proteine e tre fibre diverse nella settimana', () => {
   for (let giro = 0; giro < 20; giro++) {
-    const e = P.generaSettimana(ctxProva());
     const prot = new Set(), fib = new Set();
-    for (const g of e.giorni) for (const p of g.piattiOggetti) {
+    for (const x of inFila(P.generaSettimana(ctxProva()))) for (const p of x.piatti) {
       const f = M.famigliaProteinaPrincipale(p, ING2); if (f) prot.add(f);
-      for (const x of M.fibrePrincipali(p, ING2)) fib.add(x);
+      for (const y of M.fibrePrincipali(p, ING2)) fib.add(y);
     }
     if (prot.size < 3) throw new Error('solo ' + prot.size + ' proteine');
     if (fib.size < 3) throw new Error('solo ' + fib.size + ' fibre');
@@ -344,9 +430,8 @@ prova('almeno tre proteine e tre fibre diverse nella settimana', () => {
 prova('un ingrediente escluso non entra mai, e la blacklist non si rilassa', () => {
   const pref = Object.assign(M.preferenzePredefinite(), { escludiIngredienti: ['i_pollo', 'i_tonno'] });
   for (let giro = 0; giro < 10; giro++) {
-    const e = P.generaSettimana(ctxProva({ preferenze: pref }));
-    for (const g of e.giorni) for (const p of g.piattiOggetti) {
-      for (const v of p.ingredienti) {
+    for (const x of inFila(P.generaSettimana(ctxProva({ preferenze: pref })))) {
+      for (const p of x.piatti) for (const v of p.ingredienti) {
         if (v.ingredienteId === 'i_pollo' || v.ingredienteId === 'i_tonno') {
           throw new Error(`${p.id} contiene un ingrediente escluso`);
         }
@@ -354,28 +439,75 @@ prova('un ingrediente escluso non entra mai, e la blacklist non si rilassa', () 
     }
   }
 });
-prova('i giorni bloccati non vengono toccati', () => {
+prova('i pasti bloccati non vengono toccati', () => {
   const fisso = {
-    modalita: 'unico', piatti: ['u_ceci_spinaci'], macroCoperti: M.MACRO_NUTRIENTI,
+    modalita: 'unico', piatti: ['u_ceci_spinaci'],
     piattiOggetti: [CATALOGO.find((p) => p.id === 'u_ceci_spinaci')]
   };
-  const e = P.generaSettimana(ctxProva(), { giorniFissi: { mer: fisso } });
+  const e = P.generaSettimana(ctxProva(), { giorniFissi: { mer: { pranzo: fisso } } });
   const mercoledi = e.giorni.find((g) => g.giorno === 'mer');
-  uguale(['u_ceci_spinaci'], mercoledi.piatti);
-  uguale(true, mercoledi.bloccato);
+  uguale(['u_ceci_spinaci'], mercoledi.pasti.pranzo.piatti);
+  uguale(true, mercoledi.pasti.pranzo.bloccato);
+  uguale(false, mercoledi.pasti.cena.bloccato);
 });
-prova('giorno con poco tempo: piatto unico, come da §4.1', () => {
+prova('giorno con poco tempo: il pranzo è un piatto unico, come da §4.1', () => {
   const pref = Object.assign(M.preferenzePredefinite(), { tempoMaxPerGiorno: { mer: 20 } });
   const e = P.generaSettimana(ctxProva({ preferenze: pref }));
-  uguale('unico', e.giorni.find((g) => g.giorno === 'mer').modalita);
+  uguale('unico', e.giorni.find((g) => g.giorno === 'mer').pasti.pranzo.modalita);
 });
-prova('tetto ai giorni con primo + secondo', () => {
+prova('il tempo massimo: il pranzo ce l\'ha, la cena no', () => {
+  const pref = Object.assign(M.preferenzePredefinite(), { tempoMaxPerGiorno: { mer: 20 } });
+  uguale(20, P.tempoMassimo('pranzo', 'mer', pref));
+  uguale(40, P.tempoMassimo('pranzo', 'gio', pref));
+  uguale(0, P.tempoMassimo('cena', 'mer', pref));
+  uguale(30, P.tempoMassimo('cena', 'mer', Object.assign({}, pref, { tempoMaxCena: 30 })));
+});
+prova('tetto ai pranzi con primo + secondo', () => {
   const pref = Object.assign(M.preferenzePredefinite(), { maxGiorniPrimoSecondo: 1 });
   for (let giro = 0; giro < 15; giro++) {
     const e = P.generaSettimana(ctxProva({ preferenze: pref }));
-    const quanti = e.giorni.filter((g) => g.modalita === 'primoSecondo').length;
-    if (quanti > 1) throw new Error('giorni primo+secondo: ' + quanti);
+    const quanti = e.giorni.filter((g) => (g.pasti.pranzo || {}).modalita === 'primoSecondo').length;
+    if (quanti > 1) throw new Error('pranzi primo+secondo: ' + quanti);
   }
+});
+prova('avanzi: la cena ripete il pranzo dello stesso giorno', () => {
+  const pref = Object.assign(M.preferenzePredefinite(), { avanziASettimana: 5, quotaNovita: 0 });
+  let trovati = 0;
+  for (let giro = 0; giro < 20 && !trovati; giro++) {
+    for (const g of P.generaSettimana(ctxProva({ preferenze: pref })).giorni) {
+      const cena = g.pasti.cena;
+      if (!cena || !cena.avanziDa) continue;
+      trovati++;
+      uguale('pranzo', cena.avanziDa);
+      uguale(g.pasti.pranzo.piatti, cena.piatti, g.giorno);
+    }
+  }
+  if (!trovati) throw new Error('con avanziASettimana a 5 doveva uscirne almeno uno');
+});
+prova('senza avanzi richiesti nessuna cena è di avanzi', () => {
+  const pref = Object.assign(M.preferenzePredefinite(), { avanziASettimana: 0 });
+  for (let giro = 0; giro < 10; giro++) {
+    for (const x of inFila(P.generaSettimana(ctxProva({ preferenze: pref })))) {
+      if (x.pasto.avanziDa) throw new Error('avanzi non richiesti');
+    }
+  }
+});
+prova('rigenera un pasto solo: cambia quello e lascia stare gli altri', () => {
+  const menu = P.generaSettimana(ctxProva());
+  const conOggetti = Object.assign({}, menu, {
+    giorni: menu.giorni.map((g) => {
+      const pasti = {};
+      for (const [nome, pasto] of M.pastiDi(g)) {
+        pasti[nome] = Object.assign({}, pasto, { piattiOggetti: oggetti(pasto.piatti) });
+      }
+      return Object.assign({}, g, { pasti });
+    })
+  });
+  const primaPranzo = menu.giorni[0].pasti.pranzo.piatti.slice();
+  const esito = P.rigeneraPasto(ctxProva(), conOggetti, menu.giorni[0].giorno, 'cena');
+  if (!esito) throw new Error('doveva rigenerare');
+  uguale(primaPranzo, menu.giorni[0].pasti.pranzo.piatti);
+  uguale(null, esito.pasto.avanziDa);
 });
 prova('vincoli impossibili: nessun giorno e un avviso, non un silenzio', () => {
   const pref = Object.assign(M.preferenzePredefinite(), {
@@ -386,7 +518,7 @@ prova('vincoli impossibili: nessun giorno e un avviso, non un silenzio', () => {
   if (!e.avvisi.length) throw new Error('doveva avvisare');
 });
 prova('catalogo appena sufficiente: rilassa e lo dichiara', () => {
-  // solo due unici disponibili per cinque giorni: il cooldown va rilassato
+  // pochi piatti per dieci pasti: il cooldown va rilassato
   const pochi = CATALOGO.filter((p) => ['u_pollo_zucchine', 'u_ceci_spinaci', 'u_uova_broccoli',
     'pr_pasta_pomodorini', 'se_pollo', 'se_uova', 'co_broccoli'].includes(p.id));
   const ultima = new Map([['u_pollo_zucchine', '2026-06-08'], ['u_ceci_spinaci', '2026-06-08']]);
@@ -477,6 +609,36 @@ function ctxSpesa(extra = {}) {
   }, extra);
 }
 
+prova('un menù con pranzo e cena: la spesa somma tutti e due i pasti', () => {
+  const due = { id: 'men_due', dataInizio: '2026-09-14', stato: 'attivo', formato: 2, giorni: [
+    { giorno: 'lun', data: '2026-09-14', pasti: {
+      pranzo: M.pastoPulito({ modalita: 'unico', piatti: ['p_uno'] }),
+      cena: M.pastoPulito({ modalita: 'unico', piatti: ['p_due'] })
+    } }
+  ] };
+  const lista = S.generaLista(due, ctxSpesa());
+  const tonno = lista.voci.find((v) => v.ingredienteId === 'i_tonno');
+  uguale(200, tonno.qtaRichiesta);          // le stesse quantità del menù su due giorni
+});
+prova('avanzi: il piatto conta doppio, perché va cucinato doppio', () => {
+  const conAvanzi = { id: 'men_av', dataInizio: '2026-09-14', stato: 'attivo', formato: 2, giorni: [
+    { giorno: 'lun', data: '2026-09-14', pasti: {
+      pranzo: M.pastoPulito({ modalita: 'unico', piatti: ['p_uno'] }),
+      cena: M.pastoPulito({ modalita: 'unico', piatti: ['p_uno'], avanziDa: 'pranzo' })
+    } }
+  ] };
+  const solo = { id: 'men_solo', dataInizio: '2026-09-14', stato: 'attivo', formato: 2, giorni: [
+    { giorno: 'lun', data: '2026-09-14', pasti: {
+      pranzo: M.pastoPulito({ modalita: 'unico', piatti: ['p_uno'] })
+    } }
+  ] };
+  const q = (menu, id) => (S.generaLista(menu, ctxSpesa()).voci
+    .find((v) => v.ingredienteId === id) || {}).qtaRichiesta;
+  uguale(q(solo, 'i_pasta') * 2, q(conAvanzi, 'i_pasta'));
+  // e il piatto compare una volta sola nell'elenco di dove serve
+  const voce = S.generaLista(conAvanzi, ctxSpesa()).voci.find((v) => v.ingredienteId === 'i_pasta');
+  uguale(['Pasta col tonno'], voce.usatoIn);
+});
 prova('somma in unità canonica: 1 + 1,5 scatolette = 200 g di tonno', () => {
   const lista = S.generaLista(MENU_PROVA, ctxSpesa());
   const tonno = lista.voci.find((v) => v.ingredienteId === 'i_tonno');
@@ -838,8 +1000,8 @@ prova('escludere un ingrediente svuota il menù di tutti i piatti che lo usano',
   const pref = Object.assign(M.preferenzePredefinite(), { escludiIngredienti: ['i_broccoli'] });
   const esito = P.generaSettimana(ctxProva({ preferenze: pref }));
   uguale(5, esito.giorni.length);
-  for (const g of esito.giorni) {
-    for (const p of g.piattiOggetti) {
+  for (const x of inFila(esito)) {
+    for (const p of x.piatti) {
       if ((p.ingredienti || []).some((v) => v.ingredienteId === 'i_broccoli')) {
         throw new Error(`${p.id} contiene un ingrediente escluso`);
       }
@@ -850,7 +1012,8 @@ prova('escludere un ingrediente svuota il menù di tutti i piatti che lo usano',
 prova('un voto basso cambia il menù: il piatto bocciato perde il posto', () => {
   // due soli piatti unici possibili, uno bocciato: vince l'altro
   const soli = CATALOGO.filter((p) => p.id === 'u_pollo_zucchine' || p.id === 'u_ceci_spinaci');
-  const pref = Object.assign(M.preferenzePredefinite(), { giorni: ['lun'], quotaNovita: 0 });
+  const pref = Object.assign(M.preferenzePredefinite(),
+                             { giorni: ['lun'], pasti: ['pranzo'], quotaNovita: 0 });
   const ctx = ctxProva({
     piatti: soli, preferenze: pref,
     voti: { u_pollo_zucchine: [voto('u_pollo_zucchine', 1, '2026-06-01')] }
@@ -858,7 +1021,7 @@ prova('un voto basso cambia il menù: il piatto bocciato perde il posto', () => 
   let bocciato = 0;
   for (let i = 0; i < 40; i++) {
     const esito = P.generaSettimana(ctx);
-    if (esito.giorni[0].piatti.includes('u_pollo_zucchine')) bocciato++;
+    if (M.piattiDelGiorno(esito.giorni[0]).includes('u_pollo_zucchine')) bocciato++;
   }
   // con -24 contro +0 l'estrazione pesata lo sceglie molto di rado
   if (bocciato > 15) throw new Error(`scelto ${bocciato} volte su 40 nonostante il voto 1`);

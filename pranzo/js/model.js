@@ -12,6 +12,26 @@ export const TIPI_PIATTO = ['primo', 'secondo', 'contorno', 'unico'];
 export const ORIGINI = ['base', 'ai', 'utente'];
 export const MOTIVI_VOTO = ['buono', 'troppoLungo', 'noioso', 'nonMiPiace', 'daRifare'];
 export const GIORNI = ['lun', 'mar', 'mer', 'gio', 'ven', 'sab', 'dom'];
+
+/* Dalla 2.0 un giorno ha due pasti. L'ordine di questo elenco è l'ordine in
+   cui si mangia, e quindi anche quello in cui si mostra. */
+export const PASTI = ['pranzo', 'cena'];
+export const NOME_PASTO = { pranzo: 'Pranzo', cena: 'Cena' };
+
+/* La forma di un pasto. "secondoContorno" è nata per la cena, ma nessuno
+   vieta di usarla a pranzo. */
+export const MODALITA = ['unico', 'primoSecondo', 'secondoContorno'];
+export const NOME_MODALITA = {
+  unico: 'piatto unico',
+  primoSecondo: 'primo + secondo',
+  secondoContorno: 'secondo + contorno'
+};
+/* Quali tipi di piatto compongono ogni forma, nell'ordine in cui si servono. */
+export const TIPI_MODALITA = {
+  unico: ['unico'],
+  primoSecondo: ['primo', 'secondo'],
+  secondoContorno: ['secondo', 'contorno']
+};
 export const REPARTI = ['ortofrutta', 'macelleria', 'pescheria', 'latticini',
                         'panetteria', 'dispensa', 'surgelati', 'altro'];
 
@@ -32,8 +52,11 @@ export function preferenzePredefinite() {
     chiave: 'preferenze',
     porzioni: 1,
     giorni: ['lun', 'mar', 'mer', 'gio', 'ven'],
-    tempoMaxMin: 40,
-    tempoMaxPerGiorno: {},
+    pasti: ['pranzo', 'cena'],
+    tempoMaxMin: 40,            // il pranzo
+    tempoMaxCena: 0,            // 0 = la cena non ha limite di tempo
+    tempoMaxPerGiorno: {},      // eccezioni al tempo del pranzo, giorno per giorno
+    avanziASettimana: 1,        // cene fatte con gli avanzi del pranzo
     quotaNovita: 2,
     cooldownSettimane: 4,
     maxGiorniPrimoSecondo: 3,
@@ -155,6 +178,66 @@ export function fibrePrincipali(piatto, indiceIngredienti) {
     if (ing && ing.macro === 'fibra') out.add(ing.id);
   }
   return [...out];
+}
+
+/* ------------------------------------------------------------- pasti -----
+   Il menù della 1.x aveva un solo pasto per giorno, scritto direttamente
+   dentro il giorno. Dalla 2.0 i pasti stanno in `pasti`, uno per chiave.
+   Si legge sempre passando da qui, così i menù vecchi continuano ad aprirsi
+   senza toccare l'archivio.                                              */
+
+export const FORMATO_MENU = 2;
+
+/** Un pasto pulito, con i campi che servono e niente altro. */
+export function pastoPulito(grezzo) {
+  const x = grezzo || {};
+  return {
+    modalita: MODALITA.includes(x.modalita) ? x.modalita : 'unico',
+    piatti: (x.piatti || []).slice(),
+    bloccato: !!x.bloccato,
+    // 'pranzo' significa: questa è la cena fatta con gli avanzi del pranzo
+    avanziDa: x.avanziDa || null
+  };
+}
+
+/** Porta un menù di qualunque versione alla forma di adesso. */
+export function normalizzaMenu(menu) {
+  if (!menu) return menu;
+  const giorni = (menu.giorni || []).map((g) => {
+    const pasti = {};
+    if (g.pasti) {
+      for (const nome of PASTI) if (g.pasti[nome]) pasti[nome] = pastoPulito(g.pasti[nome]);
+    } else {
+      // formato 1: il giorno *era* il pranzo
+      pasti.pranzo = pastoPulito(g);
+    }
+    return { giorno: g.giorno, data: g.data || null, pasti };
+  });
+  return Object.assign({}, menu, { formato: FORMATO_MENU, giorni });
+}
+
+/** I pasti di un giorno, nell'ordine in cui si mangiano: [[nome, pasto]]. */
+export function pastiDi(giorno) {
+  const pasti = (giorno && giorno.pasti) || {};
+  return PASTI.filter((nome) => pasti[nome]).map((nome) => [nome, pasti[nome]]);
+}
+
+/** Tutti gli id dei piatti di un giorno, pasti compresi. */
+export function piattiDelGiorno(giorno) {
+  return pastiDi(giorno).flatMap(([, pasto]) => pasto.piatti || []);
+}
+
+/**
+ * Com'è messa la giornata: cosa coprono i due pasti messi insieme e cosa
+ * manca. Dalla 2.0 non è più un obbligo, è un'informazione da mostrare.
+ */
+export function macroDellaGiornata(giorno, indicePiatti, indiceIngredienti) {
+  const piatti = piattiDelGiorno(giorno)
+    .map((id) => indicePiatti.get(id)).filter(Boolean);
+  return {
+    coperti: macroCopertiGiorno(piatti, indiceIngredienti),
+    mancanti: macroMancanti(piatti, indiceIngredienti)
+  };
 }
 
 /* ------------------------------------------------------ disponibilità ---- */

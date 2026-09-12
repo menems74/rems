@@ -7,15 +7,43 @@
 import * as M from './model.js';
 
 /**
+ * Quante porzioni servono di ogni piatto in tutta la settimana.
+ *
+ * È qui che vivono gli avanzi, ed è il punto dove sarebbe facile sbagliare:
+ * una cena "avanzi del pranzo" non aggiunge un piatto nuovo alla spesa, ma
+ * raddoppia quello del pranzo, perché quel giorno se ne cucina il doppio.
+ * Contarla come un pasto in più farebbe comprare roba per due volte; non
+ * contarla affatto farebbe mancare metà cena.
+ *
+ * @returns Map piattoId -> numero di porzioni (1 = una volta sola)
+ */
+export function quantePorzioni(menu) {
+  const conto = new Map();
+  const aggiungi = (piattoId, volte) =>
+    conto.set(piattoId, (conto.get(piattoId) || 0) + volte);
+
+  for (const giorno of menu.giorni || []) {
+    for (const [, pasto] of M.pastiDi(giorno)) {
+      // la cena con gli avanzi porta gli stessi id del pranzo: contando ogni
+      // pasto una volta, quel piatto finisce contato due — che è appunto
+      // "cucinane il doppio". Nessun caso speciale, e nessun doppione.
+      for (const piattoId of pasto.piatti || []) aggiungi(piattoId, 1);
+    }
+  }
+  return conto;
+}
+
+/**
  * Somma gli ingredienti del menù, sottrae la dispensa, arrotonda al formato
  * d'acquisto e raggruppa per reparto.
  *
- * @param menu        record del menù (giorni con id piatto)
+ * @param menuGrezzo  record del menù, di qualunque versione: si normalizza qui
  * @param ctx         { indicePiatti, indiceIngredienti, dispensa (Map id->qta),
  *                      porzioni, ordineReparti }
  * @param precedente  lista già esistente: le spunte vengono conservate
  */
-export function generaLista(menu, ctx, precedente) {
+export function generaLista(menuGrezzo, ctx, precedente) {
+  const menu = M.normalizzaMenu(menuGrezzo);
   const { indicePiatti: piatti, indiceIngredienti: ingredienti } = ctx;
   const porzioni = ctx.porzioni || 1;
   const dispensa = ctx.dispensa || new Map();
@@ -23,25 +51,23 @@ export function generaLista(menu, ctx, precedente) {
   const somme = new Map();     // ingredienteId -> { qta, usatoIn:Set }
   const problemi = [];
 
-  for (const giorno of menu.giorni || []) {
-    for (const piattoId of giorno.piatti || []) {
-      const piatto = piatti.get(piattoId);
-      if (!piatto) { problemi.push(`piatto sconosciuto nel menù: ${piattoId}`); continue; }
-      for (const voce of piatto.ingredienti || []) {
-        const ing = ingredienti.get(voce.ingredienteId);
-        if (!ing) { problemi.push(`ingrediente sconosciuto: ${voce.ingredienteId}`); continue; }
-        let qta;
-        try {
-          qta = M.qtaCanonicaVoce(voce, ing, porzioni);
-        } catch (e) {
-          problemi.push(`${piatto.nome}: ${e.message}`);
-          continue;
-        }
-        const riga = somme.get(ing.id) || { qta: 0, usatoIn: new Set() };
-        riga.qta += qta;
-        riga.usatoIn.add(piatto.nome);
-        somme.set(ing.id, riga);
+  for (const [piattoId, volte] of quantePorzioni(menu)) {
+    const piatto = piatti.get(piattoId);
+    if (!piatto) { problemi.push(`piatto sconosciuto nel menù: ${piattoId}`); continue; }
+    for (const voce of piatto.ingredienti || []) {
+      const ing = ingredienti.get(voce.ingredienteId);
+      if (!ing) { problemi.push(`ingrediente sconosciuto: ${voce.ingredienteId}`); continue; }
+      let qta;
+      try {
+        qta = M.qtaCanonicaVoce(voce, ing, porzioni * volte);
+      } catch (e) {
+        problemi.push(`${piatto.nome}: ${e.message}`);
+        continue;
       }
+      const riga = somme.get(ing.id) || { qta: 0, usatoIn: new Set() };
+      riga.qta += qta;
+      riga.usatoIn.add(piatto.nome);
+      somme.set(ing.id, riga);
     }
   }
 
