@@ -66,6 +66,13 @@ macro, famiglia della proteina, vincoli del planner e rilassamenti,
 aggregazione della spesa, apprendimento sui gusti, lettura di una risposta
 sporca di un'AI, verifica di un backup.
 
+## La versione mostrata nell'app
+
+In fondo alla prima pagina, sotto "powered by Rems", c'è il numero di
+versione: sta in `VERSIONE_APP`, in cima a `js/ui/home.js`. Si cambia **a
+mano**, quando serve; non si alza da sola e non c'entra con la `VERSIONE`
+di `sw.js`, che è solo il numero di serie della cache.
+
 ## Quando si modifica un file dell'app
 
 Il service worker serve prima dalla cache, quindi **va alzata `VERSIONE` in

@@ -614,10 +614,16 @@ main{padding:14px 16px 24px;}
 }
 .datoScorciatoia.dafare{color:var(--biro); font-weight:650;}
 
-/* la firma in fondo alla prima pagina: piccola, come un timbro a piè di pagina */
+/* la firma in fondo alla prima pagina: piccola, come un timbro a piè di
+   pagina, ma non sbiadita. Il colore è l'inchiostro smorzato, così va bene
+   in tutti e due i temi senza doverlo scrivere due volte. */
 .firma{
   margin-top:24px; text-align:center;
-  color:var(--matita); font-size:.72rem; letter-spacing:.04em;
+  color:var(--inchiostro); opacity:.72;
+  font-size:.78rem; letter-spacing:.04em;
+}
+.firma .versione{
+  margin-top:3px; font-size:.72rem; letter-spacing:.06em; opacity:.72;
 }
 
 /* ====================================================== FOTO DEL PIATTO ==

@@ -20,11 +20,19 @@ const GIORNO_LUNGO = {
 const MESI = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno',
               'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
 
+/* La versione dell'app, in fondo alla prima pagina. Si cambia qui a mano,
+   quando lo dice Rems: non si alza da sola e non c'entra niente con la
+   VERSIONE di sw.js, che è solo il numero di serie della cache. */
+const VERSIONE_APP = 'V.1.02';
+
 export function render(contenitore, stato) {
   svuotaNodo(contenitore);
   contenitore.appendChild(copertina(stato));
   contenitore.appendChild(scorciatoie(stato));
-  contenitore.appendChild(el('p', { class: 'firma' }, 'powered by Rems'));
+  contenitore.appendChild(el('div', { class: 'firma' }, [
+    el('p', {}, 'powered by Rems'),
+    el('p', { class: 'versione num' }, VERSIONE_APP)
+  ]));
 }
 
 /* ---------------------------------------------------------- la copertina -
