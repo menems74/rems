@@ -427,6 +427,369 @@ p("pia_zucca_forno","Zucca al forno","contorno",
   ["Taglia la zucca a fette spesse un dito.",
    "Olio, sale, rosmarino e forno a 200° per 25 minuti."],["forno","autunno"])
 
+# ===================== AGGIUNTA 2.0: i pasti della sera (61) =====================
+# La cena vuole roba svelta e leggera, e ogni tanto roba semplicissima:
+# una piadina, una pizza da farcire, un toast. Stanno qui sotto, divise per
+# tipo come le altre: per il motore sono piatti come tutti gli altri, e
+# valgono anche a pranzo.
+
+# ------------------------------- cose semplici -------------------------------
+p("pia_toast_cotto_insalata","Toast prosciutto e formaggio con insalata","unico",
+  [("ing_pane_toast",2,"fetta"),("ing_prosciutto_cotto",4,"fetta"),("ing_formaggio_fette",2,"fetta"),
+   ("ing_insalata",80,"g"),("ing_olio_evo",1,"cucchiaio")],10,1,[],
+  ["Farcisci due fette di pane con prosciutto e formaggio.",
+   "Tosta in padella o nel tostapane finché il formaggio fila.",
+   "Servi con l'insalata condita con olio e sale."],["veloce","semplice"])
+p("pia_toast_tonno_pomodorini","Toast con tonno e pomodorini","unico",
+  [("ing_pane_toast",2,"fetta"),("ing_tonno_scatola",1,"scatoletta"),("ing_pomodorini",120,"g"),
+   ("ing_maionese",1,"cucchiaio")],10,1,[],
+  ["Schiaccia il tonno sgocciolato con la maionese.",
+   "Farcisci il pane con il tonno e i pomodorini a fettine.",
+   "Tosta due minuti per lato."],["veloce"])
+p("pia_pizza_margherita","Pizza margherita","unico",
+  [("ing_base_pizza",1,"pz"),("ing_passata",100,"ml"),("ing_mozzarella",1,"mozzarella"),
+   ("ing_basilico",3,"foglie"),("ing_olio_evo",1,"cucchiaio")],25,1,[],
+  ["Stendi la passata sulla base, sale e un filo d'olio.",
+   "Forno a 220° per 12 minuti.",
+   "Aggiungi la mozzarella a fette e rimetti dentro 5 minuti; basilico all'uscita."],["forno","semplice"])
+p("pia_pizza_zucchine_scamorza","Pizza con zucchine e scamorza","unico",
+  [("ing_base_pizza",1,"pz"),("ing_passata",80,"ml"),("ing_scamorza",100,"g"),
+   ("ing_zucchine",120,"g"),("ing_olio_evo",1,"cucchiaio")],30,1,[],
+  ["Affetta le zucchine sottili e saltale due minuti in padella con l'olio.",
+   "Stendi la passata sulla base e inforna a 220° per 12 minuti.",
+   "Aggiungi zucchine e scamorza a dadini, altri 6 minuti."],["forno","semplice"])
+p("pia_pizza_tonno_cipolla","Pizza con tonno e cipolla","unico",
+  [("ing_base_pizza",1,"pz"),("ing_passata",100,"ml"),("ing_tonno_scatola",1,"scatoletta"),
+   ("ing_mozzarella",60,"g"),("ing_cipolla_rossa",0.5,"pz"),("ing_olio_evo",1,"cucchiaio")],25,1,[],
+  ["Condisci la base con passata, sale e olio; forno a 220° per 12 minuti.",
+   "Distribuisci tonno, mozzarella e cipolla a velo.",
+   "Rimetti in forno 6 minuti."],["forno","semplice"])
+p("pia_piadina_crudo_stracchino","Piadina con crudo e stracchino","unico",
+  [("ing_piadina",1,"pz"),("ing_prosciutto_crudo",4,"fetta"),("ing_stracchino",50,"g"),
+   ("ing_rucola",40,"g")],10,1,[],
+  ["Scalda la piadina un minuto per lato.",
+   "Spalma lo stracchino, aggiungi crudo e rucola, piega a metà."],["veloce","semplice"])
+p("pia_piadina_pollo_insalata","Piadina con pollo e insalata","unico",
+  [("ing_piadina",1,"pz"),("ing_pollo_petto",120,"g"),("ing_insalata",60,"g"),
+   ("ing_maionese",1,"cucchiaio"),("ing_olio_evo",1,"cucchiaio")],20,1,[],
+  ["Cuoci il pollo a striscioline in padella con olio e sale, 8 minuti.",
+   "Scalda la piadina, spalma la maionese e farcisci con pollo e insalata."],["veloce","semplice"])
+p("pia_piadina_zucchine_feta","Piadina con zucchine grigliate e feta","unico",
+  [("ing_piadina",1,"pz"),("ing_zucchine",1,"zucchina"),("ing_feta",90,"g"),
+   ("ing_olio_evo",1,"cucchiaio")],20,1,[],
+  ["Griglia le zucchine a fette in padella rovente, sale e olio.",
+   "Scalda la piadina e farcisci con zucchine e feta sbriciolata."],["semplice"])
+p("pia_wrap_pollo_verdure","Wrap di pollo e verdure","unico",
+  [("ing_tortilla",1,"pz"),("ing_pollo_petto",120,"g"),("ing_insalata",50,"g"),
+   ("ing_pomodorini",60,"g"),("ing_maionese",1,"cucchiaio"),("ing_olio_evo",1,"cucchiaio")],20,1,[],
+  ["Rosola il pollo a striscioline con olio, sale e pepe.",
+   "Scalda la tortilla 30 secondi per lato.",
+   "Farcisci con maionese, pollo, insalata e pomodorini; arrotola stretto."],["veloce","semplice"])
+p("pia_wrap_ceci_verdure","Wrap di ceci e verdure","unico",
+  [("ing_tortilla",1,"pz"),("ing_ceci_lessati",1,"barattolo"),("ing_insalata",50,"g"),
+   ("ing_pomodorini",60,"g"),("ing_olio_evo",1,"cucchiaio"),("ing_paprika",1,"cucchiaino")],15,1,[],
+  ["Schiaccia metà dei ceci con olio, paprika e sale, lascia interi gli altri.",
+   "Scalda la tortilla e farcisci con ceci, insalata e pomodorini; arrotola."],["veloce","semplice","senza carne"])
+p("pia_focaccia_stracchino_rucola","Focaccia con stracchino e rucola","unico",
+  [("ing_focaccia",1,"pezzo"),("ing_stracchino",80,"g"),("ing_rucola",40,"g"),
+   ("ing_olio_evo",1,"cucchiaio")],10,1,[],
+  ["Apri la focaccia a libro e scaldala un minuto in padella.",
+   "Spalma lo stracchino, aggiungi la rucola e un filo d'olio."],["veloce","semplice"])
+p("pia_crespelle_prosciutto_spinaci","Crespelle con prosciutto e spinaci","unico",
+  [("ing_farina",60,"g"),("ing_latte",150,"ml"),("ing_uova",1,"pz"),
+   ("ing_prosciutto_cotto",80,"g"),("ing_spinaci",100,"g"),("ing_burro",1,"noce"),
+   ("ing_parmigiano",2,"cucchiaio")],35,2,[],
+  ["Sbatti uovo, farina e latte e lascia riposare la pastella 10 minuti.",
+   "Stufa gli spinaci con il burro e un pizzico di sale.",
+   "Cuoci due crespelle in padella, farciscile con prosciutto e spinaci, chiudile e gratinale col parmigiano."],["comfort"])
+p("pia_bruschette_pomodoro_mozzarella","Bruschette con pomodoro e mozzarella","unico",
+  [("ing_pane",2,"fetta"),("ing_pomodori",150,"g"),("ing_mozzarella",1,"mozzarella"),
+   ("ing_basilico",3,"foglie"),("ing_olio_evo",1,"cucchiaio"),("ing_aglio",1,"pz")],15,1,[],
+  ["Tosta il pane e strofinalo con l'aglio.",
+   "Condisci i pomodori a cubetti con olio, sale e basilico.",
+   "Distribuisci pomodori e mozzarella a fette sul pane."],["estate","semplice"])
+p("pia_panino_wurstel_insalata","Panino con würstel e insalata","unico",
+  [("ing_pane",2,"fetta"),("ing_wurstel",2,"wurstel"),("ing_insalata",60,"g"),
+   ("ing_senape",1,"cucchiaino")],15,1,[],
+  ["Scalda i würstel in acqua che sfiora il bollore per 6 minuti.",
+   "Tosta il pane, spalma la senape e componi con würstel e insalata."],["veloce","semplice"])
+
+# ------------------------------- zuppe e vellutate ---------------------------
+p("pia_vellutata_patate_broccoli","Vellutata di patate e broccoli","unico",
+  [("ing_patate",200,"g"),("ing_broccoli",150,"g"),("ing_latte",150,"ml"),
+   ("ing_olio_evo",1,"cucchiaio"),("ing_noce_moscata",1,"grattata")],35,1,[],
+  ["Lessa patate a cubetti e cime di broccolo in acqua salata, 20 minuti.",
+   "Frulla con il latte caldo fino a farla liscia.",
+   "Aggiusta di sale, noce moscata e un filo d'olio a crudo."],["zuppa","inverno"])
+p("pia_zuppa_cannellini_verza","Zuppa di cannellini e verza","unico",
+  [("ing_cannellini",1,"barattolo"),("ing_verza",150,"g"),("ing_carote",1,"carota"),
+   ("ing_pane",1,"fetta"),("ing_olio_evo",1,"cucchiaio"),("ing_rosmarino",1,"rametto")],35,2,[],
+  ["Stufa verza e carota a listarelle con l'olio e il rosmarino.",
+   "Aggiungi i cannellini sciacquati e acqua a coprire, cuoci 20 minuti.",
+   "Frulla un mestolo di zuppa per addensarla e servi col pane tostato."],["zuppa","inverno"])
+p("pia_minestra_uovo_parmigiano","Minestra di verdure con uovo","unico",
+  [("ing_minestrone",150,"g"),("ing_pasta_corta",60,"g"),("ing_uova",1,"pz"),
+   ("ing_parmigiano",2,"cucchiaio"),("ing_brodo_granulare",1,"cucchiaino")],25,1,[],
+  ["Cuoci il misto per minestrone nel brodo per 15 minuti.",
+   "Butta la pasta e finisci la cottura.",
+   "Sbatti l'uovo col parmigiano e versalo a filo mescolando, come una stracciatella."],["zuppa","veloce"])
+p("pia_crema_piselli_uovo","Crema di piselli con uovo","unico",
+  [("ing_piselli",200,"g"),("ing_patate",150,"g"),("ing_uova",1,"pz"),
+   ("ing_cipolla",0.5,"pz"),("ing_olio_evo",1,"cucchiaio")],30,2,[],
+  ["Stufa la cipolla, aggiungi piselli e patate a cubetti e acqua a coprire; 20 minuti.",
+   "Frulla la crema e aggiusta di sale.",
+   "Cuoci l'uovo in camicia in acqua appena sobbollente per 3 minuti e appoggialo sulla crema."],["zuppa"])
+p("pia_vellutata_carote_lenticchie","Vellutata di carote e lenticchie","unico",
+  [("ing_carote",250,"g"),("ing_lenticchie",80,"g"),("ing_patate",100,"g"),
+   ("ing_curry",1,"cucchiaino"),("ing_olio_evo",1,"cucchiaio")],40,2,[],
+  ["Metti carote a rondelle, lenticchie sciacquate e patata a cubetti in pentola con acqua a coprire.",
+   "Cuoci 30 minuti, poi frulla con il curry e un filo d'olio."],["zuppa","senza carne"])
+
+# ------------------------------- insalatone e piatti freddi ------------------
+p("pia_insalata_greca_pane","Insalata greca con pane","unico",
+  [("ing_feta",100,"g"),("ing_cetriolo",1,"pz"),("ing_pomodori",150,"g"),
+   ("ing_olive",20,"g"),("ing_pane",1,"fetta"),("ing_origano",1,"pizzico"),
+   ("ing_olio_evo",1,"cucchiaio")],15,1,[],
+  ["Taglia cetriolo e pomodori a pezzi grossi.",
+   "Aggiungi feta a cubi, olive, olio, origano e sale; niente aceto.",
+   "Servi con il pane."],["freddo","estate","senza cottura"])
+p("pia_insalata_tonno_cannellini","Insalata di tonno e cannellini","unico",
+  [("ing_cannellini",1,"barattolo"),("ing_tonno_scatola",1,"scatoletta"),
+   ("ing_pomodorini",100,"g"),("ing_cipolla_rossa",0.5,"pz"),("ing_pane",1,"fetta"),
+   ("ing_prezzemolo",1,"mazzetto"),("ing_olio_evo",1,"cucchiaio")],10,1,[],
+  ["Sciacqua i cannellini e mettili in una ciotola col tonno sgocciolato.",
+   "Aggiungi i pomodorini a metà, la cipolla a velo, prezzemolo, olio e sale.",
+   "Lascia insaporire 5 minuti e servi col pane."],["freddo","veloce","senza cottura"])
+p("pia_farro_freddo_mozzarella","Farro freddo con pomodorini e mozzarella","unico",
+  [("ing_farro",80,"g"),("ing_pomodorini",150,"g"),("ing_mozzarella",1,"mozzarella"),
+   ("ing_basilico",3,"foglie"),("ing_olio_evo",1,"cucchiaio")],25,1,[],
+  ["Lessa il farro, scolalo e raffreddalo sotto l'acqua.",
+   "Condisci con pomodorini a metà, mozzarella a cubetti, olio, sale e basilico."],["freddo","estate"])
+p("pia_cous_cous_freddo_tonno","Cous cous freddo con tonno e verdure","unico",
+  [("ing_cous_cous",80,"g"),("ing_tonno_scatola",1,"scatoletta"),("ing_zucchine",120,"g"),
+   ("ing_pomodorini",80,"g"),("ing_olio_evo",1,"cucchiaio"),("ing_limone",0.5,"pz")],20,1,[],
+  ["Idrata il cous cous con acqua bollente salata e sgranalo con la forchetta.",
+   "Salta le zucchine a dadini due minuti, devono restare sode.",
+   "Mescola tutto col tonno, i pomodorini, olio e succo di limone."],["freddo","veloce"])
+p("pia_insalata_spinaci_uova_noci","Insalata di spinaci, uova e noci","unico",
+  [("ing_spinaci",100,"g"),("ing_uova",2,"pz"),("ing_noci",20,"g"),
+   ("ing_pane",1,"fetta"),("ing_balsamico",1,"cucchiaio"),("ing_olio_evo",1,"cucchiaio")],15,1,[],
+  ["Rassoda le uova in 9 minuti, raffreddale e tagliale a spicchi.",
+   "Condisci gli spinaci crudi con olio, balsamico e sale.",
+   "Aggiungi uova e noci spezzettate, servi col pane tostato."],["freddo","veloce"])
+p("pia_panzanella_mozzarella","Panzanella con mozzarella","unico",
+  [("ing_pane",2,"fetta"),("ing_pomodori",200,"g"),("ing_cetriolo",1,"pz"),
+   ("ing_mozzarella",1,"mozzarella"),("ing_cipolla_rossa",0.5,"pz"),
+   ("ing_basilico",3,"foglie"),("ing_olio_evo",1,"cucchiaio"),("ing_aceto",1,"cucchiaio")],20,1,[],
+  ["Bagna il pane raffermo in acqua e aceto, strizzalo e sbriciolalo.",
+   "Unisci pomodori, cetriolo e cipolla tagliati grossolanamente.",
+   "Aggiungi mozzarella a cubetti, olio, sale e basilico; 10 minuti in frigo."],["freddo","estate"])
+
+# ------------------------------- uova e formaggi -----------------------------
+p("pia_omelette_funghi_formaggio","Omelette ai funghi con pane","unico",
+  [("ing_uova",3,"pz"),("ing_funghi",150,"g"),("ing_formaggio_fette",2,"fetta"),
+   ("ing_pane",1,"fetta"),("ing_olio_evo",1,"cucchiaio")],20,1,[],
+  ["Salta i funghi a fette a fuoco vivo finché perdono l'acqua, poi sala.",
+   "Versa le uova sbattute, abbassa la fiamma e appoggia il formaggio al centro.",
+   "Piega l'omelette a mezzaluna e servi col pane."],["padella","veloce"])
+p("pia_uova_tegamino_asparagi","Uova al tegamino con asparagi","unico",
+  [("ing_uova",2,"pz"),("ing_asparagi",150,"g"),("ing_pane",1,"fetta"),
+   ("ing_parmigiano",1,"cucchiaio"),("ing_olio_evo",1,"cucchiaio")],15,1,[],
+  ["Scotta gli asparagi 6 minuti e tagliali a pezzi.",
+   "Saltali in padella con l'olio, fai due buche e rompici le uova.",
+   "Coperchio e 4 minuti: l'albume rappreso, il tuorlo morbido. Parmigiano e pane."],["padella","primavera"])
+p("pia_frittata_bietole","Frittata di bietole","unico",
+  [("ing_uova",3,"pz"),("ing_bietole",200,"g"),("ing_pane",1,"fetta"),
+   ("ing_parmigiano",2,"cucchiaio"),("ing_olio_evo",1,"cucchiaio")],20,1,[],
+  ["Lessa le bietole 8 minuti, strizzale bene e tritale.",
+   "Sbattile con le uova, il parmigiano e il sale.",
+   "Cuoci in padella 4 minuti per lato. Servi con il pane."],["padella"])
+p("pia_scamorza_funghi_pane","Scamorza filante con funghi","unico",
+  [("ing_scamorza",120,"g"),("ing_funghi",150,"g"),("ing_pane",1,"fetta"),
+   ("ing_aglio",1,"pz"),("ing_olio_evo",1,"cucchiaio"),("ing_prezzemolo",1,"mazzetto")],20,1,[],
+  ["Trifola i funghi con aglio e olio, finisci col prezzemolo.",
+   "Appoggia la scamorza a fette in padella calda finché fila.",
+   "Servi sui funghi con il pane abbrustolito."],["padella","comfort"])
+
+# ------------------------------- secondi della sera --------------------------
+p("pia_platessa_limone","Platessa al limone in padella","secondo",
+  [("ing_platessa",1,"filetto"),("ing_limone",0.5,"pz"),("ing_farina",1,"cucchiaio"),
+   ("ing_prezzemolo",1,"mazzetto"),("ing_olio_evo",1,"cucchiaio")],12,1,[],
+  ["Infarina leggermente il filetto.",
+   "Padella calda con l'olio, 3 minuti per lato.",
+   "Spegni, sfuma col succo di limone e finisci col prezzemolo."],["padella","veloce"])
+p("pia_merluzzo_pomodorini_olive","Merluzzo con pomodorini e olive","secondo",
+  [("ing_merluzzo_filetto",1,"filetto"),("ing_pomodorini",120,"g"),("ing_olive",20,"g"),
+   ("ing_olio_evo",1,"cucchiaio"),("ing_origano",1,"pizzico")],25,1,[],
+  ["Scalda i pomodorini tagliati a metà con l'olio e le olive, 5 minuti.",
+   "Appoggia il filetto sopra, coperchio, 10 minuti a fuoco basso.",
+   "Origano e sale a fine cottura."],["padella"])
+p("pia_salmone_sesamo","Salmone al sesamo in padella","secondo",
+  [("ing_salmone_filetto",1,"filetto"),("ing_sesamo",1,"cucchiaio"),
+   ("ing_olio_evo",1,"cucchiaio"),("ing_limone",0.5,"pz")],15,1,[],
+  ["Premi il sesamo sulla parte senza pelle del filetto.",
+   "Padella ben calda con l'olio: 4 minuti dal lato della pelle, 2 dall'altro.",
+   "Sale e limone all'uscita."],["padella","veloce"])
+p("pia_polpette_tonno","Polpette di tonno al forno","secondo",
+  [("ing_tonno_scatola",2,"scatoletta"),("ing_pangrattato",3,"cucchiaio"),("ing_uova",1,"pz"),
+   ("ing_prezzemolo",1,"mazzetto"),("ing_olio_evo",1,"cucchiaio")],30,2,[],
+  ["Impasta tonno sgocciolato, pangrattato, uovo e prezzemolo.",
+   "Forma sei polpette schiacciate e disponile su carta forno con un filo d'olio.",
+   "Forno a 200° per 18 minuti, girandole a metà."],["forno"])
+p("pia_pollo_senape","Pollo alla senape","secondo",
+  [("ing_pollo_petto",150,"g"),("ing_senape",1,"cucchiaino"),("ing_vino_bianco",0.5,"bicchiere"),
+   ("ing_olio_evo",1,"cucchiaio")],20,1,[],
+  ["Rosola il pollo a fettine nell'olio, 3 minuti per lato.",
+   "Sfuma col vino, aggiungi la senape sciolta in due cucchiai d'acqua.",
+   "Fai restringere 5 minuti finché la salsa vela il pollo."],["padella"])
+p("pia_pollo_yogurt_curry","Pollo allo yogurt e curry","secondo",
+  [("ing_pollo_petto",150,"g"),("ing_yogurt_greco",1,"vasetto"),("ing_curry",1,"cucchiaino"),
+   ("ing_olio_evo",1,"cucchiaio")],25,2,[],
+  ["Marina il pollo a bocconcini con metà yogurt, il curry e il sale, 10 minuti.",
+   "Rosolalo in padella con l'olio a fuoco vivo, 6 minuti.",
+   "Spegni e manteca con lo yogurt rimasto."],["padella"])
+p("pia_tacchino_limone_capperi","Tacchino al limone e capperi","secondo",
+  [("ing_tacchino_fesa",1,"fetta"),("ing_capperi",1,"cucchiaio"),("ing_limone",0.5,"pz"),
+   ("ing_farina",1,"cucchiaio"),("ing_olio_evo",1,"cucchiaio")],15,1,[],
+  ["Infarina le fettine e rosolale due minuti per lato.",
+   "Aggiungi capperi dissalati e succo di limone con poca acqua.",
+   "Fai addensare un minuto e servi."],["padella","veloce"])
+p("pia_hamburger_manzo","Hamburger di manzo in padella","secondo",
+  [("ing_manzo_macinato",150,"g"),("ing_pangrattato",1,"cucchiaio"),("ing_senape",1,"cucchiaino"),
+   ("ing_olio_evo",1,"cucchiaio")],15,1,[],
+  ["Impasta il macinato con pangrattato, senape e sale; forma due hamburger.",
+   "Padella rovente con poco olio: 4 minuti per lato, senza schiacciarli."],["padella","veloce"])
+p("pia_lonza_salvia","Lonza alla salvia","secondo",
+  [("ing_maiale_lonza",1,"fetta"),("ing_salvia",3,"foglia"),("ing_burro",1,"noce"),
+   ("ing_vino_bianco",0.5,"bicchiere")],20,1,[],
+  ["Rosola la lonza nel burro con la salvia, 3 minuti per lato.",
+   "Sfuma col vino e lascia evaporare.",
+   "Sale, e un cucchiaio d'acqua se il fondo asciuga troppo."],["padella"])
+p("pia_frittata_ricotta_erbe","Frittata con ricotta ed erbe","secondo",
+  [("ing_uova",3,"pz"),("ing_ricotta",80,"g"),("ing_prezzemolo",1,"mazzetto"),
+   ("ing_olio_evo",1,"cucchiaio")],15,1,[],
+  ["Sbatti le uova con il sale, poi unisci la ricotta a fiocchi e il prezzemolo.",
+   "Cuoci in padella a fuoco basso 5 minuti, gira e finisci in altri 2."],["padella","veloce"])
+p("pia_tofu_sesamo","Tofu saltato al sesamo","secondo",
+  [("ing_tofu",1,"panetto"),("ing_sesamo",1,"cucchiaio"),("ing_balsamico",1,"cucchiaio"),
+   ("ing_olio_evo",1,"cucchiaio")],15,1,[],
+  ["Asciuga il tofu e taglialo a cubi.",
+   "Saltalo in padella con l'olio finché è dorato su tutti i lati.",
+   "Spegni, aggiungi balsamico e sesamo e fai velare."],["padella","senza carne"])
+p("pia_ceci_forno_paprika","Ceci croccanti al forno","secondo",
+  [("ing_ceci_lessati",1,"barattolo"),("ing_paprika",1,"cucchiaino"),
+   ("ing_olio_evo",1,"cucchiaio")],30,1,[],
+  ["Sciacqua e asciuga bene i ceci.",
+   "Condiscili con olio, paprika e sale e stendili in teglia.",
+   "Forno a 200° per 25 minuti, scuotendo la teglia ogni tanto."],["forno","senza carne"])
+p("pia_sgombro_limone","Sgombro al limone e prezzemolo","secondo",
+  [("ing_sgombro_scatola",1,"scatoletta"),("ing_limone",0.5,"pz"),
+   ("ing_prezzemolo",1,"mazzetto"),("ing_olio_evo",1,"cucchiaio")],8,1,[],
+  ["Sgocciola lo sgombro e disponilo nel piatto.",
+   "Condisci con succo di limone, prezzemolo tritato, olio e pepe."],["senza cottura","veloce"])
+p("pia_salmone_affumicato_stracchino","Salmone affumicato con stracchino","secondo",
+  [("ing_salmone_affumicato",100,"g"),("ing_stracchino",50,"g"),("ing_limone",0.5,"pz"),
+   ("ing_pepe",1,"g")],8,1,[],
+  ["Stendi le fette di salmone nel piatto.",
+   "Aggiungi lo stracchino a cucchiaiate, pepe e qualche goccia di limone."],["senza cottura","veloce"])
+p("pia_alici_marinate_limone","Alici marinate con prezzemolo","secondo",
+  [("ing_alici_marinate",100,"g"),("ing_prezzemolo",1,"mazzetto"),("ing_limone",0.5,"pz"),
+   ("ing_olio_evo",1,"cucchiaio")],8,1,[],
+  ["Disponi le alici a raggiera nel piatto.",
+   "Olio, prezzemolo e limone; lasciale prendere sapore cinque minuti."],["senza cottura","veloce"])
+
+# ------------------------------- contorni ------------------------------------
+p("pia_bietole_padella","Bietole saltate in padella","contorno",
+  [("ing_bietole",250,"g"),("ing_aglio",1,"pz"),("ing_olio_evo",1,"cucchiaio")],20,1,[],
+  ["Lessa le bietole 8 minuti e strizzale.",
+   "Saltale in padella con aglio e olio per 5 minuti, poi sala."],["padella"])
+p("pia_asparagi_forno","Asparagi al forno","contorno",
+  [("ing_asparagi",250,"g"),("ing_parmigiano",2,"cucchiaio"),("ing_olio_evo",1,"cucchiaio")],20,1,[],
+  ["Elimina la parte dura del gambo e disponi gli asparagi in teglia.",
+   "Olio, sale e forno a 200° per 15 minuti; parmigiano negli ultimi 3."],["forno","primavera"])
+p("pia_carciofi_trifolati","Carciofi trifolati","contorno",
+  [("ing_carciofi",2,"pz"),("ing_aglio",1,"pz"),("ing_prezzemolo",1,"mazzetto"),
+   ("ing_olio_evo",1,"cucchiaio")],30,2,[],
+  ["Pulisci i carciofi e tagliali a spicchi sottili.",
+   "Rosolali con aglio e olio, poi mezzo bicchiere d'acqua e coperchio, 20 minuti.",
+   "Sale e prezzemolo a fine cottura."],["padella","inverno"])
+p("pia_piselli_cipolla","Piselli in padella con cipolla","contorno",
+  [("ing_piselli",200,"g"),("ing_cipolla",0.5,"pz"),("ing_olio_evo",1,"cucchiaio")],20,1,[],
+  ["Stufa la cipolla tritata con l'olio.",
+   "Aggiungi i piselli e mezzo bicchiere d'acqua, coperchio, 15 minuti."],["padella"])
+p("pia_zucchine_grigliate","Zucchine grigliate","contorno",
+  [("ing_zucchine",250,"g"),("ing_olio_evo",1,"cucchiaio"),("ing_basilico",3,"foglie")],15,1,[],
+  ["Taglia le zucchine a fette per il lungo.",
+   "Griglia in padella rovente 2 minuti per lato.",
+   "Condisci con olio, sale e basilico spezzettato a mano."],["veloce"])
+p("pia_cetrioli_yogurt","Insalata di cetrioli allo yogurt","contorno",
+  [("ing_cetriolo",2,"pz"),("ing_yogurt_greco",1,"vasetto"),("ing_aglio",1,"pz"),
+   ("ing_olio_evo",1,"cucchiaio")],10,1,[],
+  ["Affetta i cetrioli sottili e salali, lasciali perdere acqua 5 minuti.",
+   "Mescola lo yogurt con aglio schiacciato, olio e sale e condisci."],["freddo","estate","senza cottura"])
+p("pia_rucola_grana_balsamico","Rucola con grana e balsamico","contorno",
+  [("ing_rucola",80,"g"),("ing_parmigiano",2,"cucchiaio"),("ing_balsamico",1,"cucchiaio"),
+   ("ing_olio_evo",1,"cucchiaio")],5,1,[],
+  ["Condisci la rucola con olio, sale e balsamico.",
+   "Completa con le scaglie di grana."],["senza cottura","veloce"])
+p("pia_cicoria_ripassata","Cicoria ripassata in padella","contorno",
+  [("ing_cicoria",250,"g"),("ing_aglio",1,"pz"),("ing_peperoncino",1,"pizzico"),
+   ("ing_olio_evo",1,"cucchiaio")],25,1,[],
+  ["Lessa la cicoria 10 minuti e strizzala.",
+   "Ripassala in padella con aglio, peperoncino e olio per 5 minuti."],["padella","inverno"])
+p("pia_verdure_miste_forno","Verdure miste al forno","contorno",
+  [("ing_zucchine",200,"g"),("ing_carote",2,"carota"),("ing_cipolla",0.5,"pz"),
+   ("ing_olio_evo",1,"cucchiaio"),("ing_rosmarino",1,"rametto")],30,1,[],
+  ["Taglia tutte le verdure a pezzi della stessa misura.",
+   "Condisci con olio, sale e rosmarino e stendile in teglia.",
+   "Forno a 200° per 25 minuti, girando una volta."],["forno"])
+p("pia_fagiolini_pomodorini","Fagiolini con pomodorini","contorno",
+  [("ing_fagiolini",200,"g"),("ing_pomodorini",100,"g"),("ing_aglio",1,"pz"),
+   ("ing_olio_evo",1,"cucchiaio")],25,1,[],
+  ["Lessa i fagiolini 12 minuti e scolali.",
+   "Saltali in padella con aglio, olio e i pomodorini tagliati a metà, 5 minuti."],["padella","estate"])
+
+# ------------------------------- primi leggeri -------------------------------
+p("pia_pasta_zucchine_ricotta","Pasta con zucchine e ricotta","primo",
+  [("ing_pasta_corta",90,"g"),("ing_zucchine",1,"zucchina"),("ing_ricotta",80,"g"),
+   ("ing_olio_evo",1,"cucchiaio"),("ing_basilico",3,"foglie")],20,1,[],
+  ["Salta le zucchine a rondelle con l'olio finché sono dorate.",
+   "Stempera la ricotta con due cucchiai d'acqua di cottura.",
+   "Manteca la pasta con zucchine e ricotta, basilico all'ultimo."],["veloce"])
+p("pia_riso_limone","Riso al limone","primo",
+  [("ing_riso",90,"g"),("ing_limone",1,"pz"),("ing_parmigiano",2,"cucchiaio"),
+   ("ing_burro",1,"noce")],25,1,[],
+  ["Lessa il riso in acqua salata.",
+   "Scolalo e mantecalo con burro, parmigiano, succo e scorza di limone."],["veloce"])
+p("pia_pasta_pomodorini_stracchino","Pasta con pomodorini e stracchino","primo",
+  [("ing_pasta_corta",90,"g"),("ing_pomodorini",150,"g"),("ing_stracchino",60,"g"),
+   ("ing_olio_evo",1,"cucchiaio"),("ing_basilico",3,"foglie")],20,1,[],
+  ["Fai appassire i pomodorini in padella con l'olio, 8 minuti.",
+   "Sciogli lo stracchino con un mestolo d'acqua di cottura.",
+   "Manteca la pasta nella crema e finisci col basilico."],["veloce","comfort"])
+p("pia_gnocchi_pesto","Gnocchi al pesto","primo",
+  [("ing_gnocchi",200,"g"),("ing_pesto",2,"cucchiaio"),("ing_parmigiano",1,"cucchiaio")],15,1,[],
+  ["Butta gli gnocchi in acqua salata: sono pronti quando vengono a galla.",
+   "Stempera il pesto con un cucchiaio d'acqua di cottura e condisci."],["veloce"])
+p("pia_pasta_funghi","Pasta con i funghi","primo",
+  [("ing_pasta_corta",90,"g"),("ing_funghi",200,"g"),("ing_aglio",1,"pz"),
+   ("ing_prezzemolo",1,"mazzetto"),("ing_olio_evo",1,"cucchiaio")],25,1,[],
+  ["Trifola i funghi a fette con aglio e olio a fuoco vivo.",
+   "Quando hanno perso l'acqua, sala e aggiungi il prezzemolo.",
+   "Manteca la pasta in padella con un po' d'acqua di cottura."],["padella"])
+p("pia_polenta_funghi","Polenta con funghi trifolati","primo",
+  [("ing_polenta",80,"g"),("ing_funghi",200,"g"),("ing_aglio",1,"pz"),
+   ("ing_olio_evo",1,"cucchiaio"),("ing_prezzemolo",1,"mazzetto")],45,2,[],
+  ["Cuoci la polenta nell'acqua salata secondo la confezione, mescolando.",
+   "Trifola i funghi con aglio e olio, sale e prezzemolo.",
+   "Versa la polenta nel piatto e completa coi funghi."],["comfort","inverno"])
+p("pia_pasta_cavolfiore","Pasta col cavolfiore","primo",
+  [("ing_pasta_corta",90,"g"),("ing_cavolfiore",200,"g"),("ing_aglio",1,"pz"),
+   ("ing_peperoncino",1,"pizzico"),("ing_pecorino",2,"cucchiaio"),("ing_olio_evo",1,"cucchiaio")],30,1,[],
+  ["Lessa le cimette di cavolfiore nell'acqua della pasta, poi butta la pasta.",
+   "Rosola aglio e peperoncino nell'olio e schiaccia dentro metà del cavolfiore.",
+   "Manteca la pasta con la crema e finisci col pecorino."],["inverno"])
+
 # ============================== costruzione + validazione ==============================
 ING = {x["id"]: x for x in json.load(open("pranzo/data/seed-ingredienti.json", encoding="utf-8"))}
 SOGLIE = {"proteina": {"g":80,"ml":80,"pz":1}, "carboidrato": {"g":30,"ml":30,"pz":1}, "fibra": {"g":30,"ml":30,"pz":1}}

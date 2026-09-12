@@ -149,15 +149,32 @@ function registraServiceWorker() {
     .catch((errore) => console.warn('service worker non registrato:', errore.message));
 }
 
+/**
+ * Carica il catalogo di partenza, e lo tiene aggiornato.
+ *
+ * Al primo avvio scrive tutto. Dopo, aggiunge soltanto quello che non c'è
+ * ancora: così chi ha già l'app installata si ritrova i piatti nuovi senza
+ * perdere niente di suo — i voti, le foto, le liste e i piatti importati
+ * restano dove sono, e un piatto già in archivio non viene mai riscritto.
+ */
 async function seedSeServe() {
   const [quantiIngredienti, quantiPiatti] = await Promise.all([
     DB.conta(DB.STORE.ingredienti), DB.conta(DB.STORE.piatti)
   ]);
-  if (quantiIngredienti > 0 && quantiPiatti > 0) return;
+  const primaVolta = quantiIngredienti === 0 || quantiPiatti === 0;
 
-  const [ingredienti, piatti] = await Promise.all([
-    scarica('data/seed-ingredienti.json'), scarica('data/seed-piatti.json')
-  ]);
+  let ingredienti, piatti;
+  try {
+    [ingredienti, piatti] = await Promise.all([
+      scarica('data/seed-ingredienti.json'), scarica('data/seed-piatti.json')
+    ]);
+  } catch (errore) {
+    // senza rete e senza cache non si aggiorna niente: se però l'archivio è
+    // vuoto non c'è proprio niente da mostrare, e allora l'errore va detto
+    if (primaVolta) throw errore;
+    console.warn('catalogo non aggiornato:', errore.message);
+    return;
+  }
 
   const indice = M.indicizza(ingredienti);
   const errori = [];
@@ -171,15 +188,24 @@ async function seedSeServe() {
   });
   if (errori.length) throw new Error('dati iniziali non validi:\n' + errori.slice(0, 5).join('\n'));
 
+  const [chiaviIngredienti, chiaviPiatti] = await Promise.all([
+    DB.leggiChiavi(DB.STORE.ingredienti), DB.leggiChiavi(DB.STORE.piatti)
+  ]);
+  const giaIngredienti = new Set(chiaviIngredienti);
+  const giaPiatti = new Set(chiaviPiatti);
+  const nuoviIngredienti = ingredienti.filter((x) => !giaIngredienti.has(x.id));
+  const nuoviPiatti = piatti.filter((x) => !giaPiatti.has(x.id));
+  if (!nuoviIngredienti.length && !nuoviPiatti.length) return;
+
   const oggi = P.iso(new Date());
   await DB.transazione([DB.STORE.ingredienti, DB.STORE.piatti, DB.STORE.preferenze, DB.STORE.dispensa],
     'readwrite', async (stores) => {
-      for (const x of ingredienti) await stores[DB.STORE.ingredienti].scrivi(x);
-      for (const x of piatti) await stores[DB.STORE.piatti].scrivi(x);
+      for (const x of nuoviIngredienti) await stores[DB.STORE.ingredienti].scrivi(x);
+      for (const x of nuoviPiatti) await stores[DB.STORE.piatti].scrivi(x);
       const pref = await stores[DB.STORE.preferenze].leggi('preferenze');
       if (!pref) await stores[DB.STORE.preferenze].scrivi(M.preferenzePredefinite());
       // sale, olio, spezie: si danno per presenti, o la prima lista è assurda
-      for (const x of ingredienti) {
+      for (const x of nuoviIngredienti) {
         if (!x.dispensaBase) continue;
         await stores[DB.STORE.dispensa].scrivi({
           ingredienteId: x.id, qta: x.formatoAcquisto.qta, unita: x.unita, aggiornato: oggi
@@ -187,7 +213,11 @@ async function seedSeServe() {
       }
     });
 
-  avviso(`Catalogo caricato: ${piatti.length} piatti, ${ingredienti.length} ingredienti.`);
+  if (primaVolta) {
+    avviso(`Catalogo caricato: ${piatti.length} piatti, ${ingredienti.length} ingredienti.`);
+  } else if (nuoviPiatti.length) {
+    avviso(`Catalogo aggiornato: ${nuoviPiatti.length} piatti nuovi.`);
+  }
 }
 
 async function scarica(percorso) {

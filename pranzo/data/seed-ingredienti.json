@@ -230,6 +230,26 @@
   "famiglia": "salumi"
  },
  {
+  "id": "ing_wurstel",
+  "nome": "Würstel",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "macelleria",
+  "formatoAcquisto": {
+   "qta": 200,
+   "label": "confezione da 4"
+  },
+  "conversioni": [
+   {
+    "label": "wurstel",
+    "fattore": 50
+   }
+  ],
+  "stagioni": [],
+  "note": "per le cene svelte",
+  "famiglia": "maiale"
+ },
+ {
   "id": "ing_tonno_scatola",
   "nome": "Tonno in scatola sgocciolato",
   "macro": "proteina",
@@ -360,6 +380,26 @@
   "famiglia": "pesce"
  },
  {
+  "id": "ing_salmone_affumicato",
+  "nome": "Salmone affumicato",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "pescheria",
+  "formatoAcquisto": {
+   "qta": 100,
+   "label": "confezione da 100 g"
+  },
+  "conversioni": [
+   {
+    "label": "fetta",
+    "fattore": 25
+   }
+  ],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "pesce"
+ },
+ {
   "id": "ing_uova",
   "nome": "Uova",
   "macro": "proteina",
@@ -450,6 +490,26 @@
    "label": "scamorza da ~250 g"
   },
   "conversioni": [],
+  "stagioni": [],
+  "note": "",
+  "famiglia": "formaggio"
+ },
+ {
+  "id": "ing_formaggio_fette",
+  "nome": "Formaggio a fette",
+  "macro": "proteina",
+  "unita": "g",
+  "reparto": "latticini",
+  "formatoAcquisto": {
+   "qta": 150,
+   "label": "confezione da ~150 g"
+  },
+  "conversioni": [
+   {
+    "label": "fetta",
+    "fattore": 22
+   }
+  ],
   "stagioni": [],
   "note": "",
   "famiglia": "formaggio"
@@ -747,6 +807,72 @@
   "conversioni": [],
   "stagioni": [],
   "note": ""
+ },
+ {
+  "id": "ing_pane_toast",
+  "nome": "Pane per toast",
+  "macro": "carboidrato",
+  "unita": "g",
+  "reparto": "panetteria",
+  "formatoAcquisto": {
+   "qta": 400,
+   "label": "confezione da ~400 g"
+  },
+  "conversioni": [
+   {
+    "label": "fetta",
+    "fattore": 25
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_base_pizza",
+  "nome": "Base per pizza",
+  "macro": "carboidrato",
+  "unita": "pz",
+  "reparto": "panetteria",
+  "formatoAcquisto": {
+   "qta": 2,
+   "label": "confezione da 2"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": "la base pronta, da farcire"
+ },
+ {
+  "id": "ing_focaccia",
+  "nome": "Focaccia",
+  "macro": "carboidrato",
+  "unita": "g",
+  "reparto": "panetteria",
+  "formatoAcquisto": {
+   "qta": 300,
+   "label": "teglia da ~300 g"
+  },
+  "conversioni": [
+   {
+    "label": "pezzo",
+    "fattore": 120
+   }
+  ],
+  "stagioni": [],
+  "note": ""
+ },
+ {
+  "id": "ing_tortilla",
+  "nome": "Tortilla di grano",
+  "macro": "carboidrato",
+  "unita": "pz",
+  "reparto": "panetteria",
+  "formatoAcquisto": {
+   "qta": 6,
+   "label": "confezione da 6"
+  },
+  "conversioni": [],
+  "stagioni": [],
+  "note": "per i wrap"
  },
  {
   "id": "ing_gnocchi",
@@ -1076,6 +1202,20 @@
    1,
    2
   ],
+  "note": ""
+ },
+ {
+  "id": "ing_bietole",
+  "nome": "Bietole",
+  "macro": "fibra",
+  "unita": "g",
+  "reparto": "ortofrutta",
+  "formatoAcquisto": {
+   "qta": 500,
+   "label": "mazzo da ~500 g"
+  },
+  "conversioni": [],
+  "stagioni": [],
   "note": ""
  },
  {
@@ -1725,6 +1865,25 @@
   "stagioni": [],
   "note": "",
   "dispensaBase": true
+ },
+ {
+  "id": "ing_maionese",
+  "nome": "Maionese",
+  "macro": "condimento",
+  "unita": "g",
+  "reparto": "dispensa",
+  "formatoAcquisto": {
+   "qta": 180,
+   "label": "tubetto da 180 g"
+  },
+  "conversioni": [
+   {
+    "label": "cucchiaio",
+    "fattore": 15
+   }
+  ],
+  "stagioni": [],
+  "note": ""
  },
  {
   "id": "ing_olive",

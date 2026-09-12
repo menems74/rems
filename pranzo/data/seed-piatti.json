@@ -3570,5 +3570,2699 @@
    "autunno"
   ],
   "attivo": true
+ },
+ {
+  "id": "pia_toast_cotto_insalata",
+  "nome": "Toast prosciutto e formaggio con insalata",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_pane_toast",
+    "qta": 2,
+    "unita": "fetta"
+   },
+   {
+    "ingredienteId": "ing_prosciutto_cotto",
+    "qta": 4,
+    "unita": "fetta"
+   },
+   {
+    "ingredienteId": "ing_formaggio_fette",
+    "qta": 2,
+    "unita": "fetta"
+   },
+   {
+    "ingredienteId": "ing_insalata",
+    "qta": 80,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 10,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Farcisci due fette di pane con prosciutto e formaggio.",
+   "Tosta in padella o nel tostapane finché il formaggio fila.",
+   "Servi con l'insalata condita con olio e sale."
+  ],
+  "origine": "base",
+  "tags": [
+   "veloce",
+   "semplice"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_toast_tonno_pomodorini",
+  "nome": "Toast con tonno e pomodorini",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_pane_toast",
+    "qta": 2,
+    "unita": "fetta"
+   },
+   {
+    "ingredienteId": "ing_tonno_scatola",
+    "qta": 1,
+    "unita": "scatoletta"
+   },
+   {
+    "ingredienteId": "ing_pomodorini",
+    "qta": 120,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_maionese",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 10,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Schiaccia il tonno sgocciolato con la maionese.",
+   "Farcisci il pane con il tonno e i pomodorini a fettine.",
+   "Tosta due minuti per lato."
+  ],
+  "origine": "base",
+  "tags": [
+   "veloce"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_pizza_margherita",
+  "nome": "Pizza margherita",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_base_pizza",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_passata",
+    "qta": 100,
+    "unita": "ml"
+   },
+   {
+    "ingredienteId": "ing_mozzarella",
+    "qta": 1,
+    "unita": "mozzarella"
+   },
+   {
+    "ingredienteId": "ing_basilico",
+    "qta": 3,
+    "unita": "foglie"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 25,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Stendi la passata sulla base, sale e un filo d'olio.",
+   "Forno a 220° per 12 minuti.",
+   "Aggiungi la mozzarella a fette e rimetti dentro 5 minuti; basilico all'uscita."
+  ],
+  "origine": "base",
+  "tags": [
+   "forno",
+   "semplice"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_pizza_zucchine_scamorza",
+  "nome": "Pizza con zucchine e scamorza",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_base_pizza",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_passata",
+    "qta": 80,
+    "unita": "ml"
+   },
+   {
+    "ingredienteId": "ing_scamorza",
+    "qta": 100,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_zucchine",
+    "qta": 120,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 30,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Affetta le zucchine sottili e saltale due minuti in padella con l'olio.",
+   "Stendi la passata sulla base e inforna a 220° per 12 minuti.",
+   "Aggiungi zucchine e scamorza a dadini, altri 6 minuti."
+  ],
+  "origine": "base",
+  "tags": [
+   "forno",
+   "semplice"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_pizza_tonno_cipolla",
+  "nome": "Pizza con tonno e cipolla",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_base_pizza",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_passata",
+    "qta": 100,
+    "unita": "ml"
+   },
+   {
+    "ingredienteId": "ing_tonno_scatola",
+    "qta": 1,
+    "unita": "scatoletta"
+   },
+   {
+    "ingredienteId": "ing_mozzarella",
+    "qta": 60,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_cipolla_rossa",
+    "qta": 0.5,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 25,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Condisci la base con passata, sale e olio; forno a 220° per 12 minuti.",
+   "Distribuisci tonno, mozzarella e cipolla a velo.",
+   "Rimetti in forno 6 minuti."
+  ],
+  "origine": "base",
+  "tags": [
+   "forno",
+   "semplice"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_piadina_crudo_stracchino",
+  "nome": "Piadina con crudo e stracchino",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_piadina",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_prosciutto_crudo",
+    "qta": 4,
+    "unita": "fetta"
+   },
+   {
+    "ingredienteId": "ing_stracchino",
+    "qta": 50,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_rucola",
+    "qta": 40,
+    "unita": "g"
+   }
+  ],
+  "tempoMin": 10,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Scalda la piadina un minuto per lato.",
+   "Spalma lo stracchino, aggiungi crudo e rucola, piega a metà."
+  ],
+  "origine": "base",
+  "tags": [
+   "veloce",
+   "semplice"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_piadina_pollo_insalata",
+  "nome": "Piadina con pollo e insalata",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_piadina",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_pollo_petto",
+    "qta": 120,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_insalata",
+    "qta": 60,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_maionese",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 20,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Cuoci il pollo a striscioline in padella con olio e sale, 8 minuti.",
+   "Scalda la piadina, spalma la maionese e farcisci con pollo e insalata."
+  ],
+  "origine": "base",
+  "tags": [
+   "veloce",
+   "semplice"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_piadina_zucchine_feta",
+  "nome": "Piadina con zucchine grigliate e feta",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_piadina",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_zucchine",
+    "qta": 1,
+    "unita": "zucchina"
+   },
+   {
+    "ingredienteId": "ing_feta",
+    "qta": 90,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 20,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Griglia le zucchine a fette in padella rovente, sale e olio.",
+   "Scalda la piadina e farcisci con zucchine e feta sbriciolata."
+  ],
+  "origine": "base",
+  "tags": [
+   "semplice"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_wrap_pollo_verdure",
+  "nome": "Wrap di pollo e verdure",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_tortilla",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_pollo_petto",
+    "qta": 120,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_insalata",
+    "qta": 50,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_pomodorini",
+    "qta": 60,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_maionese",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 20,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Rosola il pollo a striscioline con olio, sale e pepe.",
+   "Scalda la tortilla 30 secondi per lato.",
+   "Farcisci con maionese, pollo, insalata e pomodorini; arrotola stretto."
+  ],
+  "origine": "base",
+  "tags": [
+   "veloce",
+   "semplice"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_wrap_ceci_verdure",
+  "nome": "Wrap di ceci e verdure",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_tortilla",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_ceci_lessati",
+    "qta": 1,
+    "unita": "barattolo"
+   },
+   {
+    "ingredienteId": "ing_insalata",
+    "qta": 50,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_pomodorini",
+    "qta": 60,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_paprika",
+    "qta": 1,
+    "unita": "cucchiaino"
+   }
+  ],
+  "tempoMin": 15,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Schiaccia metà dei ceci con olio, paprika e sale, lascia interi gli altri.",
+   "Scalda la tortilla e farcisci con ceci, insalata e pomodorini; arrotola."
+  ],
+  "origine": "base",
+  "tags": [
+   "veloce",
+   "semplice",
+   "senza carne"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_focaccia_stracchino_rucola",
+  "nome": "Focaccia con stracchino e rucola",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_focaccia",
+    "qta": 1,
+    "unita": "pezzo"
+   },
+   {
+    "ingredienteId": "ing_stracchino",
+    "qta": 80,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_rucola",
+    "qta": 40,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 10,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Apri la focaccia a libro e scaldala un minuto in padella.",
+   "Spalma lo stracchino, aggiungi la rucola e un filo d'olio."
+  ],
+  "origine": "base",
+  "tags": [
+   "veloce",
+   "semplice"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_crespelle_prosciutto_spinaci",
+  "nome": "Crespelle con prosciutto e spinaci",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_farina",
+    "qta": 60,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_latte",
+    "qta": 150,
+    "unita": "ml"
+   },
+   {
+    "ingredienteId": "ing_uova",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_prosciutto_cotto",
+    "qta": 80,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_spinaci",
+    "qta": 100,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_burro",
+    "qta": 1,
+    "unita": "noce"
+   },
+   {
+    "ingredienteId": "ing_parmigiano",
+    "qta": 2,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 35,
+  "difficolta": 2,
+  "stagioni": [],
+  "passi": [
+   "Sbatti uovo, farina e latte e lascia riposare la pastella 10 minuti.",
+   "Stufa gli spinaci con il burro e un pizzico di sale.",
+   "Cuoci due crespelle in padella, farciscile con prosciutto e spinaci, chiudile e gratinale col parmigiano."
+  ],
+  "origine": "base",
+  "tags": [
+   "comfort"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_bruschette_pomodoro_mozzarella",
+  "nome": "Bruschette con pomodoro e mozzarella",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_pane",
+    "qta": 2,
+    "unita": "fetta"
+   },
+   {
+    "ingredienteId": "ing_pomodori",
+    "qta": 150,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_mozzarella",
+    "qta": 1,
+    "unita": "mozzarella"
+   },
+   {
+    "ingredienteId": "ing_basilico",
+    "qta": 3,
+    "unita": "foglie"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_aglio",
+    "qta": 1,
+    "unita": "pz"
+   }
+  ],
+  "tempoMin": 15,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Tosta il pane e strofinalo con l'aglio.",
+   "Condisci i pomodori a cubetti con olio, sale e basilico.",
+   "Distribuisci pomodori e mozzarella a fette sul pane."
+  ],
+  "origine": "base",
+  "tags": [
+   "estate",
+   "semplice"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_panino_wurstel_insalata",
+  "nome": "Panino con würstel e insalata",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_pane",
+    "qta": 2,
+    "unita": "fetta"
+   },
+   {
+    "ingredienteId": "ing_wurstel",
+    "qta": 2,
+    "unita": "wurstel"
+   },
+   {
+    "ingredienteId": "ing_insalata",
+    "qta": 60,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_senape",
+    "qta": 1,
+    "unita": "cucchiaino"
+   }
+  ],
+  "tempoMin": 15,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Scalda i würstel in acqua che sfiora il bollore per 6 minuti.",
+   "Tosta il pane, spalma la senape e componi con würstel e insalata."
+  ],
+  "origine": "base",
+  "tags": [
+   "veloce",
+   "semplice"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_vellutata_patate_broccoli",
+  "nome": "Vellutata di patate e broccoli",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_patate",
+    "qta": 200,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_broccoli",
+    "qta": 150,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_latte",
+    "qta": 150,
+    "unita": "ml"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_noce_moscata",
+    "qta": 1,
+    "unita": "grattata"
+   }
+  ],
+  "tempoMin": 35,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Lessa patate a cubetti e cime di broccolo in acqua salata, 20 minuti.",
+   "Frulla con il latte caldo fino a farla liscia.",
+   "Aggiusta di sale, noce moscata e un filo d'olio a crudo."
+  ],
+  "origine": "base",
+  "tags": [
+   "zuppa",
+   "inverno"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_zuppa_cannellini_verza",
+  "nome": "Zuppa di cannellini e verza",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_cannellini",
+    "qta": 1,
+    "unita": "barattolo"
+   },
+   {
+    "ingredienteId": "ing_verza",
+    "qta": 150,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_carote",
+    "qta": 1,
+    "unita": "carota"
+   },
+   {
+    "ingredienteId": "ing_pane",
+    "qta": 1,
+    "unita": "fetta"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_rosmarino",
+    "qta": 1,
+    "unita": "rametto"
+   }
+  ],
+  "tempoMin": 35,
+  "difficolta": 2,
+  "stagioni": [],
+  "passi": [
+   "Stufa verza e carota a listarelle con l'olio e il rosmarino.",
+   "Aggiungi i cannellini sciacquati e acqua a coprire, cuoci 20 minuti.",
+   "Frulla un mestolo di zuppa per addensarla e servi col pane tostato."
+  ],
+  "origine": "base",
+  "tags": [
+   "zuppa",
+   "inverno"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_minestra_uovo_parmigiano",
+  "nome": "Minestra di verdure con uovo",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_minestrone",
+    "qta": 150,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_pasta_corta",
+    "qta": 60,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_uova",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_parmigiano",
+    "qta": 2,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_brodo_granulare",
+    "qta": 1,
+    "unita": "cucchiaino"
+   }
+  ],
+  "tempoMin": 25,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Cuoci il misto per minestrone nel brodo per 15 minuti.",
+   "Butta la pasta e finisci la cottura.",
+   "Sbatti l'uovo col parmigiano e versalo a filo mescolando, come una stracciatella."
+  ],
+  "origine": "base",
+  "tags": [
+   "zuppa",
+   "veloce"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_crema_piselli_uovo",
+  "nome": "Crema di piselli con uovo",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_piselli",
+    "qta": 200,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_patate",
+    "qta": 150,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_uova",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_cipolla",
+    "qta": 0.5,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 30,
+  "difficolta": 2,
+  "stagioni": [],
+  "passi": [
+   "Stufa la cipolla, aggiungi piselli e patate a cubetti e acqua a coprire; 20 minuti.",
+   "Frulla la crema e aggiusta di sale.",
+   "Cuoci l'uovo in camicia in acqua appena sobbollente per 3 minuti e appoggialo sulla crema."
+  ],
+  "origine": "base",
+  "tags": [
+   "zuppa"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_vellutata_carote_lenticchie",
+  "nome": "Vellutata di carote e lenticchie",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_carote",
+    "qta": 250,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_lenticchie",
+    "qta": 80,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_patate",
+    "qta": 100,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_curry",
+    "qta": 1,
+    "unita": "cucchiaino"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 40,
+  "difficolta": 2,
+  "stagioni": [],
+  "passi": [
+   "Metti carote a rondelle, lenticchie sciacquate e patata a cubetti in pentola con acqua a coprire.",
+   "Cuoci 30 minuti, poi frulla con il curry e un filo d'olio."
+  ],
+  "origine": "base",
+  "tags": [
+   "zuppa",
+   "senza carne"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_insalata_greca_pane",
+  "nome": "Insalata greca con pane",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_feta",
+    "qta": 100,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_cetriolo",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_pomodori",
+    "qta": 150,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_olive",
+    "qta": 20,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_pane",
+    "qta": 1,
+    "unita": "fetta"
+   },
+   {
+    "ingredienteId": "ing_origano",
+    "qta": 1,
+    "unita": "pizzico"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 15,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Taglia cetriolo e pomodori a pezzi grossi.",
+   "Aggiungi feta a cubi, olive, olio, origano e sale; niente aceto.",
+   "Servi con il pane."
+  ],
+  "origine": "base",
+  "tags": [
+   "freddo",
+   "estate",
+   "senza cottura"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_insalata_tonno_cannellini",
+  "nome": "Insalata di tonno e cannellini",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_cannellini",
+    "qta": 1,
+    "unita": "barattolo"
+   },
+   {
+    "ingredienteId": "ing_tonno_scatola",
+    "qta": 1,
+    "unita": "scatoletta"
+   },
+   {
+    "ingredienteId": "ing_pomodorini",
+    "qta": 100,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_cipolla_rossa",
+    "qta": 0.5,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_pane",
+    "qta": 1,
+    "unita": "fetta"
+   },
+   {
+    "ingredienteId": "ing_prezzemolo",
+    "qta": 1,
+    "unita": "mazzetto"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 10,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Sciacqua i cannellini e mettili in una ciotola col tonno sgocciolato.",
+   "Aggiungi i pomodorini a metà, la cipolla a velo, prezzemolo, olio e sale.",
+   "Lascia insaporire 5 minuti e servi col pane."
+  ],
+  "origine": "base",
+  "tags": [
+   "freddo",
+   "veloce",
+   "senza cottura"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_farro_freddo_mozzarella",
+  "nome": "Farro freddo con pomodorini e mozzarella",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_farro",
+    "qta": 80,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_pomodorini",
+    "qta": 150,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_mozzarella",
+    "qta": 1,
+    "unita": "mozzarella"
+   },
+   {
+    "ingredienteId": "ing_basilico",
+    "qta": 3,
+    "unita": "foglie"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 25,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Lessa il farro, scolalo e raffreddalo sotto l'acqua.",
+   "Condisci con pomodorini a metà, mozzarella a cubetti, olio, sale e basilico."
+  ],
+  "origine": "base",
+  "tags": [
+   "freddo",
+   "estate"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_cous_cous_freddo_tonno",
+  "nome": "Cous cous freddo con tonno e verdure",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_cous_cous",
+    "qta": 80,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_tonno_scatola",
+    "qta": 1,
+    "unita": "scatoletta"
+   },
+   {
+    "ingredienteId": "ing_zucchine",
+    "qta": 120,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_pomodorini",
+    "qta": 80,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_limone",
+    "qta": 0.5,
+    "unita": "pz"
+   }
+  ],
+  "tempoMin": 20,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Idrata il cous cous con acqua bollente salata e sgranalo con la forchetta.",
+   "Salta le zucchine a dadini due minuti, devono restare sode.",
+   "Mescola tutto col tonno, i pomodorini, olio e succo di limone."
+  ],
+  "origine": "base",
+  "tags": [
+   "freddo",
+   "veloce"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_insalata_spinaci_uova_noci",
+  "nome": "Insalata di spinaci, uova e noci",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_spinaci",
+    "qta": 100,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_uova",
+    "qta": 2,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_noci",
+    "qta": 20,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_pane",
+    "qta": 1,
+    "unita": "fetta"
+   },
+   {
+    "ingredienteId": "ing_balsamico",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 15,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Rassoda le uova in 9 minuti, raffreddale e tagliale a spicchi.",
+   "Condisci gli spinaci crudi con olio, balsamico e sale.",
+   "Aggiungi uova e noci spezzettate, servi col pane tostato."
+  ],
+  "origine": "base",
+  "tags": [
+   "freddo",
+   "veloce"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_panzanella_mozzarella",
+  "nome": "Panzanella con mozzarella",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_pane",
+    "qta": 2,
+    "unita": "fetta"
+   },
+   {
+    "ingredienteId": "ing_pomodori",
+    "qta": 200,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_cetriolo",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_mozzarella",
+    "qta": 1,
+    "unita": "mozzarella"
+   },
+   {
+    "ingredienteId": "ing_cipolla_rossa",
+    "qta": 0.5,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_basilico",
+    "qta": 3,
+    "unita": "foglie"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_aceto",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 20,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Bagna il pane raffermo in acqua e aceto, strizzalo e sbriciolalo.",
+   "Unisci pomodori, cetriolo e cipolla tagliati grossolanamente.",
+   "Aggiungi mozzarella a cubetti, olio, sale e basilico; 10 minuti in frigo."
+  ],
+  "origine": "base",
+  "tags": [
+   "freddo",
+   "estate"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_omelette_funghi_formaggio",
+  "nome": "Omelette ai funghi con pane",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_uova",
+    "qta": 3,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_funghi",
+    "qta": 150,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_formaggio_fette",
+    "qta": 2,
+    "unita": "fetta"
+   },
+   {
+    "ingredienteId": "ing_pane",
+    "qta": 1,
+    "unita": "fetta"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 20,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Salta i funghi a fette a fuoco vivo finché perdono l'acqua, poi sala.",
+   "Versa le uova sbattute, abbassa la fiamma e appoggia il formaggio al centro.",
+   "Piega l'omelette a mezzaluna e servi col pane."
+  ],
+  "origine": "base",
+  "tags": [
+   "padella",
+   "veloce"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_uova_tegamino_asparagi",
+  "nome": "Uova al tegamino con asparagi",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_uova",
+    "qta": 2,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_asparagi",
+    "qta": 150,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_pane",
+    "qta": 1,
+    "unita": "fetta"
+   },
+   {
+    "ingredienteId": "ing_parmigiano",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 15,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Scotta gli asparagi 6 minuti e tagliali a pezzi.",
+   "Saltali in padella con l'olio, fai due buche e rompici le uova.",
+   "Coperchio e 4 minuti: l'albume rappreso, il tuorlo morbido. Parmigiano e pane."
+  ],
+  "origine": "base",
+  "tags": [
+   "padella",
+   "primavera"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_frittata_bietole",
+  "nome": "Frittata di bietole",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_uova",
+    "qta": 3,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_bietole",
+    "qta": 200,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_pane",
+    "qta": 1,
+    "unita": "fetta"
+   },
+   {
+    "ingredienteId": "ing_parmigiano",
+    "qta": 2,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 20,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Lessa le bietole 8 minuti, strizzale bene e tritale.",
+   "Sbattile con le uova, il parmigiano e il sale.",
+   "Cuoci in padella 4 minuti per lato. Servi con il pane."
+  ],
+  "origine": "base",
+  "tags": [
+   "padella"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_scamorza_funghi_pane",
+  "nome": "Scamorza filante con funghi",
+  "tipo": "unico",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_scamorza",
+    "qta": 120,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_funghi",
+    "qta": 150,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_pane",
+    "qta": 1,
+    "unita": "fetta"
+   },
+   {
+    "ingredienteId": "ing_aglio",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_prezzemolo",
+    "qta": 1,
+    "unita": "mazzetto"
+   }
+  ],
+  "tempoMin": 20,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Trifola i funghi con aglio e olio, finisci col prezzemolo.",
+   "Appoggia la scamorza a fette in padella calda finché fila.",
+   "Servi sui funghi con il pane abbrustolito."
+  ],
+  "origine": "base",
+  "tags": [
+   "padella",
+   "comfort"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_platessa_limone",
+  "nome": "Platessa al limone in padella",
+  "tipo": "secondo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_platessa",
+    "qta": 1,
+    "unita": "filetto"
+   },
+   {
+    "ingredienteId": "ing_limone",
+    "qta": 0.5,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_farina",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_prezzemolo",
+    "qta": 1,
+    "unita": "mazzetto"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 12,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Infarina leggermente il filetto.",
+   "Padella calda con l'olio, 3 minuti per lato.",
+   "Spegni, sfuma col succo di limone e finisci col prezzemolo."
+  ],
+  "origine": "base",
+  "tags": [
+   "padella",
+   "veloce"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_merluzzo_pomodorini_olive",
+  "nome": "Merluzzo con pomodorini e olive",
+  "tipo": "secondo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_merluzzo_filetto",
+    "qta": 1,
+    "unita": "filetto"
+   },
+   {
+    "ingredienteId": "ing_pomodorini",
+    "qta": 120,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_olive",
+    "qta": 20,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_origano",
+    "qta": 1,
+    "unita": "pizzico"
+   }
+  ],
+  "tempoMin": 25,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Scalda i pomodorini tagliati a metà con l'olio e le olive, 5 minuti.",
+   "Appoggia il filetto sopra, coperchio, 10 minuti a fuoco basso.",
+   "Origano e sale a fine cottura."
+  ],
+  "origine": "base",
+  "tags": [
+   "padella"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_salmone_sesamo",
+  "nome": "Salmone al sesamo in padella",
+  "tipo": "secondo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_salmone_filetto",
+    "qta": 1,
+    "unita": "filetto"
+   },
+   {
+    "ingredienteId": "ing_sesamo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_limone",
+    "qta": 0.5,
+    "unita": "pz"
+   }
+  ],
+  "tempoMin": 15,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Premi il sesamo sulla parte senza pelle del filetto.",
+   "Padella ben calda con l'olio: 4 minuti dal lato della pelle, 2 dall'altro.",
+   "Sale e limone all'uscita."
+  ],
+  "origine": "base",
+  "tags": [
+   "padella",
+   "veloce"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_polpette_tonno",
+  "nome": "Polpette di tonno al forno",
+  "tipo": "secondo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_tonno_scatola",
+    "qta": 2,
+    "unita": "scatoletta"
+   },
+   {
+    "ingredienteId": "ing_pangrattato",
+    "qta": 3,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_uova",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_prezzemolo",
+    "qta": 1,
+    "unita": "mazzetto"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 30,
+  "difficolta": 2,
+  "stagioni": [],
+  "passi": [
+   "Impasta tonno sgocciolato, pangrattato, uovo e prezzemolo.",
+   "Forma sei polpette schiacciate e disponile su carta forno con un filo d'olio.",
+   "Forno a 200° per 18 minuti, girandole a metà."
+  ],
+  "origine": "base",
+  "tags": [
+   "forno"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_pollo_senape",
+  "nome": "Pollo alla senape",
+  "tipo": "secondo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_pollo_petto",
+    "qta": 150,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_senape",
+    "qta": 1,
+    "unita": "cucchiaino"
+   },
+   {
+    "ingredienteId": "ing_vino_bianco",
+    "qta": 0.5,
+    "unita": "bicchiere"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 20,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Rosola il pollo a fettine nell'olio, 3 minuti per lato.",
+   "Sfuma col vino, aggiungi la senape sciolta in due cucchiai d'acqua.",
+   "Fai restringere 5 minuti finché la salsa vela il pollo."
+  ],
+  "origine": "base",
+  "tags": [
+   "padella"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_pollo_yogurt_curry",
+  "nome": "Pollo allo yogurt e curry",
+  "tipo": "secondo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_pollo_petto",
+    "qta": 150,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_yogurt_greco",
+    "qta": 1,
+    "unita": "vasetto"
+   },
+   {
+    "ingredienteId": "ing_curry",
+    "qta": 1,
+    "unita": "cucchiaino"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 25,
+  "difficolta": 2,
+  "stagioni": [],
+  "passi": [
+   "Marina il pollo a bocconcini con metà yogurt, il curry e il sale, 10 minuti.",
+   "Rosolalo in padella con l'olio a fuoco vivo, 6 minuti.",
+   "Spegni e manteca con lo yogurt rimasto."
+  ],
+  "origine": "base",
+  "tags": [
+   "padella"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_tacchino_limone_capperi",
+  "nome": "Tacchino al limone e capperi",
+  "tipo": "secondo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_tacchino_fesa",
+    "qta": 1,
+    "unita": "fetta"
+   },
+   {
+    "ingredienteId": "ing_capperi",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_limone",
+    "qta": 0.5,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_farina",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 15,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Infarina le fettine e rosolale due minuti per lato.",
+   "Aggiungi capperi dissalati e succo di limone con poca acqua.",
+   "Fai addensare un minuto e servi."
+  ],
+  "origine": "base",
+  "tags": [
+   "padella",
+   "veloce"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_hamburger_manzo",
+  "nome": "Hamburger di manzo in padella",
+  "tipo": "secondo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_manzo_macinato",
+    "qta": 150,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_pangrattato",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_senape",
+    "qta": 1,
+    "unita": "cucchiaino"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 15,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Impasta il macinato con pangrattato, senape e sale; forma due hamburger.",
+   "Padella rovente con poco olio: 4 minuti per lato, senza schiacciarli."
+  ],
+  "origine": "base",
+  "tags": [
+   "padella",
+   "veloce"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_lonza_salvia",
+  "nome": "Lonza alla salvia",
+  "tipo": "secondo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_maiale_lonza",
+    "qta": 1,
+    "unita": "fetta"
+   },
+   {
+    "ingredienteId": "ing_salvia",
+    "qta": 3,
+    "unita": "foglia"
+   },
+   {
+    "ingredienteId": "ing_burro",
+    "qta": 1,
+    "unita": "noce"
+   },
+   {
+    "ingredienteId": "ing_vino_bianco",
+    "qta": 0.5,
+    "unita": "bicchiere"
+   }
+  ],
+  "tempoMin": 20,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Rosola la lonza nel burro con la salvia, 3 minuti per lato.",
+   "Sfuma col vino e lascia evaporare.",
+   "Sale, e un cucchiaio d'acqua se il fondo asciuga troppo."
+  ],
+  "origine": "base",
+  "tags": [
+   "padella"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_frittata_ricotta_erbe",
+  "nome": "Frittata con ricotta ed erbe",
+  "tipo": "secondo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_uova",
+    "qta": 3,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_ricotta",
+    "qta": 80,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_prezzemolo",
+    "qta": 1,
+    "unita": "mazzetto"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 15,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Sbatti le uova con il sale, poi unisci la ricotta a fiocchi e il prezzemolo.",
+   "Cuoci in padella a fuoco basso 5 minuti, gira e finisci in altri 2."
+  ],
+  "origine": "base",
+  "tags": [
+   "padella",
+   "veloce"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_tofu_sesamo",
+  "nome": "Tofu saltato al sesamo",
+  "tipo": "secondo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_tofu",
+    "qta": 1,
+    "unita": "panetto"
+   },
+   {
+    "ingredienteId": "ing_sesamo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_balsamico",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 15,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Asciuga il tofu e taglialo a cubi.",
+   "Saltalo in padella con l'olio finché è dorato su tutti i lati.",
+   "Spegni, aggiungi balsamico e sesamo e fai velare."
+  ],
+  "origine": "base",
+  "tags": [
+   "padella",
+   "senza carne"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_ceci_forno_paprika",
+  "nome": "Ceci croccanti al forno",
+  "tipo": "secondo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_ceci_lessati",
+    "qta": 1,
+    "unita": "barattolo"
+   },
+   {
+    "ingredienteId": "ing_paprika",
+    "qta": 1,
+    "unita": "cucchiaino"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 30,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Sciacqua e asciuga bene i ceci.",
+   "Condiscili con olio, paprika e sale e stendili in teglia.",
+   "Forno a 200° per 25 minuti, scuotendo la teglia ogni tanto."
+  ],
+  "origine": "base",
+  "tags": [
+   "forno",
+   "senza carne"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_sgombro_limone",
+  "nome": "Sgombro al limone e prezzemolo",
+  "tipo": "secondo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_sgombro_scatola",
+    "qta": 1,
+    "unita": "scatoletta"
+   },
+   {
+    "ingredienteId": "ing_limone",
+    "qta": 0.5,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_prezzemolo",
+    "qta": 1,
+    "unita": "mazzetto"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 8,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Sgocciola lo sgombro e disponilo nel piatto.",
+   "Condisci con succo di limone, prezzemolo tritato, olio e pepe."
+  ],
+  "origine": "base",
+  "tags": [
+   "senza cottura",
+   "veloce"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_salmone_affumicato_stracchino",
+  "nome": "Salmone affumicato con stracchino",
+  "tipo": "secondo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_salmone_affumicato",
+    "qta": 100,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_stracchino",
+    "qta": 50,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_limone",
+    "qta": 0.5,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_pepe",
+    "qta": 1,
+    "unita": "g"
+   }
+  ],
+  "tempoMin": 8,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Stendi le fette di salmone nel piatto.",
+   "Aggiungi lo stracchino a cucchiaiate, pepe e qualche goccia di limone."
+  ],
+  "origine": "base",
+  "tags": [
+   "senza cottura",
+   "veloce"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_alici_marinate_limone",
+  "nome": "Alici marinate con prezzemolo",
+  "tipo": "secondo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_alici_marinate",
+    "qta": 100,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_prezzemolo",
+    "qta": 1,
+    "unita": "mazzetto"
+   },
+   {
+    "ingredienteId": "ing_limone",
+    "qta": 0.5,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 8,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Disponi le alici a raggiera nel piatto.",
+   "Olio, prezzemolo e limone; lasciale prendere sapore cinque minuti."
+  ],
+  "origine": "base",
+  "tags": [
+   "senza cottura",
+   "veloce"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_bietole_padella",
+  "nome": "Bietole saltate in padella",
+  "tipo": "contorno",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_bietole",
+    "qta": 250,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_aglio",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 20,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Lessa le bietole 8 minuti e strizzale.",
+   "Saltale in padella con aglio e olio per 5 minuti, poi sala."
+  ],
+  "origine": "base",
+  "tags": [
+   "padella"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_asparagi_forno",
+  "nome": "Asparagi al forno",
+  "tipo": "contorno",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_asparagi",
+    "qta": 250,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_parmigiano",
+    "qta": 2,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 20,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Elimina la parte dura del gambo e disponi gli asparagi in teglia.",
+   "Olio, sale e forno a 200° per 15 minuti; parmigiano negli ultimi 3."
+  ],
+  "origine": "base",
+  "tags": [
+   "forno",
+   "primavera"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_carciofi_trifolati",
+  "nome": "Carciofi trifolati",
+  "tipo": "contorno",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_carciofi",
+    "qta": 2,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_aglio",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_prezzemolo",
+    "qta": 1,
+    "unita": "mazzetto"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 30,
+  "difficolta": 2,
+  "stagioni": [],
+  "passi": [
+   "Pulisci i carciofi e tagliali a spicchi sottili.",
+   "Rosolali con aglio e olio, poi mezzo bicchiere d'acqua e coperchio, 20 minuti.",
+   "Sale e prezzemolo a fine cottura."
+  ],
+  "origine": "base",
+  "tags": [
+   "padella",
+   "inverno"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_piselli_cipolla",
+  "nome": "Piselli in padella con cipolla",
+  "tipo": "contorno",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_piselli",
+    "qta": 200,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_cipolla",
+    "qta": 0.5,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 20,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Stufa la cipolla tritata con l'olio.",
+   "Aggiungi i piselli e mezzo bicchiere d'acqua, coperchio, 15 minuti."
+  ],
+  "origine": "base",
+  "tags": [
+   "padella"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_zucchine_grigliate",
+  "nome": "Zucchine grigliate",
+  "tipo": "contorno",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_zucchine",
+    "qta": 250,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_basilico",
+    "qta": 3,
+    "unita": "foglie"
+   }
+  ],
+  "tempoMin": 15,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Taglia le zucchine a fette per il lungo.",
+   "Griglia in padella rovente 2 minuti per lato.",
+   "Condisci con olio, sale e basilico spezzettato a mano."
+  ],
+  "origine": "base",
+  "tags": [
+   "veloce"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_cetrioli_yogurt",
+  "nome": "Insalata di cetrioli allo yogurt",
+  "tipo": "contorno",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_cetriolo",
+    "qta": 2,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_yogurt_greco",
+    "qta": 1,
+    "unita": "vasetto"
+   },
+   {
+    "ingredienteId": "ing_aglio",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 10,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Affetta i cetrioli sottili e salali, lasciali perdere acqua 5 minuti.",
+   "Mescola lo yogurt con aglio schiacciato, olio e sale e condisci."
+  ],
+  "origine": "base",
+  "tags": [
+   "freddo",
+   "estate",
+   "senza cottura"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_rucola_grana_balsamico",
+  "nome": "Rucola con grana e balsamico",
+  "tipo": "contorno",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_rucola",
+    "qta": 80,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_parmigiano",
+    "qta": 2,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_balsamico",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 5,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Condisci la rucola con olio, sale e balsamico.",
+   "Completa con le scaglie di grana."
+  ],
+  "origine": "base",
+  "tags": [
+   "senza cottura",
+   "veloce"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_cicoria_ripassata",
+  "nome": "Cicoria ripassata in padella",
+  "tipo": "contorno",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_cicoria",
+    "qta": 250,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_aglio",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_peperoncino",
+    "qta": 1,
+    "unita": "pizzico"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 25,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Lessa la cicoria 10 minuti e strizzala.",
+   "Ripassala in padella con aglio, peperoncino e olio per 5 minuti."
+  ],
+  "origine": "base",
+  "tags": [
+   "padella",
+   "inverno"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_verdure_miste_forno",
+  "nome": "Verdure miste al forno",
+  "tipo": "contorno",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_zucchine",
+    "qta": 200,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_carote",
+    "qta": 2,
+    "unita": "carota"
+   },
+   {
+    "ingredienteId": "ing_cipolla",
+    "qta": 0.5,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_rosmarino",
+    "qta": 1,
+    "unita": "rametto"
+   }
+  ],
+  "tempoMin": 30,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Taglia tutte le verdure a pezzi della stessa misura.",
+   "Condisci con olio, sale e rosmarino e stendile in teglia.",
+   "Forno a 200° per 25 minuti, girando una volta."
+  ],
+  "origine": "base",
+  "tags": [
+   "forno"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_fagiolini_pomodorini",
+  "nome": "Fagiolini con pomodorini",
+  "tipo": "contorno",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_fagiolini",
+    "qta": 200,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_pomodorini",
+    "qta": 100,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_aglio",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 25,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Lessa i fagiolini 12 minuti e scolali.",
+   "Saltali in padella con aglio, olio e i pomodorini tagliati a metà, 5 minuti."
+  ],
+  "origine": "base",
+  "tags": [
+   "padella",
+   "estate"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_pasta_zucchine_ricotta",
+  "nome": "Pasta con zucchine e ricotta",
+  "tipo": "primo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_pasta_corta",
+    "qta": 90,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_zucchine",
+    "qta": 1,
+    "unita": "zucchina"
+   },
+   {
+    "ingredienteId": "ing_ricotta",
+    "qta": 80,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_basilico",
+    "qta": 3,
+    "unita": "foglie"
+   }
+  ],
+  "tempoMin": 20,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Salta le zucchine a rondelle con l'olio finché sono dorate.",
+   "Stempera la ricotta con due cucchiai d'acqua di cottura.",
+   "Manteca la pasta con zucchine e ricotta, basilico all'ultimo."
+  ],
+  "origine": "base",
+  "tags": [
+   "veloce"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_riso_limone",
+  "nome": "Riso al limone",
+  "tipo": "primo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_riso",
+    "qta": 90,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_limone",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_parmigiano",
+    "qta": 2,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_burro",
+    "qta": 1,
+    "unita": "noce"
+   }
+  ],
+  "tempoMin": 25,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Lessa il riso in acqua salata.",
+   "Scolalo e mantecalo con burro, parmigiano, succo e scorza di limone."
+  ],
+  "origine": "base",
+  "tags": [
+   "veloce"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_pasta_pomodorini_stracchino",
+  "nome": "Pasta con pomodorini e stracchino",
+  "tipo": "primo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_pasta_corta",
+    "qta": 90,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_pomodorini",
+    "qta": 150,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_stracchino",
+    "qta": 60,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_basilico",
+    "qta": 3,
+    "unita": "foglie"
+   }
+  ],
+  "tempoMin": 20,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Fai appassire i pomodorini in padella con l'olio, 8 minuti.",
+   "Sciogli lo stracchino con un mestolo d'acqua di cottura.",
+   "Manteca la pasta nella crema e finisci col basilico."
+  ],
+  "origine": "base",
+  "tags": [
+   "veloce",
+   "comfort"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_gnocchi_pesto",
+  "nome": "Gnocchi al pesto",
+  "tipo": "primo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_gnocchi",
+    "qta": 200,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_pesto",
+    "qta": 2,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_parmigiano",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 15,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Butta gli gnocchi in acqua salata: sono pronti quando vengono a galla.",
+   "Stempera il pesto con un cucchiaio d'acqua di cottura e condisci."
+  ],
+  "origine": "base",
+  "tags": [
+   "veloce"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_pasta_funghi",
+  "nome": "Pasta con i funghi",
+  "tipo": "primo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_pasta_corta",
+    "qta": 90,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_funghi",
+    "qta": 200,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_aglio",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_prezzemolo",
+    "qta": 1,
+    "unita": "mazzetto"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 25,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Trifola i funghi a fette con aglio e olio a fuoco vivo.",
+   "Quando hanno perso l'acqua, sala e aggiungi il prezzemolo.",
+   "Manteca la pasta in padella con un po' d'acqua di cottura."
+  ],
+  "origine": "base",
+  "tags": [
+   "padella"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_polenta_funghi",
+  "nome": "Polenta con funghi trifolati",
+  "tipo": "primo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_polenta",
+    "qta": 80,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_funghi",
+    "qta": 200,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_aglio",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_prezzemolo",
+    "qta": 1,
+    "unita": "mazzetto"
+   }
+  ],
+  "tempoMin": 45,
+  "difficolta": 2,
+  "stagioni": [],
+  "passi": [
+   "Cuoci la polenta nell'acqua salata secondo la confezione, mescolando.",
+   "Trifola i funghi con aglio e olio, sale e prezzemolo.",
+   "Versa la polenta nel piatto e completa coi funghi."
+  ],
+  "origine": "base",
+  "tags": [
+   "comfort",
+   "inverno"
+  ],
+  "attivo": true
+ },
+ {
+  "id": "pia_pasta_cavolfiore",
+  "nome": "Pasta col cavolfiore",
+  "tipo": "primo",
+  "ingredienti": [
+   {
+    "ingredienteId": "ing_pasta_corta",
+    "qta": 90,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_cavolfiore",
+    "qta": 200,
+    "unita": "g"
+   },
+   {
+    "ingredienteId": "ing_aglio",
+    "qta": 1,
+    "unita": "pz"
+   },
+   {
+    "ingredienteId": "ing_peperoncino",
+    "qta": 1,
+    "unita": "pizzico"
+   },
+   {
+    "ingredienteId": "ing_pecorino",
+    "qta": 2,
+    "unita": "cucchiaio"
+   },
+   {
+    "ingredienteId": "ing_olio_evo",
+    "qta": 1,
+    "unita": "cucchiaio"
+   }
+  ],
+  "tempoMin": 30,
+  "difficolta": 1,
+  "stagioni": [],
+  "passi": [
+   "Lessa le cimette di cavolfiore nell'acqua della pasta, poi butta la pasta.",
+   "Rosola aglio e peperoncino nell'olio e schiaccia dentro metà del cavolfiore.",
+   "Manteca la pasta con la crema e finisci col pecorino."
+  ],
+  "origine": "base",
+  "tags": [
+   "inverno"
+  ],
+  "attivo": true
  }
 ]

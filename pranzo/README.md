@@ -30,7 +30,7 @@ pranzo/
     ui/                   una schermata per file; non parlano col database
       home.js             la prima pagina: oggi e l'indice delle sezioni
   data/
-    seed-*.json           catalogo di partenza (107 ingredienti, 80 piatti)
+    seed-*.json           catalogo di partenza (116 ingredienti, 141 piatti)
     generatori/           gli script Python che hanno prodotto i seed e le icone
   icons/                  icone dell'app, generate da data/generatori/icone.py
 ```
@@ -54,6 +54,9 @@ Le regole che tengono in piedi il resto:
   la copertura è della **giornata**, non del piatto. Dalla 2.0 coprirle tutte
   non è un obbligo: conta nel punteggio e si mostra, ma un pasto incompleto
   resta un pasto valido;
+- il catalogo di partenza si aggiorna da solo all'avvio, ma solo in aggiunta:
+  i piatti nuovi dei seed entrano, quelli già in archivio non si riscrivono
+  mai, così voti, foto e piatti importati restano intatti;
 - la lista dei piatti e degli ingredienti esclusi non si rilassa mai, in
   nessun ramo del codice; l'app non la modifica da sola, propone e aspetta;
 - le foto dei piatti stanno in uno store a parte, ridotte a 1000 px e sotto
