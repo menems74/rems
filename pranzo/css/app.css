@@ -617,3 +617,18 @@ main{padding:14px 16px 24px;}
   margin-top:24px; text-align:center;
   color:var(--matita); font-size:.72rem; letter-spacing:.04em;
 }
+
+/* ====================================================== FOTO DEL PIATTO ==
+   Sta solo nella scheda: le liste restano di testo. Il posto se lo prende
+   prima di arrivare, così la pagina non salta mentre leggi gli ingredienti. */
+.fotoPiatto{margin:14px 0 4px;}
+.postoFoto{
+  width:100%; aspect-ratio:4 / 3; border-radius:2px;
+  background:var(--premuto); border:1px solid var(--filetto);
+}
+.postoFoto.arrivata{background:none; border:0; aspect-ratio:auto;}
+.postoFoto img{
+  display:block; width:100%; max-height:46vh; object-fit:cover;
+  border-radius:2px; border:1px solid var(--filetto);
+}
+.fotoPiatto .sottoAzioni{margin-top:2px;}

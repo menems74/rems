@@ -17,6 +17,7 @@ import * as Gusti from './ui/tastes.js';
 import * as Nuovi from './ui/import.js';
 import * as Impostazioni from './ui/settings.js';
 import * as B from './backup.js';
+import * as F from './photo.js';
 import * as G from './tastes.js';
 import { mostraDettaglio, chiudiDettaglio } from './ui/dish.js';
 
@@ -31,6 +32,7 @@ const stato = {
   dispensaMappa: new Map(), // ingredienteId -> qta
   dispensaRighe: [],
   suggerimenti: [],       // proposte sugli ingredienti, da confermare
+  fotoDi: new Set(),      // piatti che hanno una foto (le immagini si leggono a richiesta)
   lista: null,
   azioni: {}
 };
@@ -103,6 +105,12 @@ async function avvia() {
     confermaSuggerimento, scartaSuggerimento, importaPiatto,
     salvaPreferenze, ricarica
   };
+
+  // le foto stanno in IndexedDB come immagini vere: col ripiego su
+  // localStorage non si possono tenere, e allora non si promettono
+  if (DB.motoreInUso() === 'indexeddb') {
+    Object.assign(stato.azioni, { leggiFoto, salvaFoto, togliFoto });
+  }
 
   applicaTema(stato.preferenze.tema);
   window.addEventListener('hashchange', disegna);
@@ -189,7 +197,8 @@ async function scarica(percorso) {
 }
 
 async function caricaStato() {
-  const [ingredienti, piatti, preferenze, voti, cucinato, dispensa, menu, suggerimenti] = await Promise.all([
+  const [ingredienti, piatti, preferenze, voti, cucinato, dispensa, menu, suggerimenti,
+         chiaviFoto] = await Promise.all([
     DB.leggiTutti(DB.STORE.ingredienti),
     DB.leggiTutti(DB.STORE.piatti),
     DB.leggi(DB.STORE.preferenze, 'preferenze'),
@@ -197,7 +206,8 @@ async function caricaStato() {
     DB.leggiTutti(DB.STORE.cucinato),
     DB.leggiTutti(DB.STORE.dispensa),
     DB.leggiTutti(DB.STORE.menu),
-    DB.leggiTutti(DB.STORE.suggerimenti)
+    DB.leggiTutti(DB.STORE.suggerimenti),
+    DB.leggiChiavi(DB.STORE.foto).catch(() => [])
   ]);
 
   stato.ingredienti = ingredienti;
@@ -210,6 +220,7 @@ async function caricaStato() {
   for (const v of voti) (stato.voti[v.piattoId] = stato.voti[v.piattoId] || []).push(v);
 
   stato.suggerimenti = suggerimenti.sort((a, b) => (a.data || '').localeCompare(b.data || ''));
+  stato.fotoDi = new Set(chiaviFoto);
 
   // "ultima volta" = il più recente tra ciò che ho cucinato e i menù passati
   stato.ultimaVolta = new Map();
@@ -584,6 +595,57 @@ async function importaPiatto(piatto, ingredientiNuovi) {
     : '.'));
   disegna();
   return true;
+}
+
+/* ---------------------------------------------------------- le foto ------
+   Una per piatto, ridotta prima di salvare. Non entrano nel backup: sono
+   pesanti e il backup deve restare un file che si manda in chat.         */
+
+let spazioChiesto = false;
+
+function leggiFoto(piattoId) {
+  return DB.leggi(DB.STORE.foto, piattoId);
+}
+
+async function salvaFoto(piattoId, file) {
+  const piatto = stato.indicePiatti.get(piattoId);
+  let pronta;
+  try {
+    pronta = await F.preparaFoto(file);
+  } catch (errore) {
+    avviso('Non riesco a usare questa foto: ' + errore.message, 'errore');
+    return;
+  }
+
+  try {
+    await DB.scrivi(DB.STORE.foto, {
+      piattoId,
+      blob: pronta.blob,
+      larghezza: pronta.larghezza,
+      altezza: pronta.altezza,
+      byte: pronta.byte,
+      aggiornata: P.iso(new Date())
+    });
+  } catch (errore) {
+    console.error(errore);
+    avviso('Non riesco a salvare la foto: ' + errore.message, 'errore');
+    return;
+  }
+
+  // alla prima foto si chiede al telefono di non fare pulizia
+  if (!spazioChiesto) { spazioChiesto = true; F.chiediDiTenere().catch(() => {}); }
+
+  stato.fotoDi.add(piattoId);
+  avviso(`Foto salvata: ${F.peso(pronta.byteOriginali)} diventati ${F.peso(pronta.byte)}.`);
+  if (piatto) mostraDettaglio(piatto, stato, null);
+}
+
+async function togliFoto(piattoId) {
+  await DB.elimina(DB.STORE.foto, piattoId);
+  stato.fotoDi.delete(piattoId);
+  avviso('Foto tolta.');
+  const piatto = stato.indicePiatti.get(piattoId);
+  if (piatto) mostraDettaglio(piatto, stato, null);
 }
 
 /* ------------------------------------------------------ impostazioni ----- */

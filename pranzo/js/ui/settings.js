@@ -7,6 +7,7 @@ import { el, svuotaNodo, avviso } from './dom.js';
 import * as M from '../model.js';
 import * as B from '../backup.js';
 import * as DB from '../db.js';
+import * as F from '../photo.js';
 
 /* ---- installazione: l'invito del browser arriva una volta e va tenuto --- */
 let invitoInstalla = null;
@@ -276,7 +277,9 @@ function bloccoAspetto(stato) {
 function bloccoBackup(stato) {
   const sezione = gruppo('Backup',
     'Un file .json con tutto: piatti, gusti, voti, menù, dispensa. ' +
-    'Serve per passare a un altro telefono e per non perdere anni di voti.');
+    'Serve per passare a un altro telefono e per non perdere anni di voti. ' +
+    'Le foto dei piatti restano fuori: peserebbero troppo per un file da ' +
+    'mandare in chat, e restano su questo telefono.');
 
   sezione.appendChild(el('button', {
     class: 'azione', type: 'button',
@@ -440,6 +443,13 @@ function bloccoArchivio(stato) {
     `${stato.piatti.length} piatti · ${stato.ingredienti.length} ingredienti · ` +
     `${Object.values(stato.voti).reduce((n, v) => n + v.length, 0)} voti`));
 
+  // le foto sono l'unica cosa che può crescere davvero: si dice quanto pesa
+  const quanteFoto = (stato.fotoDi && stato.fotoDi.size) || 0;
+  const rigaSpazio = el('p', { class: 'conteggio' },
+    quanteFoto ? `${quanteFoto} foto` : 'nessuna foto');
+  sezione.appendChild(rigaSpazio);
+  spazioUsato(rigaSpazio, quanteFoto);
+
   if ('serviceWorker' in navigator) {
     sezione.appendChild(el('div', { class: 'sottoAzioni' }, [
       el('button', {
@@ -452,6 +462,16 @@ function bloccoArchivio(stato) {
       'i tuoi dati non si toccano.'));
   }
   return sezione;
+}
+
+/** Lo spazio lo sa il browser, e lo dice quando vuole: si aggiunge dopo. */
+async function spazioUsato(riga, quanteFoto) {
+  const stima = await F.spazio();
+  if (!stima || !stima.usati) return;
+  const testo = stima.disponibili
+    ? `${F.peso(stima.usati)} usati su ${F.peso(stima.disponibili)} disponibili`
+    : `${F.peso(stima.usati)} usati`;
+  riga.textContent = (quanteFoto ? `${quanteFoto} foto · ` : '') + testo;
 }
 
 function svuotaCache() {

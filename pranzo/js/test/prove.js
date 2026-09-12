@@ -12,6 +12,17 @@ function prova(nome, fn) {
   try { fn(); risultati.push({ nome, ok: true }); }
   catch (e) { risultati.push({ nome, ok: false, errore: e.message }); }
 }
+
+/* Alcune cose si possono provare solo davvero: ridimensionare una foto vuole
+   il canvas del browser, che risponde quando gli pare. Queste prove si
+   aspettano in fondo, con eseguiTutto(). */
+const attese = [];
+function provaAsync(nome, fn) {
+  attese.push(Promise.resolve()
+    .then(fn)
+    .then(() => risultati.push({ nome, ok: true }))
+    .catch((e) => risultati.push({ nome, ok: false, errore: e.message })));
+}
 function uguale(atteso, ottenuto, cosa = '') {
   const a = JSON.stringify(atteso), o = JSON.stringify(ottenuto);
   if (a !== o) throw new Error(`${cosa} atteso ${a}, ottenuto ${o}`);
@@ -218,6 +229,12 @@ prova('tempi leggibili', () => {
 });
 
 export function esegui() { return risultati; }
+
+/** Tutte, comprese quelle che devono aspettare il browser. */
+export async function eseguiTutto() {
+  await Promise.all(attese);
+  return risultati;
+}
 
 /* ==========================================================================
    PROVE DEL PLANNER (M2)
@@ -1262,4 +1279,89 @@ prova('l\'ultimo voto è l\'ultimo anche a pari giornata', () => {
   ] } };
   uguale('vot_b_0', G.riepilogoPiatto('p1', ctx).ultimo.id);
   uguale(2, G.riepilogoPiatto('p1', ctx).quanti);
+});
+
+/* ==========================================================================
+   PROVE DELLE FOTO
+   Il punto delicato è il peso: una foto del telefono deve entrare in
+   archivio ridotta, o dopo trenta piatti il telefono fa pulizia.
+   ========================================================================== */
+
+import * as FOTO from '../photo.js';
+
+prova('misura ridotta: proporzioni tenute, mai ingrandita', () => {
+  uguale({ larghezza: 1000, altezza: 750 }, FOTO.misuraRidotta(4000, 3000, 1000));
+  uguale({ larghezza: 750, altezza: 1000 }, FOTO.misuraRidotta(3000, 4000, 1000));
+  uguale({ larghezza: 1000, altezza: 1000 }, FOTO.misuraRidotta(2000, 2000, 1000));
+  // più piccola del massimo: si lascia com'è
+  uguale({ larghezza: 640, altezza: 480 }, FOTO.misuraRidotta(640, 480, 1000));
+  lancia(() => FOTO.misuraRidotta(0, 100, 1000), 'senza dimensioni');
+});
+
+prova('pesi leggibili', () => {
+  uguale('180 kB', FOTO.peso(184320));
+  uguale('1,2 MB', FOTO.peso(1258291));
+  uguale('900 byte', FOTO.peso(900));
+  uguale('0 kB', FOTO.peso(0));
+});
+
+/** Una finta foto: rumore colorato, perché una tinta piatta si comprime a nulla. */
+function fotoFinta(larghezza, altezza) {
+  const tela = document.createElement('canvas');
+  tela.width = larghezza; tela.height = altezza;
+  const p = tela.getContext('2d');
+  const dati = p.createImageData(larghezza, altezza);
+  let seme = 7;
+  for (let i = 0; i < dati.data.length; i += 4) {
+    seme = (seme * 1103515245 + 12345) & 0x7fffffff;
+    dati.data[i] = seme & 255;
+    dati.data[i + 1] = (seme >> 8) & 255;
+    dati.data[i + 2] = (seme >> 16) & 255;
+    dati.data[i + 3] = 255;
+  }
+  p.putImageData(dati, 0, 0);
+  return new Promise((risolvi) => tela.toBlob((b) =>
+    risolvi(new File([b], 'prova.jpg', { type: 'image/jpeg' })), 'image/jpeg', 1));
+}
+
+provaAsync('una foto grande entra in archivio piccola', async () => {
+  const file = await fotoFinta(2400, 1800);
+  const pronta = await FOTO.preparaFoto(file);
+  uguale(1000, pronta.larghezza);
+  uguale(750, pronta.altezza);
+  uguale('image/jpeg', pronta.blob.type);
+  if (pronta.byte > FOTO.BYTE_MAX) {
+    throw new Error(`troppo pesante: ${pronta.byte} byte`);
+  }
+  if (pronta.byte >= pronta.byteOriginali) {
+    throw new Error(`non l'ha alleggerita: ${pronta.byteOriginali} -> ${pronta.byte}`);
+  }
+});
+
+provaAsync('una foto già piccola non viene ingrandita', async () => {
+  const pronta = await FOTO.preparaFoto(await fotoFinta(400, 300));
+  uguale(400, pronta.larghezza);
+  uguale(300, pronta.altezza);
+});
+
+provaAsync('una foto verticale resta verticale', async () => {
+  const pronta = await FOTO.preparaFoto(await fotoFinta(1500, 2000));
+  uguale(750, pronta.larghezza);
+  uguale(1000, pronta.altezza);
+});
+
+provaAsync('quello che non è una foto viene rifiutato', async () => {
+  const finto = new File(['non sono una foto'], 'x.txt', { type: 'text/plain' });
+  try {
+    await FOTO.preparaFoto(finto);
+  } catch (e) {
+    if (!(e instanceof FOTO.ErroreFoto)) throw new Error('errore di tipo sbagliato: ' + e.message);
+    return;
+  }
+  throw new Error('doveva rifiutarla');
+});
+
+provaAsync('senza file non si inventa niente', async () => {
+  try { await FOTO.preparaFoto(null); } catch (e) { return; }
+  throw new Error('doveva lanciare');
 });

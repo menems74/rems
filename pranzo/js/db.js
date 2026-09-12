@@ -7,7 +7,7 @@
    ========================================================================= */
 
 const NOME_DB = 'pranzo';
-const VERSIONE = 1;
+const VERSIONE = 2;   /* 2: aggiunto lo store delle foto */
 
 /** Nomi degli store, un'entità per store. */
 export const STORE = {
@@ -20,7 +20,8 @@ export const STORE = {
   dispensa: 'dispensa',
   cucinato: 'cucinato',
   suggerimenti: 'suggerimenti',
-  snapshot: 'snapshot'
+  snapshot: 'snapshot',
+  foto: 'foto'
 };
 
 /* Schema dichiarativo: chiave primaria e indici di ogni store. */
@@ -34,7 +35,10 @@ const SCHEMA = {
   dispensa:    { chiave: 'ingredienteId', indici: [] },
   cucinato:    { chiave: 'id', indici: [['piattoId', 'piattoId'], ['data', 'data']] },
   suggerimenti:{ chiave: 'id', indici: [['stato', 'stato']] },
-  snapshot:    { chiave: 'id', indici: [['data', 'data']] }
+  snapshot:    { chiave: 'id', indici: [['data', 'data']] },
+  /* le foto stanno per conto loro: sono pesanti e non entrano nei backup,
+     così leggere un piatto non si porta dietro mezzo megabyte di immagine */
+  foto:        { chiave: 'piattoId', indici: [] }
 };
 
 let dbAperto = null;
@@ -78,6 +82,9 @@ export function apri() {
       // migrazioni progressive: ogni versione aggiunge solo ciò che manca
       if (da < 1) {
         for (const nome of Object.keys(SCHEMA)) creaStore(db, nome);
+      }
+      if (da >= 1 && da < 2 && !db.objectStoreNames.contains('foto')) {
+        creaStore(db, 'foto');
       }
     };
 
@@ -123,6 +130,14 @@ export async function leggiPerIndice(nomeStore, nomeIndice, valore) {
   if (conMotoreLocale(db)) return db.leggiPerIndice(nomeStore, nomeIndice, valore);
   const tx = db.transaction(nomeStore, 'readonly');
   return promessa(tx.objectStore(nomeStore).index(nomeIndice).getAll(valore));
+}
+
+/** Solo le chiavi: per sapere chi ha una foto senza leggerne nemmeno una. */
+export async function leggiChiavi(nomeStore) {
+  const db = await apri();
+  if (conMotoreLocale(db)) return db.leggiChiavi(nomeStore);
+  const tx = db.transaction(nomeStore, 'readonly');
+  return promessa(tx.objectStore(nomeStore).getAllKeys());
 }
 
 export async function conta(nomeStore) {
@@ -227,6 +242,7 @@ function archivioLocale() {
     locale: true,
     leggi: (nome, k) => carica(nome).find((r) => r[chiaveDi(nome)] === k),
     leggiTutti: (nome) => carica(nome),
+    leggiChiavi: (nome) => carica(nome).map((r) => r[chiaveDi(nome)]),
     leggiPerIndice: (nome, indice, valore) => {
       const campo = (SCHEMA[nome].indici.find(([n]) => n === indice) || [])[1] || indice;
       return carica(nome).filter((r) => r[campo] === valore);

@@ -23,8 +23,8 @@
 <p id="esito">esecuzione…</p>
 <ol id="elenco"></ol>
 <script type="module">
-  import { esegui } from './js/test/prove.js';
-  const risultati = esegui();
+  import { eseguiTutto } from './js/test/prove.js';
+  const risultati = await eseguiTutto();
   const falliti = risultati.filter(r => !r.ok);
   const esito = document.getElementById('esito');
   esito.textContent = falliti.length

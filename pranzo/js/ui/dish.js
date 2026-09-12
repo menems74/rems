@@ -7,6 +7,7 @@ import { el, svuotaNodo } from './dom.js';
 import * as M from '../model.js';
 import * as S from '../shopping.js';
 import * as G from '../tastes.js';
+import * as F from '../photo.js';
 
 export function mostraDettaglio(piatto, stato, perche) {
   const pannello = document.getElementById('pannello');
@@ -38,6 +39,8 @@ export function mostraDettaglio(piatto, stato, perche) {
   if (piatto.stagioni && piatto.stagioni.length) {
     corpo.appendChild(el('p', { class: 'conteggio' }, 'stagione: mesi ' + piatto.stagioni.join(', ')));
   }
+
+  if (stato.azioni && stato.azioni.salvaFoto) corpo.appendChild(bloccoFoto(piatto, stato));
 
   if (stato.azioni && stato.azioni.aggiungiGusto) corpo.appendChild(sceltaGusti(piatto, stato));
 
@@ -103,8 +106,65 @@ export function chiudiDettaglio() {
   const pannello = document.getElementById('pannello');
   if (!pannello || pannello.hidden) return;
   pannello.hidden = true;
+  liberaFoto();
   // si svuota: un pannello chiuso non deve lasciare in giro il piatto di prima
   svuotaNodo(document.getElementById('pannelloCorpo'));
+}
+
+/* ------------------------------------------------------------- la foto ---
+   Una foto del piatto, scattata o presa dalla libreria. Sta solo qui: le
+   liste restano di testo, che si leggono da lontano e non fanno aspettare.
+   L'indirizzo dell'immagine è temporaneo e va restituito, o la memoria del
+   telefono se lo tiene fino alla chiusura della pagina.                   */
+
+let urlFoto = null;
+
+function liberaFoto() {
+  if (urlFoto) { URL.revokeObjectURL(urlFoto); urlFoto = null; }
+}
+
+function bloccoFoto(piatto, stato) {
+  const blocco = el('figure', { class: 'fotoPiatto' });
+  const haFoto = stato.fotoDi && stato.fotoDi.has(piatto.id);
+
+  const campo = el('input', {
+    type: 'file', accept: 'image/*', class: 'nascosto', id: 'fotoDelPiatto',
+    onchange: (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) stato.azioni.salvaFoto(piatto.id, file);
+    }
+  });
+
+  const azioni = el('div', { class: 'sottoAzioni' }, [
+    el('label', { class: 'testuale comeBottone', for: 'fotoDelPiatto' },
+       haFoto ? 'cambia la foto' : 'aggiungi una foto'),
+    haFoto ? el('button', {
+      class: 'testuale', type: 'button',
+      onclick: () => stato.azioni.togliFoto(piatto.id)
+    }, 'toglie') : null
+  ]);
+
+  if (haFoto) {
+    // il posto della foto si prende subito, così l'arrivo non fa saltare
+    // quello che stai leggendo più in basso
+    const posto = el('div', { class: 'postoFoto' });
+    blocco.appendChild(posto);
+    stato.azioni.leggiFoto(piatto.id).then((record) => {
+      if (!record || !record.blob) { posto.remove(); return; }
+      if (!document.body.contains(posto)) return;      // pannello già chiuso
+      liberaFoto();
+      urlFoto = URL.createObjectURL(record.blob);
+      posto.appendChild(el('img', {
+        src: urlFoto, alt: 'Foto di ' + piatto.nome,
+        width: record.larghezza || null, height: record.altezza || null
+      }));
+      posto.classList.add('arrivata');
+    }).catch(() => posto.remove());
+  }
+
+  blocco.appendChild(campo);
+  blocco.appendChild(azioni);
+  return blocco;
 }
 
 /* ---------------------------------------------------- amo / escludo ------ */

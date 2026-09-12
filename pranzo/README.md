@@ -23,6 +23,7 @@ pranzo/
     shopping.js           dal menù alla lista della spesa      (pure)
     tastes.js             voti, medie, suggerimenti sui gusti  (pure)
     ai-import.js          prompt per un'AI e lettura della risposta (pure)
+    photo.js              la foto del piatto, ridotta prima di salvarla
     backup.js             export, import, istantanee
     app.js                avvio, seed, router a hash, azioni
     ui/                   una schermata per file; non parlano col database
@@ -46,7 +47,10 @@ Le regole che tengono in piedi il resto:
 - i macro coperti non si salvano sul piatto: si calcolano dagli ingredienti,
   e la copertura è del **pranzo**, non del piatto;
 - la lista dei piatti e degli ingredienti esclusi non si rilassa mai, in
-  nessun ramo del codice; l'app non la modifica da sola, propone e aspetta.
+  nessun ramo del codice; l'app non la modifica da sola, propone e aspetta;
+- le foto dei piatti stanno in uno store a parte, ridotte a 1000 px e sotto
+  i 200 kB, e **non** entrano nei backup: un backup deve restare un file che
+  si manda in chat.
 
 ## Le prove
 
@@ -72,6 +76,6 @@ all'elenco `GUSCIO` nello stesso file.
 ## I dati
 
 Un backup è un file `.json` con tutto: piatti, ingredienti, gusti, voti,
-menù, dispensa, cronologia. Si fa da *Altro → Impostazioni → Backup*.
+menù, dispensa, cronologia — tranne le foto, che restano sul telefono. Si fa da *Altro → Impostazioni → Backup*.
 Dentro il telefono restano anche le ultime cinque istantanee giornaliere:
 servono contro il gesto sbagliato, non contro il telefono perso.
