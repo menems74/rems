@@ -522,14 +522,35 @@ async function eliminaVoto(votoId) {
 }
 
 async function aggiungiGusto(lista, id) {
+  const dalPannello = pannelloAperto();
   // salvaPreferenze salva, applica il tema e ridisegna: qui basta il messaggio
   await salvaPreferenze(G.aggiungiAllaLista(stato.preferenze, lista, id));
   avviso(messaggioGusto(lista, id, true));
+  riapriPiatto(dalPannello, lista, id);
 }
 
 async function togliGusto(lista, id) {
+  const dalPannello = pannelloAperto();
   await salvaPreferenze(G.togliDallaLista(stato.preferenze, lista, id));
   avviso(messaggioGusto(lista, id, false));
+  riapriPiatto(dalPannello, lista, id);
+}
+
+function pannelloAperto() {
+  const p = document.getElementById('pannello');
+  return !!p && !p.hidden;
+}
+
+/**
+ * Ridisegnare chiude la scheda del piatto. Se però la scelta è stata fatta
+ * lì dentro, la scheda deve restare aperta a mostrare com'è adesso: toccare
+ * "Lo amo" e vedersi sbattere la porta in faccia è sbagliato.
+ */
+function riapriPiatto(dalPannello, lista, id) {
+  if (!dalPannello) return;
+  if (lista !== 'amoPiatti' && lista !== 'escludiPiatti') return;
+  const piatto = stato.indicePiatti.get(id);
+  if (piatto) mostraDettaglio(piatto, stato, null);
 }
 
 function messaggioGusto(lista, id, aggiunto) {

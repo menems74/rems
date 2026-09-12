@@ -42,7 +42,7 @@ export function mostraDettaglio(piatto, stato, perche) {
 
   if (stato.azioni && stato.azioni.salvaFoto) corpo.appendChild(bloccoFoto(piatto, stato));
 
-  if (stato.azioni && stato.azioni.aggiungiGusto) corpo.appendChild(sceltaGusti(piatto, stato));
+  testaGusti(piatto, stato);
 
   const daEscludere = chiedeDiEscludere(piatto, stato, riepilogo);
   if (daEscludere) corpo.appendChild(bloccoNonProporre(piatto, stato, daEscludere));
@@ -107,6 +107,8 @@ export function chiudiDettaglio() {
   if (!pannello || pannello.hidden) return;
   pannello.hidden = true;
   liberaFoto();
+  const testa = document.getElementById('pannelloTesta');
+  if (testa) for (const b of testa.querySelectorAll('.gustoTesta')) b.remove();
   // si svuota: un pannello chiuso non deve lasciare in giro il piatto di prima
   svuotaNodo(document.getElementById('pannelloCorpo'));
 }
@@ -170,24 +172,35 @@ function bloccoFoto(piatto, stato) {
 
 /* ---------------------------------------------------- amo / escludo ------ */
 
-function sceltaGusti(piatto, stato) {
+/**
+ * Le tre azioni del piatto stanno insieme in cima, e ognuna porta il suo
+ * colore: grigio per andarsene, verde per tenerselo caro, rosso per non
+ * vederlo più. Accese quando la scelta è già stata fatta.
+ */
+function testaGusti(piatto, stato) {
+  const testa = document.getElementById('pannelloTesta');
+  if (!testa) return;
+  for (const vecchio of testa.querySelectorAll('.gustoTesta')) vecchio.remove();
+  if (!stato.azioni || !stato.azioni.aggiungiGusto) return;
+
   const amato = (stato.preferenze.amoPiatti || []).includes(piatto.id);
   const escluso = (stato.preferenze.escludiPiatti || []).includes(piatto.id);
 
-  return el('div', { class: 'sceltaGusti' }, [
-    el('button', {
-      class: 'testuale' + (amato ? ' acceso' : ''), type: 'button',
-      onclick: () => amato
-        ? stato.azioni.togliGusto('amoPiatti', piatto.id)
-        : stato.azioni.aggiungiGusto('amoPiatti', piatto.id)
-    }, amato ? 'lo ami ✓' : 'lo amo'),
-    el('button', {
-      class: 'testuale' + (escluso ? ' spentoAcceso' : ''), type: 'button',
-      onclick: () => escluso
-        ? stato.azioni.togliGusto('escludiPiatti', piatto.id)
-        : stato.azioni.aggiungiGusto('escludiPiatti', piatto.id)
-    }, escluso ? 'lo escludi ✓' : 'escludilo')
-  ]);
+  testa.appendChild(el('button', {
+    class: 'bottone gustoTesta amo' + (amato ? ' acceso' : ''), type: 'button',
+    'aria-pressed': amato ? 'true' : 'false',
+    onclick: () => amato
+      ? stato.azioni.togliGusto('amoPiatti', piatto.id)
+      : stato.azioni.aggiungiGusto('amoPiatti', piatto.id)
+  }, amato ? 'Lo ami ✓' : 'Lo amo'));
+
+  testa.appendChild(el('button', {
+    class: 'bottone gustoTesta escludi' + (escluso ? ' acceso' : ''), type: 'button',
+    'aria-pressed': escluso ? 'true' : 'false',
+    onclick: () => escluso
+      ? stato.azioni.togliGusto('escludiPiatti', piatto.id)
+      : stato.azioni.aggiungiGusto('escludiPiatti', piatto.id)
+  }, escluso ? 'Lo escludi ✓' : 'Escludilo'));
 }
 
 /* --------------------------------------------------- non proporlo più ----
