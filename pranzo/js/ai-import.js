@@ -35,11 +35,11 @@ export function creaPrompt(ctx, opzioni = {}) {
   const righe = [];
 
   righe.push(quanti === 1
-    ? 'Propongimi un\'idea per il pranzo, una persona, una porzione.'
-    : `Propongimi ${quanti} idee per il pranzo, una persona, una porzione a testa.`);
+    ? 'Propongimi un\'idea per pranzo o per cena, una persona, una porzione.'
+    : `Propongimi ${quanti} idee per pranzo o per cena, una persona, una porzione a testa.`);
   righe.push('');
-  righe.push('Come sono fatti i miei pranzi:');
-  righe.push('- ogni pranzo deve avere proteine, carboidrati e fibre;');
+  righe.push('Come sono fatti i miei pasti:');
+  righe.push('- meglio se il pasto porta proteine, carboidrati e fibre, ma non è obbligatorio;');
   righe.push(`- "tipo" può essere: unico (piatto completo da solo), primo, secondo, contorno;`);
   righe.push(`- tempo massimo di preparazione ${pref.tempoMaxMin} minuti;`);
   righe.push(`- siamo nel mese ${mese}: usa ingredienti di stagione;`);

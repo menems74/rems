@@ -461,6 +461,30 @@ prova('giorno con poco tempo: il pranzo è un piatto unico, come da §4.1', () =
   const e = P.generaSettimana(ctxProva({ preferenze: pref }));
   uguale('unico', e.giorni.find((g) => g.giorno === 'mer').pasti.pranzo.modalita);
 });
+prova('il tempo massimo è del pasto intero, e non si sfora', () => {
+  // un giorno solo: il catalogo di prova è piccolo, e con la settimana
+  // intera il motore finirebbe per rilassare proprio il tempo
+  const pref = Object.assign(M.preferenzePredefinite(),
+                             { giorni: ['lun'], tempoMaxMin: 30, tempoMaxCena: 20, quotaNovita: 0 });
+  for (let giro = 0; giro < 10; giro++) {
+    for (const x of inFila(P.generaSettimana(ctxProva({ preferenze: pref })))) {
+      if (x.pasto.avanziDa) continue;       // gli avanzi si scaldano, non si cucinano
+      const minuti = x.piatti.reduce((n, p) => n + p.tempoMin, 0);
+      const tetto = x.nome === 'cena' ? 20 : 30;
+      if (minuti > tetto) throw new Error(`${x.giorno} ${x.nome}: ${minuti} min su ${tetto}`);
+    }
+  }
+});
+prova('se nel tempo non ci sta niente, sfora ma lo dichiara', () => {
+  // dieci minuti: nel catalogo di prova non c'è niente di così veloce
+  const pref = Object.assign(M.preferenzePredefinite(),
+                             { giorni: ['lun'], pasti: ['pranzo'], tempoMaxMin: 10, quotaNovita: 0 });
+  const e = P.generaSettimana(ctxProva({ preferenze: pref }));
+  uguale(1, e.giorni.length);
+  if (!e.rilassamenti.some((r) => /tempo massimo/.test(r))) {
+    throw new Error('doveva dire che ha sforato: ' + JSON.stringify(e.rilassamenti));
+  }
+});
 prova('il tempo massimo: il pranzo ce l\'ha, la cena no', () => {
   const pref = Object.assign(M.preferenzePredefinite(), { tempoMaxPerGiorno: { mer: 20 } });
   uguale(20, P.tempoMassimo('pranzo', 'mer', pref));
@@ -1440,9 +1464,9 @@ prova('nomi di file e date leggibili', () => {
 
 prova('un piatto solo: il prompt lo chiede al singolare', () => {
   const uno = IA.creaPrompt(ctxIA(), { quanti: 1 });
-  if (!/un'idea per il pranzo/.test(uno)) throw new Error('doveva essere singolare: ' + uno.split('\n')[0]);
+  if (!/un'idea per pranzo o per cena/.test(uno)) throw new Error('doveva essere singolare: ' + uno.split('\n')[0]);
   const tre = IA.creaPrompt(ctxIA(), { quanti: 3 });
-  if (!/3 idee per il pranzo/.test(tre)) throw new Error('e plurale con più di uno');
+  if (!/3 idee per pranzo o per cena/.test(tre)) throw new Error('e plurale con più di uno');
 });
 
 prova('l\'ultimo voto è l\'ultimo anche a pari giornata', () => {

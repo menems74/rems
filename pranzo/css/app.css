@@ -586,6 +586,8 @@ main{padding:14px 16px 24px;}
   font-family:var(--num); font-size:.9rem; color:var(--matita);
   border:1px solid var(--filetto-forte); border-radius:2px;
 }
+/* i pasti hanno un nome intero, non tre lettere: più largo e non monospazio */
+.giornoTasto.largo{font-family:var(--testo); font-size:.95rem; padding:0 12px;}
 .giornoTasto.scelto{
   color:#fff; background:var(--biro); border-color:var(--biro); font-weight:650;
 }

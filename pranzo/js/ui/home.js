@@ -12,6 +12,7 @@ import * as M from '../model.js';
 import * as P from '../planner.js';
 import * as S from '../shopping.js';
 import { mostraDettaglio } from './dish.js';
+import { siPuoInstallare } from './settings.js';
 
 const MESI = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno',
               'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
@@ -202,7 +203,7 @@ function voci(stato) {
     ? `${pendenti} ${pendenti > 1 ? 'suggerimenti' : 'suggerimento'}`
     : (quantiVoti ? `${quantiVoti} vot${quantiVoti === 1 ? 'o' : 'i'}` : 'niente ancora');
 
-  return [
+  const voci = [
     { nome: 'Settimana', href: '#/settimana', dato: settimana, dafare: !giorniMenu.length },
     { nome: 'Lista della spesa', href: '#/spesa', dato: spesa, dafare: spesaDaFare },
     { nome: 'Catalogo', href: '#/catalogo', dato: `${disponibili} disponibili` },
@@ -212,4 +213,11 @@ function voci(stato) {
     { nome: 'Nuovi piatti', href: '#/nuovi', dato: 'chiedi a un\'AI' },
     { nome: 'Impostazioni', href: '#/impostazioni', dato: 'porzioni, backup' }
   ];
+
+  // l'invito a installare sta qui, e sparisce quando l'app è già installata:
+  // è l'unica cosa che stava in "Altro" e non aveva un'altra casa
+  if (siPuoInstallare()) {
+    voci.push({ nome: 'Installa l\'app', href: '#/impostazioni', dato: 'icona e offline' });
+  }
+  return voci;
 }

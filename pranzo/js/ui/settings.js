@@ -43,7 +43,7 @@ const vista = { istantanee: null, anteprima: null };
 export function render(contenitore, stato) {
   svuotaNodo(contenitore);
   if (siPuoInstallare()) contenitore.appendChild(bloccoInstalla(stato));
-  contenitore.appendChild(bloccoPranzi(stato));
+  contenitore.appendChild(bloccoPasti(stato));
   contenitore.appendChild(bloccoMenu(stato));
   contenitore.appendChild(bloccoReparti(stato));
   contenitore.appendChild(bloccoAspetto(stato));
@@ -145,13 +145,31 @@ function bloccoInstalla(stato) {
   return sezione;
 }
 
-function bloccoPranzi(stato) {
+function bloccoPasti(stato) {
   const pref = stato.preferenze;
-  const sezione = gruppo('I pranzi');
+  const sezione = gruppo('I pasti');
 
   sezione.appendChild(rigaNumero('Porzioni', pref.porzioni || 1, 1, 8, 1,
     (v) => cambia(stato, 'porzioni', v),
     'le ricette sono per una porzione: qui si moltiplica tutto, anche la spesa'));
+
+  // quali pasti: almeno uno. Chi vuole solo il pranzo toglie la cena e
+  // l'app torna a essere quella della 1.x, senza perdere niente
+  const pastiScelti = new Set(pref.pasti || M.PASTI);
+  sezione.appendChild(el('div', { class: 'campoImpostazione' }, [
+    el('p', { class: 'etichettaImpostazione' }, 'Pasti da pianificare'),
+    el('div', { class: 'giorniScelta' }, M.PASTI.map((x) => el('button', {
+      class: 'giornoTasto largo' + (pastiScelti.has(x) ? ' scelto' : ''), type: 'button',
+      'aria-pressed': pastiScelti.has(x) ? 'true' : 'false',
+      onclick: () => {
+        const nuovi = M.PASTI.filter((y) => (y === x ? !pastiScelti.has(y) : pastiScelti.has(y)));
+        if (!nuovi.length) { avviso('Serve almeno un pasto.', 'errore'); return; }
+        cambia(stato, 'pasti', nuovi);
+      }
+    }, M.NOME_PASTO[x]))),
+    el('p', { class: 'spiega' },
+       pastiScelti.size === 2 ? 'pranzo e cena, due righe per giorno' : 'un pasto al giorno')
+  ]));
 
   // i giorni: almeno uno, o non c'è niente da pianificare
   const scelti = new Set(pref.giorni || []);
@@ -171,9 +189,15 @@ function bloccoPranzi(stato) {
     el('p', { class: 'spiega' }, `${scelti.size} giorni a settimana`)
   ]));
 
-  sezione.appendChild(rigaNumero('Tempo massimo', pref.tempoMaxMin || 40, 10, 120, 5,
+  sezione.appendChild(rigaNumero('Tempo massimo a pranzo', pref.tempoMaxMin || 40, 10, 120, 5,
     (v) => cambia(stato, 'tempoMaxMin', v),
-    'minuti, per un pranzo intero', 'min'));
+    'minuti, per il pranzo intero', 'min'));
+
+  if (pastiScelti.has('cena')) {
+    sezione.appendChild(rigaNumero('Tempo massimo a cena', pref.tempoMaxCena || 0, 0, 120, 5,
+      (v) => cambia(stato, 'tempoMaxCena', v),
+      '0 = nessun limite: la sera c\'è più tempo', 'min'));
+  }
 
   // tempo per giorno: si apre solo se serve
   const perGiorno = pref.tempoMaxPerGiorno || {};
@@ -219,9 +243,15 @@ function bloccoMenu(stato) {
     (v) => cambia(stato, 'cooldownSettimane', v),
     'un piatto fatto torna solo dopo queste settimane', 'sett.'));
 
-  sezione.appendChild(rigaNumero('Giorni con primo + secondo', pref.maxGiorniPrimoSecondo || 0, 0, 7, 1,
+  sezione.appendChild(rigaNumero('Pranzi con primo + secondo', pref.maxGiorniPrimoSecondo || 0, 0, 7, 1,
     (v) => cambia(stato, 'maxGiorniPrimoSecondo', v),
-    'al massimo; gli altri giorni sono a piatto unico'));
+    'al massimo; gli altri pranzi sono a piatto unico'));
+
+  if ((pref.pasti || M.PASTI).includes('cena')) {
+    sezione.appendChild(rigaNumero('Cene con gli avanzi', pref.avanziASettimana || 0, 0, 7, 1,
+      (v) => cambia(stato, 'avanziASettimana', v),
+      'quelle sere si cucina il doppio a pranzo e si mangia lo stesso piatto'));
+  }
 
   return sezione;
 }

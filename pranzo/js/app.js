@@ -45,39 +45,8 @@ const ROTTE = {
   gusti:     { titolo: 'Gusti', render: (c) => Gusti.render(c, stato) },
   dispensa:  { titolo: 'Dispensa', render: (c) => Dispensa.render(c, stato) },
   nuovi:     { titolo: 'Nuovi piatti', render: (c) => Nuovi.render(c, stato) },
-  impostazioni: { titolo: 'Impostazioni', render: (c) => Impostazioni.render(c, stato) },
-  altro:     { titolo: 'Altro', render: (c) => altro(c) }
+  impostazioni: { titolo: 'Impostazioni', render: (c) => Impostazioni.render(c, stato) }
 };
-
-function inArrivo(contenitore, milestone, cosa) {
-  svuotaNodo(contenitore);
-  contenitore.appendChild(el('p', { class: 'vuoto' }, `Qui arriva ${cosa}: milestone ${milestone}.`));
-}
-
-/** "Altro" raccoglie le sezioni che non stanno nella barra in basso. */
-function altro(contenitore) {
-  svuotaNodo(contenitore);
-  const voci = [
-    { testo: 'Dispensa', nota: 'quello che hai in casa', href: '#/dispensa' },
-    { testo: 'Gusti', nota: 'liste, voti e suggerimenti', href: '#/gusti' },
-    { testo: 'Nuovi piatti', nota: 'farsi aiutare da un\'AI', href: '#/nuovi' },
-    { testo: 'Impostazioni e backup', nota: 'pranzi, spesa, aspetto, backup', href: '#/impostazioni' }
-  ];
-  if (Impostazioni.siPuoInstallare()) {
-    voci.unshift({ testo: 'Installa sul telefono', nota: 'diventa un\'icona, funziona offline',
-                   href: '#/impostazioni' });
-  }
-
-  const elenco = el('div', { class: 'elencoAltro' });
-  for (const v of voci) {
-    elenco.appendChild(v.href
-      ? el('a', { class: 'vociAltro', href: v.href }, [
-          el('span', {}, v.testo), el('span', { class: 'nota' }, v.nota)])
-      : el('span', { class: 'vociAltro spento' }, [
-          el('span', {}, v.testo), el('span', { class: 'nota' }, v.nota)]));
-  }
-  contenitore.appendChild(elenco);
-}
 
 /* ------------------------------------------------------------- avvio ----- */
 
@@ -809,10 +778,10 @@ function disegna() {
   const scorrimento = stessaSezione ? window.scrollY : 0;
 
   document.getElementById('titolo').textContent = rotta.titolo;
-  const sottoAltro = ['dispensa', 'nuovi', 'impostazioni', 'gusti'];
-  const attiva = sottoAltro.includes(nome) ? 'altro' : nome;
+  // le sezioni che non stanno nella barra (dispensa, nuovi piatti,
+  // impostazioni) non accendono niente: ci si arriva dalla prima pagina
   for (const link of document.querySelectorAll('.barra a')) {
-    link.setAttribute('aria-current', link.dataset.rotta === attiva ? 'page' : 'false');
+    link.setAttribute('aria-current', link.dataset.rotta === nome ? 'page' : 'false');
   }
   chiudiDettaglio();
   rotta.render(document.getElementById('vista'));

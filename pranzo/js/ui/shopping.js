@@ -79,6 +79,19 @@ function nascosta(voce) {
   return false;
 }
 
+/**
+ * "per che cosa serve": con due pasti al giorno un ingrediente comune può
+ * finire in sei piatti, e l'elenco intero diventa un paragrafo sotto una
+ * riga della spesa. Due nomi bastano a riconoscerlo, il resto si conta.
+ */
+function perQualiPiatti(nomi) {
+  const bassi = nomi.map((n) => n.toLowerCase());
+  if (bassi.length === 1) return 'per ' + bassi[0];
+  if (bassi.length === 2) return `per ${bassi[0]} e ${bassi[1]}`;
+  const altri = bassi.length - 2;
+  return `per ${bassi[0]}, ${bassi[1]} e ${altri === 1 ? 'un altro piatto' : altri + ' altri piatti'}`;
+}
+
 function riga(voce, stato) {
   const chiave = voce.libera ? voce.id : voce.ingredienteId;
   const quantita = voce.libera ? '' : M.formattaQta(voce.qtaDaComprare, voce.unita);
@@ -100,7 +113,7 @@ function riga(voce, stato) {
     dettagli.push(el('span', {}, `in dispensa ${M.formattaQta(voce.qtaInDispensa, voce.unita)}`));
   }
   if (voce.usatoIn && voce.usatoIn.length) {
-    dettagli.push(el('span', { class: 'usato' }, 'per ' + voce.usatoIn.join(', ').toLowerCase()));
+    dettagli.push(el('span', { class: 'usato' }, perQualiPiatti(voce.usatoIn)));
   }
 
   const secondarie = voce.libera

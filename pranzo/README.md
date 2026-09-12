@@ -29,6 +29,7 @@ pranzo/
     app.js                avvio, seed, router a hash, azioni
     ui/                   una schermata per file; non parlano col database
       home.js             la prima pagina: oggi e l'indice delle sezioni
+      pick.js             "scegli tu": un piatto dal catalogo dentro un pasto
   data/
     seed-*.json           catalogo di partenza (116 ingredienti, 141 piatti)
     generatori/           gli script Python che hanno prodotto i seed e le icone
@@ -43,6 +44,8 @@ Le regole che tengono in piedi il resto:
   `stato.azioni`, che sta in `app.js`;
 - la prima pagina non è un menu di bottoni: ogni riga porta il suo dato vero
   ("24 da prendere", "1 suggerimento"), in blu quando c'è qualcosa da fare;
+  e comanda tutto: la barra in basso tiene solo le cinque sezioni di ogni
+  giorno, il resto si apre da lì;
 - le quantità si salvano sempre per **una** porzione e si moltiplicano quando
   serve; la conversione all'unità canonica avviene prima di sommare, mai dopo;
 - un giorno ha due pasti, `pasti.pranzo` e `pasti.cena`; i menù della 1.x si
@@ -94,6 +97,6 @@ all'elenco `GUSCIO` nello stesso file.
 ## I dati
 
 Un backup è un file `.json` con tutto: piatti, ingredienti, gusti, voti,
-menù, dispensa, cronologia — tranne le foto, che restano sul telefono. Si fa da *Altro → Impostazioni → Backup*.
+menù, dispensa, cronologia — tranne le foto, che restano sul telefono. Si fa da *Impostazioni → Backup*.
 Dentro il telefono restano anche le ultime cinque istantanee giornaliere:
 servono contro il gesto sbagliato, non contro il telefono perso.

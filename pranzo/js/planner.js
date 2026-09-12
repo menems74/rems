@@ -165,6 +165,13 @@ function candidati(ctx, filtro, opzioni) {
       if (s != null && s < cooldown) continue;
     }
 
+    // il tempo che resta al pasto: un piatto che non ci sta non è un
+    // candidato peggiore, è un candidato sbagliato. Se poi non si compone
+    // niente, il rilassamento toglie il tetto e lo dichiara.
+    // null = nessun tetto; 0 = tetto esaurito, e allora non entra più niente
+    if (filtro.tempoRimasto != null &&
+        tempoPercepito(piatto, (ctx.voti || {})[piatto.id]) > filtro.tempoRimasto) continue;
+
     // mai la stessa proteina del pasto precedente
     if (filtro.famigliaVietata) {
       const fam = M.famigliaProteinaPrincipale(piatto, idx);
@@ -192,6 +199,10 @@ export function componiPasto(ctx, opzioni) {
   const modalita = M.MODALITA.includes(opzioni.modalita) ? opzioni.modalita : 'unico';
   const scelti = [];
   const perche = {};
+  // il tempo è del pasto intero, non del singolo piatto: ogni posto che si
+  // riempie si porta via un pezzo del tempo che resta
+  const tempoMax = opzioni.tempoMax || 0;
+  let tempoUsato = 0;
 
   for (const tipo of M.TIPI_MODALITA[modalita]) {
     aggiungi(tipo, tipo !== 'primo' && tipo !== 'contorno');
@@ -208,13 +219,15 @@ export function componiPasto(ctx, opzioni) {
   function aggiungi(tipo, guardaProteina) {
     const c = estraiPesato(candidati(ctx, {
       tipi: [tipo],
-      famigliaVietata: guardaProteina ? opzioni.famigliaVietata : null
+      famigliaVietata: guardaProteina ? opzioni.famigliaVietata : null,
+      tempoRimasto: tempoMax > 0 ? Math.max(0, tempoMax - tempoUsato) : null
     }, Object.assign({}, opzioni, {
       giaUsati: (opzioni.giaUsati || []).concat(scelti.map((p) => p.id)),
       macroMancanti: M.macroMancanti(scelti, idx)
     })));
     if (!c) return;
     scelti.push(c.piatto);
+    tempoUsato += tempoPercepito(c.piatto, (ctx.voti || {})[c.piatto.id]);
     perche[c.piatto.id] = c.componenti;
   }
 }
@@ -225,7 +238,8 @@ const LIVELLI_RILASSAMENTO = [
   { chiave: 'nessuno', etichetta: null },
   { chiave: 'quotaNovita', etichetta: 'quota di piatti nuovi ridotta' },
   { chiave: 'varietaProteine', etichetta: 'varietà delle proteine non garantita' },
-  { chiave: 'cooldownDimezzato', etichetta: 'cooldown dimezzato: qualche piatto torna prima' }
+  { chiave: 'cooldownDimezzato', etichetta: 'cooldown dimezzato: qualche piatto torna prima' },
+  { chiave: 'tempoLibero', etichetta: 'qualche pasto sfora il tempo massimo' }
 ];
 
 /**
@@ -245,7 +259,8 @@ export function generaSettimana(ctx, opzioni = {}) {
     const rilassa = {
       quotaNovita: livello >= 1 ? 0 : pref.quotaNovita,
       varietaProteine: livello < 2,
-      cooldown: livello >= 3 ? Math.floor(pref.cooldownSettimane / 2) : pref.cooldownSettimane
+      cooldown: livello >= 3 ? Math.floor(pref.cooldownSettimane / 2) : pref.cooldownSettimane,
+      tempoLibero: livello >= 4
     };
 
     for (let tentativo = 0; tentativo < 60; tentativo++) {
@@ -315,7 +330,7 @@ function unTentativo(ctx, giorniRichiesti, pastiRichiesti, fissi, rilassa) {
         continue;
       }
 
-      const tempoMax = tempoMassimo(pasto, giorno, pref);
+      const tempoMax = rilassa.tempoLibero ? 0 : tempoMassimo(pasto, giorno, pref);
       const modalita = scegliModalita(pasto, pref, primoSecondoUsati, tempoMax);
       const esito = componiPasto(ctx, {
         modalita, tempoMax, cooldown: rilassa.cooldown, giaUsati: usati,
@@ -400,24 +415,27 @@ export function rigeneraPasto(ctx, menu, giorno, pasto, opzioni = {}) {
                    scegliModalita(pasto, pref, 0, tempoMax);
 
   // stessa scala di rilassamenti, ma su un solo pasto
-  for (const cooldown of [pref.cooldownSettimane, Math.floor(pref.cooldownSettimane / 2), 0]) {
-    for (const famiglia of [famigliaPrecedente, null]) {
-      for (let t = 0; t < 30; t++) {
-        const esito = componiPasto(ctx, {
-          modalita, tempoMax, cooldown, giaUsati: usati,
-          famigliaVietata: famiglia, slotNovitaLibero: true
-        });
-        if (esito) {
-          return {
-            pasto: M.pastoPulito({ modalita: esito.modalita,
-                                   piatti: esito.piatti.map((p) => p.id) }),
-            piattiOggetti: esito.piatti,
-            perche: esito.perche,
-            rilassamenti: [
-              cooldown !== pref.cooldownSettimane ? 'cooldown ridotto per questo pasto' : null,
-              famiglia === null && famigliaPrecedente ? 'ripetuta la proteina del pasto prima' : null
-            ].filter(Boolean)
-          };
+  for (const tetto of [tempoMax, 0]) {
+    for (const cooldown of [pref.cooldownSettimane, Math.floor(pref.cooldownSettimane / 2), 0]) {
+      for (const famiglia of [famigliaPrecedente, null]) {
+        for (let t = 0; t < 30; t++) {
+          const esito = componiPasto(ctx, {
+            modalita, tempoMax: tetto, cooldown, giaUsati: usati,
+            famigliaVietata: famiglia, slotNovitaLibero: true
+          });
+          if (esito) {
+            return {
+              pasto: M.pastoPulito({ modalita: esito.modalita,
+                                     piatti: esito.piatti.map((p) => p.id) }),
+              piattiOggetti: esito.piatti,
+              perche: esito.perche,
+              rilassamenti: [
+                tetto !== tempoMax ? 'tempo massimo superato per questo pasto' : null,
+                cooldown !== pref.cooldownSettimane ? 'cooldown ridotto per questo pasto' : null,
+                famiglia === null && famigliaPrecedente ? 'ripetuta la proteina del pasto prima' : null
+              ].filter(Boolean)
+            };
+          }
         }
       }
     }
