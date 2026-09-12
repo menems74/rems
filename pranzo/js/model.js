@@ -9,9 +9,16 @@ export const MACRO = ['proteina', 'carboidrato', 'fibra', 'grasso', 'condimento'
 export const MACRO_NUTRIENTI = ['proteina', 'carboidrato', 'fibra'];
 export const UNITA = ['g', 'ml', 'pz'];
 export const TIPI_PIATTO = ['primo', 'secondo', 'contorno', 'unico'];
+export const NOME_TIPO = {
+  primo: 'primo', secondo: 'secondo', contorno: 'contorno', unico: 'piatto unico'
+};
 export const ORIGINI = ['base', 'ai', 'utente'];
 export const MOTIVI_VOTO = ['buono', 'troppoLungo', 'noioso', 'nonMiPiace', 'daRifare'];
 export const GIORNI = ['lun', 'mar', 'mer', 'gio', 'ven', 'sab', 'dom'];
+export const NOME_GIORNO = {
+  lun: 'lunedì', mar: 'martedì', mer: 'mercoledì', gio: 'giovedì',
+  ven: 'venerdì', sab: 'sabato', dom: 'domenica'
+};
 
 /* Dalla 2.0 un giorno ha due pasti. L'ordine di questo elenco è l'ordine in
    cui si mangia, e quindi anche quello in cui si mostra. */
@@ -26,6 +33,13 @@ export const NOME_MODALITA = {
   primoSecondo: 'primo + secondo',
   secondoContorno: 'secondo + contorno'
 };
+/** La forma di un pasto fatto da un piatto solo di questo tipo. */
+export function formaDelTipo(tipo) {
+  if (tipo === 'unico') return 'unico';
+  if (tipo === 'primo') return 'primoSecondo';
+  return 'secondoContorno';        // un secondo o un contorno, da completare
+}
+
 /* Quali tipi di piatto compongono ogni forma, nell'ordine in cui si servono. */
 export const TIPI_MODALITA = {
   unico: ['unico'],

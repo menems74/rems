@@ -10,7 +10,7 @@
    i telefoni continuano a servire la copia vecchia.
    ========================================================================= */
 
-const VERSIONE = 'pranzo-v13';
+const VERSIONE = 'pranzo-v14';
 
 /* Il guscio: tutto ciò che serve per aprire l'app senza rete. */
 const GUSCIO = [
@@ -31,6 +31,7 @@ const GUSCIO = [
   './js/ui/week.js',
   './js/ui/catalog.js',
   './js/ui/dish.js',
+  './js/ui/pick.js',
   './js/ui/shopping.js',
   './js/ui/pantry.js',
   './js/ui/tastes.js',

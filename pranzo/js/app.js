@@ -99,6 +99,7 @@ async function avvia() {
 
   stato.azioni = {
     generaSettimana, rigeneraPasto, bloccaPasto, cambiaModalita, avanziDalPranzo,
+    scegliPiatto,
     generaLista, segnaComprato, segnaInCasa, aggiungiLibera, togliLibera,
     salvaDispensa, cucinato,
     salvaVoto, eliminaVoto, aggiungiGusto, togliGusto,
@@ -436,6 +437,25 @@ async function cambiaModalita(giorno, pasto, modalita) {
   const nuovo = conPastoCambiato(giorno, pasto, esito.pasto);
   nuovo.perche = Object.assign({}, nuovo.perche || {}, esito.perche);
   await salvaMenu(nuovo);
+  disegna();
+}
+
+/**
+ * "Scegli tu": il piatto preso dal catalogo prende il posto di tutto il
+ * pasto e lo blocca. È una decisione dell'utente, quindi non passa dal
+ * motore e non chiede niente: si fa e basta.
+ */
+async function scegliPiatto(giorno, pasto, piattoId) {
+  if (!stato.menu) return;
+  if (!trovaPasto(giorno, pasto)) return;
+  const piatto = stato.indicePiatti.get(piattoId);
+  if (!piatto) { avviso('Piatto non trovato.', 'errore'); return; }
+
+  await salvaMenu(conPastoCambiato(giorno, pasto, M.pastoPulito({
+    modalita: M.formaDelTipo(piatto.tipo), piatti: [piattoId], bloccato: true
+  })));
+  chiudiDettaglio();
+  avviso(`${piatto.nome}: scelto da te. Il pasto resta bloccato.`);
   disegna();
 }
 

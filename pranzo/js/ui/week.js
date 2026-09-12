@@ -9,6 +9,7 @@ import { el, svuotaNodo } from './dom.js';
 import * as M from '../model.js';
 import * as P from '../planner.js';
 import { mostraDettaglio } from './dish.js';
+import { mostraSceltaPiatto } from './pick.js';
 
 const MESI = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
 
@@ -126,7 +127,7 @@ function bloccoPasto(giorno, nome, pasto, menu, stato) {
       }, M.ETICHETTA_MACRO[m]))),
       el('span', { class: 'num tempo' },
          pasto.avanziDa ? 'già cucinato' : M.formattaTempo(tempoPasto(pasto, stato))),
-      el('span', { class: 'modalita' }, M.NOME_MODALITA[pasto.modalita])
+      el('span', { class: 'modalita' }, etichettaForma(pasto, piatti))
     ]));
   }
 
@@ -149,6 +150,20 @@ function bloccoPasto(giorno, nome, pasto, menu, stato) {
 }
 
 /**
+ * Come è composto il pasto adesso. Se i piatti riempiono la forma si usa il
+ * suo nome; se non la riempiono — perché il pasto è stato scelto a mano, o
+ * perché un posto è rimasto vuoto — si dice quello che c'è davvero, che è
+ * sempre meglio di un'etichetta che promette un secondo che non c'è.
+ */
+function etichettaForma(pasto, piatti) {
+  const tipi = piatti.map((p) => p.tipo);
+  const attesi = M.TIPI_MODALITA[pasto.modalita] || [];
+  const combacia = tipi.length === attesi.length && attesi.every((t, i) => t === tipi[i]);
+  if (combacia) return M.NOME_MODALITA[pasto.modalita];
+  return tipi.map((t) => M.NOME_TIPO[t] || t).join(' + ');
+}
+
+/**
  * Le azioni dicono cosa ottieni: "altri piatti" cambia i piatti tenendo la
  * forma, l'altra porta il nome della forma in cui il pasto diventerebbe.
  */
@@ -167,6 +182,11 @@ function azioniPasto(giorno, nome, pasto, stato) {
       onclick: () => stato.azioni.cambiaModalita(giorno.giorno, nome, alternativa)
     }, M.NOME_MODALITA[alternativa]));
   }
+
+  azioni.appendChild(el('button', {
+    class: 'testuale', type: 'button',
+    onclick: () => mostraSceltaPiatto(stato, giorno.giorno, nome)
+  }, 'scegli tu'));
 
   if (nome === 'cena' && (giorno.pasti || {}).pranzo) {
     azioni.appendChild(el('button', {

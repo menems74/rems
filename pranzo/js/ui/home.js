@@ -13,10 +13,6 @@ import * as P from '../planner.js';
 import * as S from '../shopping.js';
 import { mostraDettaglio } from './dish.js';
 
-const GIORNO_LUNGO = {
-  lun: 'lunedì', mar: 'martedì', mer: 'mercoledì', gio: 'giovedì',
-  ven: 'venerdì', sab: 'sabato', dom: 'domenica'
-};
 const MESI = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno',
               'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
 
@@ -51,7 +47,7 @@ function copertina(stato) {
 
   const corpo = el('div', { class: 'corpoCopertina' });
   corpo.appendChild(el('p', { class: 'meseOggi' },
-    `${GIORNO_LUNGO[sigla]} ${oggi.getDate()} ${MESI[oggi.getMonth()]}`));
+    `${M.NOME_GIORNO[sigla]} ${oggi.getDate()} ${MESI[oggi.getMonth()]}`));
 
   const giorno = (stato.menu && (stato.menu.giorni || []).find((g) => g.data === iso)) || null;
   const pasti = giorno ? M.pastiDi(giorno) : [];
@@ -70,7 +66,7 @@ function copertina(stato) {
       corpo.appendChild(el('button', {
         class: 'piattoOggi prossimo', type: 'button',
         onclick: () => { location.hash = '#/settimana'; }
-      }, `${GIORNO_LUNGO[dopo.giorno]}: ${dopo.nomi.join(', ')}`));
+      }, `${M.NOME_GIORNO[dopo.giorno]}: ${dopo.nomi.join(', ')}`));
     }
   }
 

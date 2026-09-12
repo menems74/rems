@@ -239,6 +239,12 @@ prova('i pasti escono nell\'ordine in cui si mangiano', () => {
   uguale(['pranzo', 'cena'], M.pastiDi(giorno).map(([nome]) => nome));
   uguale(['a', 'b'], M.piattiDelGiorno(giorno));
 });
+prova('la forma di un pasto fatto da un piatto solo', () => {
+  uguale('unico', M.formaDelTipo('unico'));
+  uguale('primoSecondo', M.formaDelTipo('primo'));
+  uguale('secondoContorno', M.formaDelTipo('secondo'));
+  uguale('secondoContorno', M.formaDelTipo('contorno'));
+});
 prova('la giornata dice cosa coprono i due pasti messi insieme', () => {
   const soloProteina = { id: 'x', ingredienti: [{ ingredienteId: 'ing_pollo', qta: 150, unita: 'g' }] };
   const soloFibra = { id: 'y', ingredienti: [{ ingredienteId: 'ing_asparagi', qta: 200, unita: 'g' }] };
@@ -493,7 +499,11 @@ prova('senza avanzi richiesti nessuna cena è di avanzi', () => {
   }
 });
 prova('rigenera un pasto solo: cambia quello e lascia stare gli altri', () => {
-  const menu = P.generaSettimana(ctxProva());
+  // due giorni soli: il catalogo di prova è piccolo e deve restare qualcosa
+  // da mettere al posto del pasto che si rifà
+  const pref = Object.assign(M.preferenzePredefinite(), { giorni: ['lun', 'mar'], avanziASettimana: 0 });
+  const ctx = ctxProva({ preferenze: pref });
+  const menu = P.generaSettimana(ctx);
   const conOggetti = Object.assign({}, menu, {
     giorni: menu.giorni.map((g) => {
       const pasti = {};
@@ -504,7 +514,7 @@ prova('rigenera un pasto solo: cambia quello e lascia stare gli altri', () => {
     })
   });
   const primaPranzo = menu.giorni[0].pasti.pranzo.piatti.slice();
-  const esito = P.rigeneraPasto(ctxProva(), conOggetti, menu.giorni[0].giorno, 'cena');
+  const esito = P.rigeneraPasto(ctx, conOggetti, menu.giorni[0].giorno, 'cena');
   if (!esito) throw new Error('doveva rigenerare');
   uguale(primaPranzo, menu.giorni[0].pasti.pranzo.piatti);
   uguale(null, esito.pasto.avanziDa);
