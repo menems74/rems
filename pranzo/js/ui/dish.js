@@ -135,13 +135,14 @@ function bloccoFoto(piatto, stato) {
     }
   });
 
-  const azioni = el('div', { class: 'sottoAzioni' }, [
-    el('label', { class: 'testuale comeBottone', for: 'fotoDelPiatto' },
-       haFoto ? 'cambia la foto' : 'aggiungi una foto'),
+  // un bottone, non una scritta: la foto è una cosa che si fa, non si legge
+  const azioni = el('div', { class: 'azioniFoto' }, [
+    el('label', { class: 'bottone', for: 'fotoDelPiatto' },
+       haFoto ? 'Cambia foto' : 'Foto'),
     haFoto ? el('button', {
-      class: 'testuale', type: 'button',
+      class: 'bottone', type: 'button',
       onclick: () => stato.azioni.togliFoto(piatto.id)
-    }, 'toglie') : null
+    }, 'Togli') : null
   ]);
 
   if (haFoto) {

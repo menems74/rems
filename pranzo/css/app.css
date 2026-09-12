@@ -631,4 +631,14 @@ main{padding:14px 16px 24px;}
   display:block; width:100%; max-height:46vh; object-fit:cover;
   border-radius:2px; border:1px solid var(--filetto);
 }
-.fotoPiatto .sottoAzioni{margin-top:2px;}
+/* bottone compatto: si vede che è un bottone, ma non ruba la scena a
+   "Cucinato oggi", che resta l'unica azione piena della scheda */
+.azioniFoto{display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;}
+.bottone{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-height:var(--tocco); padding:0 20px;
+  color:var(--biro); background:transparent;
+  border:1.5px solid var(--biro); border-radius:2px;
+  font:inherit; font-size:.95rem; font-weight:650; cursor:pointer;
+}
+.bottone:active{background:rgba(34,69,143,.10);}
