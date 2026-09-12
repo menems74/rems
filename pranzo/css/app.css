@@ -9,7 +9,7 @@
 :root{
   --carta:#f6f6f3;
   --inchiostro:#16181a;
-  --matita:#6b6f73;
+  --matita:#5e6266;
   --biro:#22458f;
   --spunta:#1f6b45;
   --rosso:#b3261e;
@@ -27,10 +27,13 @@
 }
 
 *{box-sizing:border-box; margin:0;}
-html{-webkit-text-size-adjust:100%;}   /* color-scheme: lo mette il tema */
+/* La misura di base sta qui, non su body: quasi tutto il foglio è scritto
+   in rem, e i rem guardano la radice. Alzandola cresce tutto insieme, che
+   è il punto della 2.0: leggerlo dal telefono senza avvicinarlo. */
+html{font-size:112.5%; -webkit-text-size-adjust:100%;}   /* 18px */
 body{
   background:var(--carta); color:var(--inchiostro);
-  font:17px/1.45 var(--testo);
+  font:1rem/1.45 var(--testo);
   padding:0 0 calc(60px + env(safe-area-inset-bottom));
 }
 button{font:inherit; color:inherit; background:none; border:0; padding:0; cursor:pointer;}
@@ -113,7 +116,7 @@ main{padding:14px 16px 24px;}
 .piatti{display:flex; flex-direction:column; align-items:flex-start;}
 .nomePiatto{
   min-height:var(--tocco); display:flex; align-items:center; text-align:left;
-  font-size:1.05rem; font-weight:600; line-height:1.25;
+  font-size:1.12rem; font-weight:600; line-height:1.25;
   color:var(--inchiostro); text-decoration:underline; text-decoration-color:var(--filetto-forte);
   text-decoration-thickness:1px; text-underline-offset:4px;
 }
@@ -147,6 +150,11 @@ main{padding:14px 16px 24px;}
 }
 .etichettaPasto .lucchetto{color:var(--spunta); font-weight:400;}
 .segnoAvanzi{font-size:.78rem; font-weight:400; color:var(--matita);}
+/* il rimando al pranzo, al posto dei nomi ripetuti */
+.rimando{
+  color:var(--matita); font-size:.95rem;
+  min-height:var(--tocco); display:flex; align-items:center;
+}
 .pasto.bloccato{opacity:.92;}
 
 /* ------------------------------------------------------- scegli tu ------
@@ -166,7 +174,7 @@ main{padding:14px 16px 24px;}
   border-bottom:1px solid var(--filetto);
 }
 .voceScelta:active{background:var(--premuto);}
-.nomeScelta{font-size:1.05rem; font-weight:600; line-height:1.25; letter-spacing:-.01em;}
+.nomeScelta{font-size:1.12rem; font-weight:600; line-height:1.25; letter-spacing:-.01em;}
 .datiScelta{font-family:var(--num); font-size:.78rem; color:var(--matita);}
 
 /* ==================================================== SCHERMATA CATALOGO */
@@ -187,11 +195,15 @@ main{padding:14px 16px 24px;}
 .elenco{border-top:1px solid var(--filetto);}
 .piatto{
   display:flex; flex-direction:column; align-items:flex-start; gap:5px;
-  width:100%; min-height:60px; padding:12px 0; text-align:left;
+  width:100%; min-height:64px; padding:13px 0; text-align:left;
   border-bottom:1px solid var(--filetto);
 }
 .piatto:active{background:var(--premuto);}
-.piatto .nome{font-size:1.02rem; font-weight:600;}
+/* il nome sta su una riga sua e se la prende tutta: è la cosa che si cerca
+   scorrendo il catalogo, il resto viene dopo */
+.piatto .nome{
+  width:100%; font-size:1.18rem; font-weight:650; line-height:1.25; letter-spacing:-.012em;
+}
 .piatto .meta{
   display:flex; flex-wrap:wrap; gap:12px; align-items:center;
   color:var(--matita); font-size:.8rem; font-family:var(--num);
@@ -311,7 +323,10 @@ main{padding:14px 16px 24px;}
   margin-top:20px; padding-top:14px; border-top:1px solid var(--filetto-forte);
 }
 .aggiungi input, .aggiungi select{
-  flex:1 1 55%; min-height:var(--tocco); padding:0 10px; font:inherit;
+  /* min-width:0 o il select si allarga quanto il nome più lungo dell'elenco
+     e sui telefoni stretti spinge fuori la pagina */
+  flex:1 1 55%; min-width:0; max-width:100%;
+  min-height:var(--tocco); padding:0 10px; font:inherit;
   background:transparent; color:var(--inchiostro);
   border:1px solid var(--filetto-forte); border-radius:2px;
 }
@@ -629,7 +644,7 @@ main{padding:14px 16px 24px;}
 
 /* in prima pagina i pasti di oggi stanno uno sotto l'altro: l'etichetta
    piccola in blu, il nome grande sotto. */
-.pastoOggi{padding-top:6px;}
+.pastoOggi{padding-top:10px;}
 .pastoOggi:first-of-type{padding-top:2px;}
 .etichettaOggi{
   display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;
@@ -643,15 +658,16 @@ main{padding:14px 16px 24px;}
 }
 .scorciatoia{
   display:flex; align-items:baseline; justify-content:space-between; gap:12px;
-  min-height:62px; padding:10px 0;
+  flex-wrap:wrap;                    /* su schermi stretti il dato va a capo */
+  min-height:66px; padding:11px 0;
   border-bottom:1px solid var(--filetto);
   text-decoration:none; color:var(--inchiostro);
 }
 .scorciatoia:last-child{border-bottom:0;}
 .scorciatoia:active{background:var(--premuto);}
-.nomeScorciatoia{font-size:1.12rem; font-weight:600; letter-spacing:-.01em;}
+.nomeScorciatoia{min-width:0; font-size:1.1rem; font-weight:600; letter-spacing:-.01em;}
 .datoScorciatoia{
-  flex:none; text-align:right; white-space:nowrap;
+  flex:none; margin-left:auto; text-align:right; white-space:nowrap;
   font-family:var(--num); font-size:.8rem; color:var(--matita);
 }
 .datoScorciatoia.dafare{color:var(--biro); font-weight:650;}

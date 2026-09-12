@@ -54,8 +54,12 @@ function copertina(stato) {
   const conPiatti = pasti.filter(([, pasto]) => (pasto.piatti || []).length);
 
   if (conPiatti.length) {
+    // la misura dei nomi è una sola per tutta la giornata: pranzo e cena
+    // devono pesare uguale, se no sembra che uno conti più dell'altro
+    const quanti = conPiatti.reduce((n, [, pasto]) =>
+      n + (pasto.avanziDa ? 0 : (pasto.piatti || []).length), 0);
     for (const [nome, pasto] of conPiatti) {
-      corpo.appendChild(bloccoPastoOggi(nome, pasto, stato));
+      corpo.appendChild(bloccoPastoOggi(nome, pasto, stato, quanti > 2));
     }
     corpo.appendChild(rigaGiornata(giorno, stato));
   } else {
@@ -83,7 +87,7 @@ function copertina(stato) {
 }
 
 /** Un pasto di oggi: l'etichetta piccola e sotto i nomi, grandi. */
-function bloccoPastoOggi(nome, pasto, stato) {
+function bloccoPastoOggi(nome, pasto, stato, stretto) {
   const piatti = (pasto.piatti || [])
     .map((id) => stato.indicePiatti.get(id)).filter(Boolean);
   const blocco = el('div', { class: 'pastoOggi' });
@@ -93,11 +97,16 @@ function bloccoPastoOggi(nome, pasto, stato) {
     pasto.avanziDa ? el('span', { class: 'segnoAvanzi' }, 'avanzi del pranzo') : null
   ]));
 
-  // un piatto solo si legge da lontano; due o tre stanno più stretti
-  const stretto = piatti.length > 1 ? ' stretto' : '';
+  if (pasto.avanziDa) {
+    // sono i piatti del pranzo, appena sopra: riscriverli non aggiunge niente
+    blocco.appendChild(el('p', { class: 'rimando' }, 'gli stessi piatti del pranzo'));
+    return blocco;
+  }
+
+  // un piatto o due si leggono da lontano; da tre in su stanno più stretti
   for (const piatto of piatti) {
     blocco.appendChild(el('button', {
-      class: 'piattoOggi' + stretto, type: 'button',
+      class: 'piattoOggi' + (stretto ? ' stretto' : ''), type: 'button',
       onclick: () => mostraDettaglio(piatto, stato, ((stato.menu || {}).perche || {})[piatto.id])
     }, piatto.nome));
   }
@@ -161,20 +170,22 @@ function voci(stato) {
   const giorniMenu = (menu && menu.giorni) || [];
 
   // settimana
+  // il dato che conta è quanti pasti sono in programma: i giorni si vedono
+  // aprendo la settimana, e la riga deve stare su una riga sola
   let quantiPasti = 0;
   for (const g of giorniMenu) quantiPasti += M.pastiDi(g).length;
-  const settimana = giorniMenu.length
-    ? `${giorniMenu.length} giorni · ${quantiPasti} pasti`
-    : 'da generare';
+  const settimana = giorniMenu.length ? `${quantiPasti} pasti` : 'da generare';
 
   // spesa
-  let spesa = 'lista da fare', spesaDaFare = true;
+  // i dati dell'indice stanno corti apposta: devono entrare accanto al nome
+  // anche sui telefoni stretti, senza mandare la riga a capo
+  let spesa = 'da fare', spesaDaFare = true;
   if (!giorniMenu.length) {
-    spesa = 'serve il menù'; spesaDaFare = false;
+    spesa = 'dopo il menù'; spesaDaFare = false;
   } else if (stato.lista) {
     const { fatti, totale } = S.conteggio(stato.lista);
     const restano = totale - fatti;
-    spesa = restano ? `${restano} da prendere` : `${totale} voci, tutte prese`;
+    spesa = restano ? `${restano} da prendere` : 'tutte prese';
     spesaDaFare = restano > 0;
   }
 

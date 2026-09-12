@@ -113,11 +113,16 @@ function bloccoPasto(giorno, nome, pasto, menu, stato) {
   if (!piatti.length) {
     blocco.appendChild(el('span', { class: 'assente' }, 'niente per questo pasto'));
   } else {
-    const nomi = el('div', { class: 'piatti' }, piatti.map((p) => el('button', {
-      class: 'nomePiatto', type: 'button',
-      onclick: () => mostraDettaglio(p, stato, (menu.perche || {})[p.id])
-    }, p.nome)));
-    blocco.appendChild(nomi);
+    // gli avanzi non si riscrivono: sono i piatti del pranzo, che stanno
+    // due righe più su. Ripeterli qui raddoppia il giorno per niente.
+    if (pasto.avanziDa) {
+      blocco.appendChild(el('p', { class: 'rimando' }, 'gli stessi piatti del pranzo'));
+    } else {
+      blocco.appendChild(el('div', { class: 'piatti' }, piatti.map((p) => el('button', {
+        class: 'nomePiatto', type: 'button',
+        onclick: () => mostraDettaglio(p, stato, (menu.perche || {})[p.id])
+      }, p.nome))));
+    }
 
     const coperti = M.macroCopertiGiorno(piatti, stato.indiceIngredienti);
     blocco.appendChild(el('div', { class: 'datiGiorno' }, [
