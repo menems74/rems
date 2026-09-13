@@ -20,7 +20,7 @@ const MESI = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno',
 /* La versione dell'app, in fondo alla prima pagina. Si cambia qui a mano,
    quando lo dice Rems: non si alza da sola e non c'entra niente con la
    VERSIONE di sw.js, che è solo il numero di serie della cache. */
-const VERSIONE_APP = 'V.2.0';
+const VERSIONE_APP = 'V.2.01';
 
 export function render(contenitore, stato) {
   svuotaNodo(contenitore);
