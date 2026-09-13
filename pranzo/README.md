@@ -48,6 +48,9 @@ Le regole che tengono in piedi il resto:
   giorno, il resto si apre da lì;
 - le quantità si salvano sempre per **una** porzione e si moltiplicano quando
   serve; la conversione all'unità canonica avviene prima di sommare, mai dopo;
+- la schermata Settimana guarda una settimana per volta e si può spostare
+  avanti e indietro: `stato.lunediScelto` decide quale menù si sta guardando,
+  `stato.menuOggi` resta quello che contiene oggi, per la prima pagina;
 - un giorno ha due pasti, `pasti.pranzo` e `pasti.cena`; i menù della 1.x si
   leggono come un giorno col solo pranzo, e si normalizzano in `model.js`
   (`normalizzaMenu`), non nelle schermate;

@@ -25,7 +25,10 @@ const stato = {
   ingredienti: [], piatti: [],
   indiceIngredienti: new Map(), indicePiatti: new Map(),
   preferenze: M.preferenzePredefinite(),
-  menu: null,
+  menu: null,              // la settimana che si sta guardando
+  menuOggi: null,          // quella che contiene oggi: serve alla prima pagina
+  lunediScelto: null,      // lunedì della settimana guardata (Date)
+  scarto: 0,               // quante settimane avanti (+) o indietro (−) da oggi
   voti: {},                 // piattoId -> [voti]
   ultimaVolta: new Map(),   // piattoId -> 'AAAA-MM-GG'
   dispensa: new Set(),      // ingredienti presenti, per il punteggio
@@ -67,7 +70,7 @@ async function avvia() {
     DB.motoreInUso() === 'indexeddb' ? 'IndexedDB' : 'localStorage';
 
   stato.azioni = {
-    generaSettimana, rigeneraPasto, bloccaPasto, cambiaModalita, avanziDalPranzo,
+    generaSettimana, cambiaSettimana, rigeneraPasto, bloccaPasto, cambiaModalita, avanziDalPranzo,
     scegliPiatto,
     generaLista, segnaComprato, segnaInCasa, aggiungiLibera, togliLibera,
     salvaDispensa, cucinato,
@@ -244,18 +247,30 @@ async function caricaStato() {
   stato.dispensaMappa = new Map(stato.dispensaRighe.map((d) => [d.ingredienteId, d.qta]));
   stato.dispensa = new Set(stato.dispensaMappa.keys());
 
-  const lunedi = P.lunediDi(new Date());
-  const idSettimana = P.idMenu(lunedi);
-  stato.menu = M.normalizzaMenu(menu.find((m) => m.id === idSettimana) || null);
+  const lunediOggi = P.lunediDi(new Date());
+  if (!stato.lunediScelto) stato.lunediScelto = lunediOggi;
+  const idScelta = P.idMenu(stato.lunediScelto);
+  const idOggi = P.idMenu(lunediOggi);
+
+  // quante settimane avanti o indietro si sta guardando: 0 = questa
+  stato.scarto = Math.round((stato.lunediScelto - lunediOggi) / (7 * 86400000));
+  stato.menu = M.normalizzaMenu(menu.find((m) => m.id === idScelta) || null);
+  stato.menuOggi = idScelta === idOggi
+    ? stato.menu
+    : M.normalizzaMenu(menu.find((m) => m.id === idOggi) || null);
   stato.lista = stato.menu ? (await DB.leggi(DB.STORE.listeSpesa, stato.menu.id)) || null : null;
-  // i menù delle settimane passate diventano archiviati
+
+  // si archivia solo quello che è passato davvero: una settimana preparata
+  // in anticipo è futura, non vecchia
+  const inizioOggi = P.iso(lunediOggi);
   for (const m of menu) {
-    if (m.id !== idSettimana && m.stato === 'attivo') {
+    if (m.stato === 'attivo' && m.dataInizio && m.dataInizio < inizioOggi) {
       m.stato = 'archiviato';
       await DB.scrivi(DB.STORE.menu, m);
     }
   }
 }
+
 
 /* ---------------------------------------------------------- il contesto -- */
 
@@ -296,7 +311,7 @@ function perSalvare(menu) {
 /* ---------------------------------------------------------- le azioni ---- */
 
 async function generaSettimana() {
-  const lunedi = P.lunediDi(new Date());
+  const lunedi = stato.lunediScelto || P.lunediDi(new Date());
   const ctx = contesto();
 
   // i pasti bloccati restano come sono, anche se si rigenera tutto
@@ -329,6 +344,19 @@ async function generaSettimana() {
 
   await salvaMenu(menu);
   avviso('Settimana generata.');
+  disegna();
+}
+
+/**
+ * Sposta lo sguardo di una settimana avanti o indietro. Serve la domenica,
+ * quando la settimana in corso è finita e quella da preparare è la prossima:
+ * prima "rigenera" rifaceva la settimana appena passata.
+ */
+async function cambiaSettimana(scarto) {
+  const d = new Date(stato.lunediScelto || P.lunediDi(new Date()));
+  d.setDate(d.getDate() + scarto * 7);
+  stato.lunediScelto = P.lunediDi(d);
+  await caricaStato();
   disegna();
 }
 

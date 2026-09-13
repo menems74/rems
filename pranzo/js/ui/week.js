@@ -17,9 +17,11 @@ export function render(contenitore, stato) {
   svuotaNodo(contenitore);
   const menu = stato.menu;
 
+  contenitore.appendChild(navigatore(stato));
+
   if (!menu || !menu.giorni || !menu.giorni.length) {
     contenitore.appendChild(el('p', { class: 'vuoto' },
-      'Nessun menù per questa settimana.'));
+      'Ancora nessun menù per questi giorni.'));
     contenitore.appendChild(el('button', {
       class: 'azione', type: 'button',
       onclick: () => stato.azioni.generaSettimana()
@@ -28,6 +30,15 @@ export function render(contenitore, stato) {
   }
 
   contenitore.appendChild(intestazione(menu, stato));
+  if (finita(menu) && !(stato.scarto || 0)) {
+    contenitore.appendChild(el('p', { class: 'nota daFinire' }, [
+      'Questa settimana è finita. ',
+      el('button', {
+        class: 'testuale', type: 'button',
+        onclick: () => stato.azioni.cambiaSettimana(1)
+      }, 'prepara la prossima')
+    ]));
+  }
   if (menu.rilassamenti && menu.rilassamenti.length) {
     contenitore.appendChild(el('p', { class: 'rilassato' },
       'Ho allentato dei vincoli: ' + menu.rilassamenti.join('; ') + '.'));
@@ -46,6 +57,38 @@ export function render(contenitore, stato) {
   }, 'Rigenera la settimana'));
   contenitore.appendChild(el('p', { class: 'nota' },
     'I pasti bloccati non vengono toccati.'));
+}
+
+/**
+ * Avanti e indietro di una settimana. Serve la domenica: la settimana in
+ * corso è finita, quella da preparare è la prossima, e senza questo
+ * "rigenera" rifaceva i giorni già passati.
+ */
+function navigatore(stato) {
+  return el('div', { class: 'navSettimana' }, [
+    el('button', {
+      class: 'testuale', type: 'button', 'aria-label': 'settimana precedente',
+      onclick: () => stato.azioni.cambiaSettimana(-1)
+    }, '‹ prima'),
+    el('span', { class: 'qualeSettimana' }, nomeSettimana(stato.scarto || 0)),
+    el('button', {
+      class: 'testuale', type: 'button', 'aria-label': 'settimana successiva',
+      onclick: () => stato.azioni.cambiaSettimana(1)
+    }, 'dopo ›')
+  ]);
+}
+
+function nomeSettimana(scarto) {
+  if (scarto === 0) return 'questa settimana';
+  if (scarto === 1) return 'la prossima';
+  if (scarto === -1) return 'la scorsa';
+  return scarto > 0 ? `fra ${scarto} settimane` : `${-scarto} settimane fa`;
+}
+
+/** Vero se l'ultimo giorno in programma è già passato. */
+function finita(menu) {
+  const date = (menu.giorni || []).map((g) => g.data).filter(Boolean).sort();
+  return date.length > 0 && date[date.length - 1] < P.iso(new Date());
 }
 
 function intestazione(menu, stato) {

@@ -95,6 +95,19 @@ main{padding:14px 16px 24px;}
 }
 .periodo .num{color:var(--inchiostro);}
 
+/* avanti e indietro di una settimana: sta in cima, dove si guarda prima
+   di toccare "rigenera" */
+.navSettimana{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding-bottom:6px; margin-bottom:10px;
+  border-bottom:1px solid var(--filetto);
+}
+.qualeSettimana{
+  font-size:.95rem; font-weight:650; color:var(--inchiostro); text-align:center;
+}
+.nota.daFinire{margin-top:-6px; margin-bottom:12px;}
+.nota.daFinire .testuale{font-size:inherit;}
+
 .settimana{border-top:1px solid var(--filetto);}
 .giorno{
   display:grid; grid-template-columns:var(--colonna) 1fr;

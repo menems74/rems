@@ -50,7 +50,10 @@ function copertina(stato) {
   corpo.appendChild(el('p', { class: 'meseOggi' },
     `${M.NOME_GIORNO[sigla]} ${oggi.getDate()} ${MESI[oggi.getMonth()]}`));
 
-  const giorno = (stato.menu && (stato.menu.giorni || []).find((g) => g.data === iso)) || null;
+  // oggi sta nella settimana di oggi, anche se in Settimana si sta
+  // guardando la prossima
+  const menuOggi = stato.menuOggi || stato.menu;
+  const giorno = (menuOggi && (menuOggi.giorni || []).find((g) => g.data === iso)) || null;
   const pasti = giorno ? M.pastiDi(giorno) : [];
   const conPiatti = pasti.filter(([, pasto]) => (pasto.piatti || []).length);
 
@@ -65,7 +68,7 @@ function copertina(stato) {
     corpo.appendChild(rigaGiornata(giorno, stato));
   } else {
     corpo.appendChild(el('p', { class: 'nienteOggi' },
-      stato.menu ? 'Oggi non è in programma.' : 'Ancora nessun menù.'));
+      menuOggi ? 'Oggi non è in programma.' : 'Ancora nessun menù.'));
     const dopo = prossimoGiorno(stato, iso);
     if (dopo) {
       corpo.appendChild(el('button', {
@@ -77,7 +80,7 @@ function copertina(stato) {
 
   // l'azione sta dentro la colonna del testo, così la riga del margine
   // scende senza interruzioni fino all'indice
-  if (!stato.menu || !(stato.menu.giorni || []).length) {
+  if (!menuOggi || !(menuOggi.giorni || []).length) {
     corpo.appendChild(el('button', {
       class: 'azione', type: 'button',
       onclick: () => stato.azioni.generaSettimana()
@@ -108,7 +111,7 @@ function bloccoPastoOggi(nome, pasto, stato, stretto) {
   for (const piatto of piatti) {
     blocco.appendChild(el('button', {
       class: 'piattoOggi' + (stretto ? ' stretto' : ''), type: 'button',
-      onclick: () => mostraDettaglio(piatto, stato, ((stato.menu || {}).perche || {})[piatto.id])
+      onclick: () => mostraDettaglio(piatto, stato, ((stato.menuOggi || stato.menu || {}).perche || {})[piatto.id])
     }, piatto.nome));
   }
   return blocco;
@@ -141,8 +144,9 @@ function rigaGiornata(giorno, stato) {
 
 /** Il primo giorno pianificato dopo oggi: serve quando oggi è vuoto. */
 function prossimoGiorno(stato, iso) {
-  if (!stato.menu) return null;
-  for (const g of stato.menu.giorni || []) {
+  const menu = stato.menuOggi || stato.menu;
+  if (!menu) return null;
+  for (const g of menu.giorni || []) {
     if (!g.data || g.data <= iso) continue;
     const nomi = M.piattiDelGiorno(g)
       .map((id) => (stato.indicePiatti.get(id) || {}).nome).filter(Boolean);
@@ -203,8 +207,13 @@ function voci(stato) {
     ? `${pendenti} ${pendenti > 1 ? 'suggerimenti' : 'suggerimento'}`
     : (quantiVoti ? `${quantiVoti} vot${quantiVoti === 1 ? 'o' : 'i'}` : 'niente ancora');
 
+  const scarto = stato.scarto || 0;
+  const nomeSettimana = scarto === 0 ? 'Settimana'
+    : (scarto === 1 ? 'Settimana prossima'
+    : (scarto === -1 ? 'Settimana scorsa' : 'Settimana'));
+
   const voci = [
-    { nome: 'Settimana', href: '#/settimana', dato: settimana, dafare: !giorniMenu.length },
+    { nome: nomeSettimana, href: '#/settimana', dato: settimana, dafare: !giorniMenu.length },
     { nome: 'Lista della spesa', href: '#/spesa', dato: spesa, dafare: spesaDaFare },
     { nome: 'Catalogo', href: '#/catalogo', dato: `${disponibili} disponibili` },
     { nome: 'Gusti', href: '#/gusti', dato: gusti, dafare: pendenti > 0 },
