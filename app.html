@@ -119,15 +119,17 @@
     <!--
       COME AGGIUNGERE UNA APP
       App già online  -> copia un blocco "app live": un link <a> alla pagina della app, con la freccia .go
+      App su un altro sito -> stesso blocco, ma con l'indirizzo completo e la
+      freccia obliqua (fa-arrow-up-right-from-square), che dice che si esce dal portale
       App da costruire -> copia un blocco "app soon": un <div>, con il badge "Presto" e senza link
       Ogni blocco usa style="--d:..." per ritardare un po' la comparsa rispetto al precedente.
       L'icona è una qualsiasi classe Font Awesome (es. fa-solid fa-calendar).
     -->
     <nav class="apps">
-      <a class="app live anim" style="--d:.5s" href="dart/">
+      <a class="app live anim" style="--d:.5s" href="https://menems74.github.io/fanta-dart/" rel="noopener">
         <div class="ic"><i class="fa-solid fa-bullseye"></i></div>
         <div><h3>Dart</h3><p>Giochi di allenamento per freccette</p></div>
-        <i class="fa-solid fa-arrow-right go"></i>
+        <i class="fa-solid fa-arrow-up-right-from-square go"></i>
       </a>
 
       <a class="app live anim" style="--d:.56s" href="pranzo/">
