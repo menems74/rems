@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Frame — REMS</title>
+<meta name="description" content="Scorri un video frame per frame e condividi il fotogramma che ti serve. Il video non lascia il telefono.">
+<meta name="theme-color" content="#0d0c0b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icona-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="icons/icona-192.png">
+<link rel="stylesheet" href="css/app.css">
+<script type="module" src="js/app.js"></script>
+</head>
+<body>
+
+<header class="barra">
+  <a class="tondo" href="../app.html" aria-label="Torna alle app"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a>
+  <div class="titolo">
+    <b>Frame</b>
+    <span id="nomeFile">Nessun video aperto</span>
+  </div>
+  <button class="tondo" id="btnInfo" aria-label="Informazioni sul video" disabled><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg></button>
+  <label class="tondo pieno" aria-label="Apri un video">
+    <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+    <input type="file" id="file" accept="video/*,.mp4,.mov,.m4v,.3gp,.webm,.mkv" hidden>
+  </label>
+</header>
+
+<main id="vista" class="vista">
+  <canvas id="tela"></canvas>
+
+  <div id="vuoto" class="vuoto">
+    <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M3 15h4M17 9h4M17 15h4"/></svg>
+    <h1>Analizza un video, frame per frame</h1>
+    <p>Apri una registrazione dello schermo o un video ricevuto: trovi il fotogramma esatto e lo condividi sul tuo cloud.</p>
+    <label class="cta">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> Apri video
+      <input type="file" id="file2" accept="video/*,.mp4,.mov,.m4v,.3gp,.webm,.mkv" hidden>
+    </label>
+    <small>Il video viene letto solo sul dispositivo: non viene caricato da nessuna parte.</small>
+  </div>
+
+  <div class="etichette">
+    <span id="tagKey" class="tag" hidden>KEY</span>
+    <span id="tagAnteprima" class="tag tenue" hidden>anteprima</span>
+    <span id="tagApprox" class="tag avviso" hidden>modalità approssimata</span>
+  </div>
+  <span id="tagZoom" class="tag zoom" hidden>1×</span>
+  <div id="rotella" class="rotella" hidden></div>
+</main>
+
+<section id="comandi" class="comandi" aria-disabled="true">
+  <div class="lettura">
+    <button id="btnVai" class="contatore" title="Vai a un frame">
+      <small>Frame</small>
+      <b id="numFrame">—</b><span id="totFrame"></span>
+    </button>
+    <div class="tempo">
+      <small>Tempo</small>
+      <b id="tempo">—</b>
+    </div>
+  </div>
+
+  <input type="range" id="cursore" min="0" max="0" value="0" step="1" aria-label="Posizione nel video">
+
+  <div class="tasti">
+    <button class="tasto" data-passo="-10" aria-label="Indietro di 10 frame"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 6l-7 6 7 6zM20 6l-7 6 7 6z" class="pieno"/></svg><small>10</small></button>
+    <button class="tasto grande" data-passo="-1" aria-label="Frame precedente"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6l-9 6 9 6z" class="pieno"/><path d="M6 6v12"/></svg></button>
+    <button class="tasto grande" data-passo="1" aria-label="Frame successivo"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l9 6-9 6z" class="pieno"/><path d="M18 6v12"/></svg></button>
+    <button class="tasto" data-passo="10" aria-label="Avanti di 10 frame"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6l7 6-7 6zM13 6l7 6-7 6z" class="pieno"/></svg><small>10</small></button>
+  </div>
+
+  <button id="btnCondividi" class="condividi"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1"/></svg> Condividi questo frame</button>
+</section>
+
+<p id="avviso" class="avvisoBox" role="status" hidden></p>
+
+<dialog id="dlgInfo">
+  <h2>Informazioni</h2>
+  <dl id="infoLista"></dl>
+  <p class="nota">Gesti: trascina orizzontalmente sul video per scorrere i frame, due dita per lo zoom, doppio tocco per ingrandire o tornare alla vista intera. Tieni premuti ◀ ▶ per scorrere di continuo.</p>
+  <form method="dialog"><button class="cta piccolo">Chiudi</button></form>
+</dialog>
+
+</body>
+</html>

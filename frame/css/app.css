@@ -1,0 +1,104 @@
+:root{
+  --bg:#0d0c0b; --text:#f5f1ea; --muted:#a49f92; --line:rgba(255,255,255,.12);
+  --panel:rgba(255,255,255,.06); --panel-hi:rgba(255,255,255,.11);
+  --salvia:#9bb08d; --salvia-deep:#7c9070; --terra:#d59470;
+  --font:"Inter","Segoe UI",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box; margin:0;}
+html,body{height:100%;}
+body{background:var(--bg); color:var(--text); font-family:var(--font);
+  display:flex; flex-direction:column; height:100dvh; overflow:hidden;
+  overscroll-behavior:none; -webkit-font-smoothing:antialiased;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);}
+button,label{font:inherit; color:inherit;}
+button{background:none; border:0; cursor:pointer; -webkit-tap-highlight-color:transparent;}
+button:disabled{opacity:.35; cursor:default;}
+
+/* --- barra in alto --- */
+.barra{flex:none; display:flex; align-items:center; gap:10px; padding:10px 12px;}
+.titolo{flex:1; min-width:0; line-height:1.15;}
+.titolo b{font-size:1rem; letter-spacing:.02em;}
+.titolo span{display:block; font-size:.74rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.tondo{width:42px; height:42px; flex:none; border-radius:50%; display:grid; place-items:center;
+  border:1px solid var(--line); background:var(--panel); color:var(--text); text-decoration:none; cursor:pointer;}
+.tondo.pieno{background:linear-gradient(135deg,var(--salvia),var(--terra)); color:#1c1c18; border:0;}
+
+/* --- area video --- */
+.vista{flex:1; min-height:0; position:relative; background:#000; touch-action:none; user-select:none; -webkit-user-select:none;}
+.vista canvas{position:absolute; inset:0; width:100%; height:100%; display:block;}
+.vista.carico .vuoto{display:none;}
+.vuoto{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:14px; padding:24px; text-align:center;
+  background:radial-gradient(60% 50% at 50% 40%, rgba(155,176,141,.16), transparent 70%), var(--bg);}
+.vuoto > i{font-size:2.6rem; color:var(--salvia);}
+.vuoto h1{font-size:1.25rem; font-weight:600;}
+.vuoto p{max-width:340px; color:#d8d3c8; opacity:.85; font-size:.92rem; line-height:1.5;}
+.vuoto small{color:var(--muted); font-size:.75rem; max-width:300px;}
+
+.cta{display:inline-flex; align-items:center; gap:10px; padding:14px 26px; border-radius:999px; cursor:pointer;
+  font-weight:600; background:linear-gradient(135deg,var(--salvia),var(--terra)); color:#1c1c18;}
+.cta.piccolo{padding:10px 22px;}
+
+.etichette{position:absolute; top:10px; left:10px; display:flex; gap:6px; pointer-events:none;}
+.tag{font-size:.66rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  padding:4px 8px; border-radius:6px; background:var(--salvia); color:#1c1c18;}
+.tag.tenue{background:rgba(255,255,255,.18); color:var(--text);}
+.tag.avviso{background:var(--terra);}
+.tag.zoom{position:absolute; top:10px; right:10px; background:rgba(0,0,0,.6); color:var(--text); pointer-events:none;}
+.rotella{position:absolute; bottom:12px; right:12px; width:22px; height:22px; border-radius:50%;
+  border:3px solid rgba(255,255,255,.25); border-top-color:var(--salvia); animation:gira .7s linear infinite;}
+@keyframes gira{to{transform:rotate(360deg);}}
+
+/* --- comandi --- */
+.comandi{flex:none; display:flex; flex-direction:column; gap:12px; padding:12px 14px 14px;
+  border-top:1px solid var(--line); background:#121110;}
+.comandi[aria-disabled="true"]{opacity:.4; pointer-events:none;}
+.lettura{display:flex; justify-content:space-between; align-items:flex-end; gap:12px;}
+.lettura small{display:block; font-size:.62rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin-bottom:2px;}
+.lettura b{font-size:1.45rem; font-weight:600; font-variant-numeric:tabular-nums; letter-spacing:.01em;}
+.contatore{text-align:left; padding:0;}
+.contatore span{font-size:.85rem; color:var(--muted); font-variant-numeric:tabular-nums; margin-left:4px;}
+.tempo{text-align:right;}
+
+input[type=range]{width:100%; height:32px; accent-color:var(--salvia); margin:0;}
+
+.tasti{display:grid; grid-template-columns:1fr 1.5fr 1.5fr 1fr; gap:10px;}
+.tasto{height:56px; border-radius:14px; border:1px solid var(--line); background:var(--panel);
+  display:flex; align-items:center; justify-content:center; gap:6px; font-size:1.05rem; touch-action:manipulation;
+  user-select:none; -webkit-user-select:none;}
+.tasto small{font-size:.72rem; color:var(--muted);}
+.tasto.grande{font-size:1.4rem; background:var(--panel-hi);}
+.tasto:active{background:rgba(155,176,141,.35); border-color:var(--salvia);}
+
+.condividi{height:52px; border-radius:14px; font-weight:600; font-size:.98rem;
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  background:linear-gradient(135deg,var(--salvia),var(--terra)); color:#1c1c18;}
+
+.avvisoBox{position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translateX(-50%);
+  max-width:min(92vw,420px); padding:12px 16px; border-radius:12px; background:#2a2724; border:1px solid var(--line);
+  font-size:.86rem; line-height:1.4; z-index:10; box-shadow:0 10px 30px rgba(0,0,0,.5);}
+
+dialog{margin:auto; max-width:min(92vw,420px); border:1px solid var(--line); border-radius:16px; background:#1a1917; color:var(--text); padding:20px;}
+dialog::backdrop{background:rgba(0,0,0,.6);}
+dialog h2{font-size:1.05rem; margin-bottom:12px;}
+dl{display:grid; grid-template-columns:auto 1fr; gap:6px 14px; font-size:.86rem; margin-bottom:14px;}
+dt{color:var(--muted);}
+dd{font-variant-numeric:tabular-nums; word-break:break-word;}
+.nota{font-size:.78rem; color:var(--muted); line-height:1.45; margin-bottom:16px;}
+dialog form{text-align:right;}
+
+/* telefono in orizzontale: comandi a lato del video */
+@media (orientation:landscape) and (max-height:560px){
+  body{flex-direction:row; flex-wrap:wrap;}
+  .barra{width:100%; padding:6px 10px;}
+  .vista{height:calc(100dvh - 56px); flex:1 1 0;}
+  .comandi{width:300px; height:calc(100dvh - 56px); border-top:0; border-left:1px solid var(--line); overflow:auto; justify-content:center;}
+  .tasto{height:48px;}
+}
+
+/* icone SVG inline: nessuna dipendenza esterna, funzionano offline */
+.ico{width:1.15em; height:1.15em; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex:none;}
+.ico .pieno{fill:currentColor; stroke-width:1.5;}
+.vuoto > .ico{width:3rem; height:3rem; color:var(--salvia); stroke-width:1.6;}
+.tasto.grande .ico{width:1.5em; height:1.5em;}
