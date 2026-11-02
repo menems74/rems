@@ -1,0 +1,18 @@
+{
+  "name": "Frame — analisi video",
+  "short_name": "Frame",
+  "description": "Scorri un video frame per frame e condividi il fotogramma che ti serve. Il video non lascia il telefono.",
+  "lang": "it",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0d0c0b",
+  "theme_color": "#0d0c0b",
+  "categories": ["utilities", "productivity"],
+  "icons": [
+    { "src": "icons/icona-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icona-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icona-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
