@@ -4,208 +4,116 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>REMS — Portale web 2.0</title>
+<meta name="description" content="REMS: i miei social e le mie app.">
+<meta name="theme-color" content="#eceae4">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Doto:wght@500;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
   :root{
-    --bg:#0d0c0b; --text:#f5f1ea; --muted:#a49f92; --line:rgba(255,255,255,.12);
-    --panel:rgba(255,255,255,.05); --panel-hi:rgba(255,255,255,.09);
-    --salvia:#9bb08d; --salvia-deep:#7c9070; --terra:#d59470; --terra-deep:#c17a5b;
+    --bg:#eceae4; --ink:#111; --paper:#f3f1ea; --muted-dark:#a8a59c;
+    --lime:#d7ff3a; --green-live:#b8f35a;
+    --radius:28px; --gap:14px;
+    --font-display:"Bricolage Grotesque","Inter",sans-serif;
     --font-sans:"Inter","Segoe UI",system-ui,sans-serif;
-    --font-display:"Doto","Inter",monospace;
   }
-  *{box-sizing:border-box;margin:0;}
-  html,body{height:100%;}
-  body{
-    background:var(--bg); color:var(--text); font-family:var(--font-sans);
-    height:100vh; height:100dvh; overflow:hidden;
-    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-display);min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  :focus-visible{outline:3px solid var(--ink);outline-offset:4px;border-radius:var(--radius)}
+
+  /* --- Griglia bento --- */
+  .bento{min-height:100vh;min-height:100dvh;max-width:1100px;margin:0 auto;padding:clamp(16px,3vw,36px);
+    display:grid;gap:var(--gap);grid-template-columns:repeat(4,1fr);grid-auto-rows:minmax(150px,auto);align-content:center}
+  .cell{border-radius:var(--radius);padding:22px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;gap:18px;
+    transition:transform .35s cubic-bezier(.2,1.4,.4,1);opacity:0;transform:translateY(24px) scale(.97);animation:pop .7s cubic-bezier(.2,1.2,.4,1) forwards;animation-delay:var(--d,0s)}
+  a.cell:hover{transform:scale(1.025) rotate(-.5deg)}
+  a.cell:active{transform:scale(.98)}
+  @keyframes pop{to{opacity:1;transform:none}}
+  .k{font:600 12px var(--font-sans);letter-spacing:.08em;text-transform:uppercase;opacity:.8}
+  .cell i.big{font-size:42px}
+  .go{position:absolute;right:18px;top:18px;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:14px;
+    background:rgba(255,255,255,.18);transition:transform .3s,background .3s,color .3s}
+  a.cell:hover .go{transform:rotate(-45deg);background:var(--ink);color:#fff}
+
+  /* --- Titolo --- */
+  .hero{grid-column:span 2;grid-row:span 2;background:var(--ink);color:var(--paper)}
+  .hero h1{font-weight:800;font-size:clamp(84px,13vw,170px);line-height:.82;letter-spacing:-.05em}
+  .hero p{font:400 16px/1.5 var(--font-sans);color:var(--muted-dark);margin-top:12px}
+  .live{display:flex;align-items:center;gap:8px;font:500 13px var(--font-sans);color:var(--green-live)}
+  .live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--green-live);animation:ping 1.8s infinite}
+  @keyframes ping{0%{box-shadow:0 0 0 0 var(--green-live)}70%{box-shadow:0 0 0 10px transparent}}
+
+  /* --- Social, ognuno con i suoi colori --- */
+  .ig{background:linear-gradient(135deg,#feda75,#fa7e1e 30%,#d62976 60%,#962fbf 85%);color:#fff}
+  .tt{background:#000;color:#fff}
+  .tt i.big{text-shadow:-3px -2px 0 #25f4ee,3px 2px 0 #fe2c55}
+  .yt{background:#ff0033;color:#fff}
+  .li{background:#0a66c2;color:#fff}
+  .fb{background:#1877f2;color:#fff}
+
+  /* --- App e orologio --- */
+  .apps{grid-column:span 2;background:var(--lime);color:var(--ink)}
+  .apps .go{background:rgba(0,0,0,.08)}
+  .apps h2{font-weight:800;font-size:clamp(34px,4.4vw,56px);line-height:.95;letter-spacing:-.03em}
+  .clock{background:#fff;color:var(--ink)}
+  .clock b{font:800 44px var(--font-display);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+
+  @media (max-width:860px){
+    .bento{grid-template-columns:repeat(2,1fr);align-content:start}
+    .hero,.apps{grid-column:span 2}
+    .hero{grid-row:span 1}
   }
-
-  /* --- Cinematic background: warm aurora + constellation canvas --- */
-  .bg{position:absolute; inset:0; overflow:hidden; z-index:0; background:var(--bg);}
-  .bg::before{
-    content:""; position:absolute; inset:-20%;
-    background:
-      radial-gradient(40% 45% at 20% 26%, rgba(155,176,141,.26), transparent 70%),
-      radial-gradient(38% 42% at 82% 30%, rgba(213,148,112,.24), transparent 70%),
-      radial-gradient(52% 55% at 55% 92%, rgba(124,144,112,.18), transparent 72%);
-    filter:blur(6px);
-    animation:aurora 24s ease-in-out infinite alternate;
-  }
-  @keyframes aurora{
-    0%{transform:translate3d(-2%,-1%,0) scale(1.05); opacity:.85;}
-    100%{transform:translate3d(3%,2%,0) scale(1.12); opacity:1;}
-  }
-  #net{position:absolute; inset:0; z-index:0; width:100%; height:100%; display:block;}
-  .vignette{position:absolute; inset:0; z-index:0; pointer-events:none;
-    background:radial-gradient(120% 90% at 50% 32%, transparent 42%, rgba(0,0,0,.60) 100%);}
-
-  .page{position:relative; z-index:1; display:flex; flex-direction:column;
-    height:100vh; height:100dvh; overflow:hidden;
-    padding:clamp(16px,2.4vh,28px) clamp(16px,4vw,40px);}
-
-  /* --- Header --- */
-  header{flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; gap:16px;}
-  .brand{display:flex; align-items:center; gap:12px;}
-  .monogram{width:44px; height:44px; border-radius:50%; display:grid; place-items:center;
-    font-family:var(--font-display); font-weight:900; font-size:1.25rem; color:#20201c;
-    background:linear-gradient(135deg,var(--salvia),var(--terra));
-    box-shadow:0 6px 18px rgba(213,148,112,.28);}
-  .brand .wm{line-height:1;}
-  .brand .wm b{font-family:var(--font-display); font-weight:700; letter-spacing:.04em; font-size:1.05rem;}
-  .brand .wm span{display:block; font-size:.62rem; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); margin-top:3px;}
-  .signin{font-size:.85rem; font-weight:500; color:var(--text); text-decoration:none;
-    padding:9px 16px; border:1px solid var(--line); border-radius:999px; background:var(--panel);
-    display:inline-flex; align-items:center; gap:8px; transition:.25s;}
-  .signin:hover{background:var(--panel-hi); transform:translateY(-1px);}
-
-  /* --- Hero --- */
-  .hero{flex:1 1 auto; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:clamp(14px,2.4vh,22px);}
-  .kicker{font-size:.72rem; letter-spacing:.24em; text-transform:uppercase; color:var(--salvia); font-weight:600;}
-  .headline{font-family:var(--font-display); font-weight:900; line-height:.9; letter-spacing:.02em;
-    font-size:clamp(72px,22vw,190px); white-space:nowrap;
-    background:linear-gradient(120deg,#ffffff 0%,var(--salvia) 55%,var(--terra) 100%);
-    -webkit-background-clip:text; background-clip:text; color:transparent;
-    filter:drop-shadow(0 0 34px rgba(213,148,112,.25));}
-  .subhead{max-width:min(560px,92%); color:#d8d3c8; opacity:.85; font-size:clamp(14px,1.6vw,17px); line-height:1.6;}
-  .cta{margin-top:6px; display:inline-flex; align-items:center; gap:10px; text-decoration:none;
-    font-weight:600; font-size:clamp(14px,1.5vw,15.5px); color:#1a1a17;
-    background:#f5f1ea; padding:13px 26px; border-radius:999px; transition:.25s;
-    box-shadow:0 0 0 1px rgba(255,255,255,.15), 0 0 26px rgba(213,148,112,.35), 0 0 54px rgba(155,176,141,.18);}
-  .cta:hover{transform:translateY(-2px) scale(1.02); box-shadow:0 0 0 1px rgba(255,255,255,.25), 0 0 34px rgba(213,148,112,.5), 0 0 70px rgba(155,176,141,.28);}
-  .cta i{transition:transform .25s;}
-  .cta:hover i{transform:translateX(3px);}
-
-  /* --- Footer service launcher --- */
-  .services{flex:0 0 auto; display:grid; grid-template-columns:1fr; gap:12px; max-width:420px; width:100%; margin:0 auto;}
-  .svc{display:flex; align-items:center; gap:14px; padding:16px 18px; border-radius:16px;
-    border:1px solid var(--line); background:var(--panel); text-decoration:none; color:inherit; transition:.25s; position:relative;
-    backdrop-filter:blur(6px);}
-  .svc .ic{width:40px; height:40px; flex:none; border-radius:11px; display:grid; place-items:center; font-size:1rem;}
-  .svc h3{font-size:.98rem; font-weight:600; margin-bottom:2px;}
-  .svc p{font-size:.76rem; color:var(--muted); line-height:1.3;}
-  .svc.active{cursor:pointer;}
-  .svc.active .ic{background:linear-gradient(135deg,var(--salvia),var(--salvia-deep)); color:#1c1c18;}
-  .svc.active:hover{background:var(--panel-hi); border-color:rgba(155,176,141,.5); transform:translateY(-3px);}
-  .svc.soon .ic{background:rgba(255,255,255,.08); color:var(--muted);}
-  .svc .badge{position:absolute; top:10px; right:12px; font-size:.6rem; letter-spacing:.08em; text-transform:uppercase; color:var(--terra); font-weight:600;}
-  .svc .go{margin-left:auto; color:var(--salvia); font-size:.85rem; transition:transform .25s;}
-  .svc.active:hover .go{transform:translateX(3px);}
-
-  /* --- Entrance animations --- */
-  .anim{opacity:0; transform:translateY(20px); animation:reveal .8s cubic-bezier(.22,1,.36,1) forwards; animation-delay:var(--d,0s);}
-  @keyframes reveal{to{opacity:1; transform:none;}}
-  header{opacity:0; animation:slideDown .7s cubic-bezier(.22,1,.36,1) forwards;}
-  @keyframes slideDown{from{opacity:0; transform:translateY(-16px);} to{opacity:1; transform:none;}}
-
-  /* --- Responsive --- */
-  @media (max-width:720px){
-    .brand .wm span{display:none;}
-    .services{gap:10px;}
-    .svc{padding:13px 15px;}
-    .hero{gap:14px;}
-  }
-  @media (max-height:640px){
-    .headline{font-size:clamp(56px,15vh,120px);}
-    .svc p{display:none;}
-  }
-  @media (prefers-reduced-motion:reduce){
-    *{animation:none!important;}
-    .anim{opacity:1; transform:none;}
-  }
+  @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.cell{opacity:1;transform:none}}
 </style>
 </head>
 <body>
-  <div class="bg"><canvas id="net"></canvas></div>
-  <div class="vignette"></div>
+  <!--
+    La home ha solo due cose: i social e il rimando alle app.
+    Ogni riquadro usa style="--d:..." per comparire un po' dopo il precedente.
+  -->
+  <main class="bento">
+    <section class="cell hero" style="--d:0s">
+      <span class="live">Portale web 2.0</span>
+      <div><h1>REMS</h1><p>Il cucchiaio non esiste.</p></div>
+    </section>
 
-  <div class="page">
-    <header>
-      <div class="brand">
-        <div class="monogram">C</div>
-        <div class="wm"><b>REMS</b><span>Portale web 2.0</span></div>
-      </div>
-      <a class="signin" href="albero.html"><i class="fa-solid fa-right-to-bracket"></i> Accedi</a>
-    </header>
+    <a class="cell ig" style="--d:.06s" href="https://www.instagram.com/rems_2.0_/" target="_blank" rel="noopener noreferrer">
+      <span class="go" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
+      <i class="fa-brands fa-instagram big" aria-hidden="true"></i><span class="k">Instagram</span>
+    </a>
+    <a class="cell tt" style="--d:.12s" href="https://www.tiktok.com/@remsmenems" target="_blank" rel="noopener noreferrer">
+      <span class="go" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
+      <i class="fa-brands fa-tiktok big" aria-hidden="true"></i><span class="k">TikTok</span>
+    </a>
+    <a class="cell yt" style="--d:.18s" href="https://www.youtube.com/@menems" target="_blank" rel="noopener noreferrer">
+      <span class="go" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
+      <i class="fa-brands fa-youtube big" aria-hidden="true"></i><span class="k">YouTube</span>
+    </a>
+    <div class="cell clock" style="--d:.24s">
+      <span class="k">Ora in Italia</span><b id="clock">--:--</b>
+    </div>
 
-    <main class="hero">
-      <p class="kicker anim" style="--d:.1s">Portale web 2.0</p>
-      <h1 class="headline anim" style="--d:.24s">REMS</h1>
-      <p class="subhead anim" style="--d:.5s">Il cucchiaio non esiste</p>
-      <a class="cta anim" style="--d:.62s" href="social.html">
-        <i class="fa-solid fa-share-nodes"></i> Social
-      </a>
-    </main>
-
-    <nav class="services">
-      <a class="svc active anim" style="--d:.74s" href="app.html">
-        <div class="ic"><i class="fa-solid fa-grip"></i></div>
-        <div><h3>App</h3><p>Le applicazioni del portale</p></div>
-        <i class="fa-solid fa-arrow-right go"></i>
-      </a>
-    </nav>
-  </div>
+    <a class="cell apps" style="--d:.3s" href="app.html">
+      <span class="go" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
+      <span class="k">Portale</span><h2>Le mie app</h2>
+    </a>
+    <a class="cell li" style="--d:.36s" href="https://www.linkedin.com/in/menems/" target="_blank" rel="noopener noreferrer">
+      <span class="go" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
+      <i class="fa-brands fa-linkedin-in big" aria-hidden="true"></i><span class="k">LinkedIn</span>
+    </a>
+    <a class="cell fb" style="--d:.42s" href="https://www.facebook.com/menems01" target="_blank" rel="noopener noreferrer">
+      <span class="go" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
+      <i class="fa-brands fa-facebook-f big" aria-hidden="true"></i><span class="k">Facebook</span>
+    </a>
+  </main>
 
 <script>
 (function(){
-  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var canvas = document.getElementById('net');
-  if(!canvas) return;
-  var ctx = canvas.getContext('2d');
-  var w, h, dpr, nodes = [], raf = null;
-  var COLORS = ['155,176,141','213,148,112','196,194,195']; // salvia, terracotta, chiaro
-
-  function size(){
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-    w = canvas.clientWidth; h = canvas.clientHeight;
-    canvas.width = Math.floor(w * dpr); canvas.height = Math.floor(h * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    var target = Math.round(Math.min(88, (w * h) / 17000));
-    nodes = [];
-    for(var i=0;i<target;i++){
-      nodes.push({
-        x: Math.random()*w, y: Math.random()*h,
-        vx: (Math.random()-0.5)*0.18, vy: (Math.random()-0.5)*0.18,
-        r: Math.random()*1.6 + 0.8,
-        c: COLORS[(Math.random()*COLORS.length)|0]
-      });
-    }
-  }
-
-  function draw(){
-    ctx.clearRect(0,0,w,h);
-    var maxD = Math.min(150, Math.max(90, w*0.12));
-    for(var i=0;i<nodes.length;i++){
-      var a = nodes[i];
-      a.x += a.vx; a.y += a.vy;
-      if(a.x < -20) a.x = w+20; else if(a.x > w+20) a.x = -20;
-      if(a.y < -20) a.y = h+20; else if(a.y > h+20) a.y = -20;
-      for(var j=i+1;j<nodes.length;j++){
-        var b = nodes[j], dx = a.x-b.x, dy = a.y-b.y, d = Math.sqrt(dx*dx+dy*dy);
-        if(d < maxD){
-          var op = (1 - d/maxD) * 0.32;
-          ctx.strokeStyle = 'rgba(155,176,141,'+op.toFixed(3)+')';
-          ctx.lineWidth = 1;
-          ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
-        }
-      }
-    }
-    for(var k=0;k<nodes.length;k++){
-      var n = nodes[k];
-      ctx.beginPath();
-      ctx.fillStyle = 'rgba('+n.c+',0.85)';
-      ctx.arc(n.x, n.y, n.r, 0, Math.PI*2); ctx.fill();
-    }
-    raf = requestAnimationFrame(draw);
-  }
-
-  function start(){ size(); if(reduce){ draw(); cancelAnimationFrame(raf); } else { if(raf) cancelAnimationFrame(raf); draw(); } }
-  var rt;
-  window.addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(start, 200); });
-  start();
+  var el = document.getElementById('clock');
+  function tick(){ el.textContent = new Date().toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit', timeZone:'Europe/Rome'}); }
+  tick(); setInterval(tick, 10000);
 })();
 </script>
 </body>
