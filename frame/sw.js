@@ -7,7 +7,7 @@
    ATTENZIONE: cambiando un file dell'app bisogna alzare VERSIONE.
    ========================================================================= */
 
-const VERSIONE = 'frame-v1';
+const VERSIONE = 'frame-v2';
 
 const GUSCIO = [
   './',
