@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Costo Libri — REMS</title>
+<meta name="description" content="Una finestra di terminale che chiede il costo di tre libri e calcola quanto hai guadagnato.">
+<meta name="theme-color" content="#0c0c0c">
+<style>
+  /* Finestra nera, caratteri a larghezza fissa, cursore che lampeggia:
+     il terminale di Windows, rifatto a mano. Niente font esterni: quelli
+     di sistema sono già quelli giusti. */
+  :root{
+    --sfondo:#0c0c0c;          /* il nero del terminale, non il nero assoluto */
+    --testo:#cccccc;           /* il grigio chiaro di cmd */
+    --bianco:#f2f2f2;
+    --verde:#16c60c;           /* i verdi e i rossi sono quelli di Windows */
+    --giallo:#f9f1a5;
+    --rosso:#e74856;
+    --azzurro:#3b78ff;
+    --barra:#1f1f1f;
+    --bordo:#2b2b2b;
+    --mono:Consolas,"Cascadia Mono","Lucida Console","Courier New",ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;}
+  html,body{height:100%;}
+  body{
+    background:#111;
+    color:var(--testo);
+    font:16px/1.5 var(--mono);
+    display:flex; align-items:center; justify-content:center;
+    padding:max(0px,env(safe-area-inset-top)) max(0px,env(safe-area-inset-right)) max(0px,env(safe-area-inset-bottom)) max(0px,env(safe-area-inset-left));
+    -webkit-text-size-adjust:100%;
+  }
+
+  .finestra{
+    width:min(860px,100%); height:min(620px,100%);
+    display:flex; flex-direction:column;
+    background:var(--sfondo); border:1px solid var(--bordo);
+    box-shadow:0 24px 60px rgba(0,0,0,.6);
+  }
+
+  /* --- la barra del titolo, con i tre bottoni di Windows --- */
+  .barra{
+    flex:0 0 auto; display:flex; align-items:center; gap:10px;
+    background:var(--barra); border-bottom:1px solid var(--bordo);
+    padding-left:12px;
+  }
+  .barra .titolo{
+    font-size:.8rem; color:#d6d6d6; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    padding:10px 0;
+  }
+  .barra .bottoni{margin-left:auto; display:flex;}
+  .barra button{
+    width:46px; height:36px; border:0; background:transparent; color:#d6d6d6;
+    font:inherit; font-size:.9rem; line-height:1; cursor:pointer;
+  }
+  .barra button:hover{background:#333;}
+  .barra button.chiudi:hover{background:#c42b1c; color:#fff;}
+  .barra button:focus-visible{outline:2px solid var(--azzurro); outline-offset:-3px;}
+
+  /* --- lo schermo --- */
+  .schermo{
+    flex:1 1 auto; overflow-y:auto; padding:14px 16px 20px;
+    cursor:text; scrollbar-color:#4d4d4d var(--sfondo);
+  }
+  .riga{white-space:pre-wrap; word-break:break-word;}
+  .riga.sistema{color:#8a8a8a;}
+  .riga.domanda{color:var(--bianco);}
+  .riga.errore{color:var(--rosso);}
+  .riga.esito{color:var(--verde);}
+  .riga.dettaglio{color:var(--giallo);}
+  .vuota{height:1em;}
+  .prompt{color:var(--verde);}
+
+  /* la riga dove si scrive: il prompt, poi il campo vero, invisibile ma vero */
+  .riga.input{display:flex; align-items:baseline; gap:0;}
+  .riga.input .prompt{flex:none; white-space:pre;}
+  .riga.input input{
+    flex:1 1 auto; min-width:0; width:100%;
+    background:transparent; border:0; outline:0; padding:0;
+    color:var(--bianco); font:inherit; caret-color:transparent;
+  }
+  .cursore{
+    flex:none; width:.6em; height:1.1em; background:var(--testo);
+    display:inline-block; vertical-align:text-bottom; margin-left:-.6em;
+    animation:lampeggia 1.06s steps(1) infinite;
+  }
+  .cursore.spento{animation:none; opacity:0;}
+  @keyframes lampeggia{0%,50%{opacity:1}50.01%,100%{opacity:0}}
+  @media (prefers-reduced-motion:reduce){.cursore{animation:none;}}
+
+  @media (max-width:700px){
+    body{padding:0;}
+    .finestra{width:100%; height:100%; border:0;}
+    .schermo{font-size:15px; padding:12px 13px 18px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="finestra">
+  <div class="barra">
+    <span class="titolo">C:\REMS\libri — Costo Libri</span>
+    <span class="bottoni">
+      <button type="button" id="riduci" aria-label="Ricomincia da capo" title="Ricomincia">&#8211;</button>
+      <button type="button" id="ingrandisci" aria-label="Ricomincia da capo" title="Ricomincia">&#9633;</button>
+      <button type="button" class="chiudi" id="chiudi" aria-label="Chiudi e torna alle app" title="Chiudi">&#10005;</button>
+    </span>
+  </div>
+
+  <div class="schermo" id="schermo" role="log" aria-live="polite" aria-label="Terminale">
+    <!-- qui dentro scrive il programma -->
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var schermo = document.getElementById('schermo');
+
+  /* ------------------------------------------------------------ lo stato -
+     Tre costi, il libro scelto, le copie vendute. Niente di più.          */
+  var stato = { costi: [null, null, null], libro: null, copie: null };
+
+  /* ------------------------------------------------------- scrivere righe - */
+  function riga(testo, classe){
+    var r = document.createElement('p');
+    r.className = 'riga' + (classe ? ' ' + classe : '');
+    r.textContent = testo;
+    schermo.appendChild(r);
+    infondo();
+    return r;
+  }
+  function vuota(){
+    var r = document.createElement('div');
+    r.className = 'vuota';
+    schermo.appendChild(r);
+  }
+  function infondo(){ schermo.scrollTop = schermo.scrollHeight; }
+
+  /* --------------------------------------------------------- la domanda --
+     Una riga con il prompt e un campo vero: così la tastiera del telefono
+     si apre come si deve, e il cursore lampeggia come in un terminale.    */
+  var PROMPT = 'C:\\REMS\\libri> ';
+
+  function chiedi(domanda, quandoRisponde){
+    riga(domanda, 'domanda');
+
+    var r = document.createElement('p');
+    r.className = 'riga input';
+
+    var p = document.createElement('span');
+    p.className = 'prompt';
+    p.textContent = PROMPT;
+
+    var campo = document.createElement('input');
+    campo.type = 'text';
+    campo.setAttribute('inputmode', 'decimal');
+    campo.setAttribute('autocomplete', 'off');
+    campo.setAttribute('autocapitalize', 'off');
+    campo.setAttribute('spellcheck', 'false');
+    campo.setAttribute('aria-label', domanda);
+
+    var cursore = document.createElement('span');
+    cursore.className = 'cursore';
+
+    r.appendChild(p); r.appendChild(campo); r.appendChild(cursore);
+    schermo.appendChild(r);
+    infondo();
+    campo.focus();
+
+    // il cursore finto sta fermo mentre si scrive, come quello vero
+    campo.addEventListener('input', function(){
+      cursore.classList.toggle('spento', campo.value.length > 0);
+    });
+
+    campo.addEventListener('keydown', function(e){
+      if(e.key !== 'Enter') return;
+      e.preventDefault();
+      var scritto = campo.value;
+      // la riga diventa testo normale: la domanda è passata
+      r.replaceWith(rigaFissa(PROMPT, scritto));
+      quandoRisponde(scritto);
+    });
+  }
+
+  function rigaFissa(prompt, scritto){
+    var r = document.createElement('p');
+    r.className = 'riga';
+    var p = document.createElement('span');
+    p.className = 'prompt';
+    p.textContent = prompt;
+    r.appendChild(p);
+    r.appendChild(document.createTextNode(scritto));
+    return r;
+  }
+
+  /* toccando lo schermo si torna a scrivere, come in una finestra vera */
+  schermo.addEventListener('click', function(e){
+    if(e.target.tagName === 'BUTTON') return;
+    var campo = schermo.querySelector('input');
+    if(campo && !window.getSelection().toString()) campo.focus();
+  });
+
+  /* ------------------------------------------------------------ i numeri -
+     Si accetta la virgola e il punto, l'euro e gli spazi: la gente scrive
+     "12,50 €", non "12.5".                                                */
+  function leggiNumero(scritto){
+    var pulito = String(scritto).replace(/[€\s]/g, '').replace(',', '.');
+    if(pulito === '') return null;
+    if(!/^\d+(\.\d+)?$/.test(pulito)) return null;
+    var n = parseFloat(pulito);
+    return isFinite(n) ? n : null;
+  }
+
+  function euro(n){
+    return n.toLocaleString('it-IT', { style:'currency', currency:'EUR' });
+  }
+
+  /* ------------------------------------------------------- la sequenza --- */
+  function avvio(){
+    schermo.innerHTML = '';
+    stato = { costi: [null, null, null], libro: null, copie: null };
+
+    riga('REMS [Versione 2.0]', 'sistema');
+    riga('Costo Libri - calcolo dell\'incasso di giornata.', 'sistema');
+    vuota();
+    costo(0);
+  }
+
+  function costo(i){
+    chiedi('Quanto costa il libro ' + (i + 1) + '?', function(scritto){
+      var n = leggiNumero(scritto);
+      if(n === null){
+        riga('Non ho capito "' + scritto + '". Scrivi solo un numero, per esempio 12,50.', 'errore');
+        vuota();
+        return costo(i);
+      }
+      stato.costi[i] = n;
+      vuota();
+      if(i < 2) return costo(i + 1);
+      quale();
+    });
+  }
+
+  function quale(){
+    chiedi('Di quale libro vuoi l\'utile? (1, 2 o 3)', function(scritto){
+      var n = leggiNumero(scritto);
+      if(n !== 1 && n !== 2 && n !== 3){
+        riga('Il libro puo\' essere solo 1, 2 o 3.', 'errore');
+        vuota();
+        return quale();
+      }
+      stato.libro = n;
+      vuota();
+      quante();
+    });
+  }
+
+  function quante(){
+    chiedi('Quanti ne hai venduti?', function(scritto){
+      var n = leggiNumero(scritto);
+      if(n === null || n !== Math.round(n)){
+        riga('Le copie vendute sono un numero intero: 0, 1, 2...', 'errore');
+        vuota();
+        return quante();
+      }
+      stato.copie = n;
+      vuota();
+      risultato();
+    });
+  }
+
+  function risultato(){
+    var costoLibro = stato.costi[stato.libro - 1];
+    var guadagno = costoLibro * stato.copie;
+
+    riga('Oggi hai guadagnato ' + euro(guadagno) + ' con il libro ' + stato.libro + '.', 'esito');
+    riga(euro(costoLibro) + ' x ' + stato.copie +
+         (stato.copie === 1 ? ' copia' : ' copie') + ' = ' + euro(guadagno), 'dettaglio');
+    vuota();
+
+    chiedi('Premi INVIO per ricominciare.', function(){
+      avvio();
+    });
+  }
+
+  /* ---------------------------------------------------------- i bottoni -- */
+  document.getElementById('riduci').addEventListener('click', avvio);
+  document.getElementById('ingrandisci').addEventListener('click', avvio);
+  document.getElementById('chiudi').addEventListener('click', function(){
+    location.href = 'app.html';
+  });
+
+  avvio();
+})();
+</script>
+</body>
+</html>
