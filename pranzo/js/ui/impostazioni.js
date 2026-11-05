@@ -43,6 +43,7 @@ export function render(contenitore, stato) {
       el('a', { class: 'tondo', href: '#/', 'aria-label': 'Torna alla settimana' }, [icona('indietro')])
     ]),
     el('h1', {}, 'Impostazioni'),
+    el('div', { class: 'lineetta', 'aria-hidden': 'true' }),
     el('p', { class: 'sottoTitolo' }, 'Le cose da decidere una volta')
   ]));
 
