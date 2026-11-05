@@ -19,7 +19,7 @@ export function render(contenitore, stato) {
   contenitore.appendChild(el('header', { class: 'testata viola' }, [
     ghirigoro(),
     el('div', { class: 'barraTesta' }, [
-      el('span', { class: 'marchio' }, ['Spesa', el('i', {}, '.')]),
+      el('span', { class: 'marchio' }, ['Spesa']),
       lista ? el('div', { class: 'azioniSpesa' }, [
         el('button', { class: 'pillola whatsapp', type: 'button', onclick: () => stato.azioni.inviaLista() },
           [icona('whatsapp'), 'WhatsApp']),

@@ -543,7 +543,7 @@ function paginaNuovi(contenitore) {
   contenitore.appendChild(el('header', { class: 'testata arancio corta' }, [
     el('div', { class: 'barraTesta' }, [
       el('a', { class: 'tondo chiaro', href: '#/piatti', 'aria-label': 'Torna ai piatti' }, [icona('indietro')]),
-      el('span', { class: 'marchio' }, ['Nuovi piatti', el('i', {}, '.')])
+      el('span', { class: 'marchio' }, ['Nuovi piatti'])
     ])
   ]));
   const corpo = el('div', { class: 'corpo nuovi', id: 'corpoNuovi' });

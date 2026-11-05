@@ -20,7 +20,7 @@ export function render(contenitore, stato) {
 
   contenitore.appendChild(el('header', { class: 'testata arancio' }, [
     ghirigoro(),
-    el('div', { class: 'barraTesta' }, [el('span', { class: 'marchio' }, ['Piatti', el('i', {}, '.')])]),
+    el('div', { class: 'barraTesta' }, [el('span', { class: 'marchio' }, ['Piatti'])]),
     el('h1', {}, ['Tutti', el('br'), 'i vostri piatti']),
     el('p', { class: 'contoSpesa' }, `${stato.piatti.length} in catalogo, contorni compresi`)
   ]));

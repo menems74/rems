@@ -108,8 +108,6 @@ button { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-colo
 .barraTesta { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; }
 .barraTesta:has(> a.tondo:first-child) { justify-content: flex-start; gap: 12px; }
 .marchio { font: 800 20px/1 var(--display); letter-spacing: -.01em; }
-.marchio i { font-style: normal; color: #ff5e3a; }
-.testata.arancio .marchio i, .testata.viola .marchio i { color: var(--giallo); }
 .testata h1 {
   position: relative;
   font: 800 clamp(30px, 8.4vw, 36px)/1.05 var(--display);
@@ -118,6 +116,7 @@ button { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-colo
   text-wrap: balance;
 }
 
+.sottoSaluto { font-size: .62em; font-weight: 700; letter-spacing: -.01em; }
 .stagione { position: relative; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
 .etichetta {
   font-size: 15px; font-weight: 600; padding: 6px 12px; border-radius: 99px;
@@ -125,12 +124,12 @@ button { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-colo
 }
 
 .regole {
-  position: relative; display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap;
-  margin-top: 12px; padding: 6px 8px 6px 6px; min-height: 40px;
+  position: relative; display: flex; align-items: center; gap: 6px; width: 100%;
+  margin-top: 14px; padding: 6px 10px 6px 6px; min-height: 46px;
   border: 0; border-radius: 99px; background: rgba(27, 22, 38, .1); color: inherit;
   font-size: 16px; font-weight: 600;
 }
-.regole > span { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px; background: rgba(255, 255, 255, .7); }
+.regole > span { flex: 1; justify-content: center; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; padding: 5px 9px; border-radius: 99px; background: rgba(255, 255, 255, .7); }
 .regole > span .icona { width: 15px; height: 15px; }
 .regole > .icona { margin-left: 2px; width: 18px; height: 18px; }
 

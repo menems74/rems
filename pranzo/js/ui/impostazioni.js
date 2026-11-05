@@ -38,7 +38,7 @@ export function render(contenitore, stato) {
     ghirigoro(),
     el('div', { class: 'barraTesta' }, [
       el('a', { class: 'tondo chiaro', href: '#/', 'aria-label': 'Torna alla settimana' }, [icona('indietro')]),
-      el('span', { class: 'marchio' }, ['Impostazioni', el('i', {}, '.')])
+      el('span', { class: 'marchio' }, ['Impostazioni'])
     ]),
     el('h1', {}, ['Le cose da', el('br'), 'decidere una volta'])
   ]));

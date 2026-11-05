@@ -91,12 +91,13 @@ function testata(stato) {
   return el('header', { class: 'testata gialla' }, [
     ghirigoro(),
     el('div', { class: 'barraTesta' }, [
-      el('span', { class: 'marchio' }, ['Pranzo 2.0', el('i', {}, '.')]),
+      el('span', { class: 'marchio' }, ['Pranzo 2.0']),
       el('a', { class: 'tondo chiaro', href: '#/impostazioni', 'aria-label': 'Impostazioni' }, [icona('ingranaggio')])
     ]),
     el('h1', {}, [
       nome ? `Ciao ${nome},` : 'Ciao,', el('br'),
-      oggi ? 'oggi si mangia così' : (stato.scarto === 1 ? 'ecco la prossima settimana' : 'ecco la tua settimana')
+      el('span', { class: 'sottoSaluto' },
+        oggi ? 'oggi si mangia così' : (stato.scarto === 1 ? 'ecco la prossima settimana' : 'ecco la tua settimana'))
     ]),
     stagione(stato),
     regole
