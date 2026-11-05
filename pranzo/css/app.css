@@ -106,6 +106,7 @@ button { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-colo
 .testata.viola .ghirigoro { opacity: .28; }
 
 .barraTesta { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; }
+.barraTesta:has(> a.tondo:first-child) { justify-content: flex-start; gap: 12px; }
 .marchio { font: 800 20px/1 var(--display); letter-spacing: -.01em; }
 .marchio i { font-style: normal; color: #ff5e3a; }
 .testata.arancio .marchio i, .testata.viola .marchio i { color: var(--giallo); }
@@ -509,12 +510,12 @@ details.giaInCasa ul { margin-top: 4px; }
    sezioni diventa una pillola centrata.                                  */
 
 @media (min-width: 900px) {
-  body { padding-bottom: 110px; }
+  body { padding-bottom: 130px; }
   #vista { max-width: 1180px; padding: 0 24px; }
   .testata { border-radius: 0 0 36px 36px; padding: calc(18px + env(safe-area-inset-top)) 32px 52px; }
   .testata h1 { font-size: 40px; }
   .ghirigoro { width: 260px; right: 4%; top: 24px; }
-  .corpo { padding: 20px 8px 8px; gap: 16px; }
+  .corpo { padding: 20px 0 8px; gap: 16px; }
   .corpo.sovrapposto { margin-top: -32px; }
 
   /* oggi: pranzo e cena uno accanto all'altro */
@@ -547,7 +548,8 @@ details.giaInCasa ul { margin-top: 4px; }
   /* catalogo e impostazioni */
   body[data-pagina="piatti"] .elencoScelta { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
   body[data-pagina="piatti"] .cerca, body[data-pagina="piatti"] .segmenti, body[data-pagina="piatti"] .bandaAi { max-width: 560px; }
-  body[data-pagina="impostazioni"] .corpo { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); align-items: start; }
+  body[data-pagina="impostazioni"] .corpo { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; gap: 16px; }
+  body[data-pagina="impostazioni"] .blocco { margin: 0; }
   body[data-pagina="impostazioni"] .piede { grid-column: 1 / -1; }
   body[data-pagina="nuovi"] .corpo { max-width: 720px; }
 
