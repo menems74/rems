@@ -340,8 +340,8 @@ span.chip { cursor: default; }
 
 .nota { margin: 0; font-size: 15px; color: var(--tenue); }
 .nota.centro { text-align: center; }
-.piede { margin: 10px 0 0; text-align: center; font-size: 14px; color: var(--tenue); line-height: 1.6; }
-.firma { font-size: 12px; font-weight: 400; color: var(--tenue); }
+.piede { margin: 10px 0 0; text-align: center; font-size: 14px; font-style: italic; color: var(--tenue); line-height: 1.6; }
+.firma { font-size: 12px; font-weight: 400; color: var(--inchiostro); font-style: normal; }
 .oro {
   font-family: var(--display); font-weight: 800; font-size: 15px; letter-spacing: .01em;
   background: linear-gradient(100deg, #b8860b, #e8c25a 45%, #b8860b);
