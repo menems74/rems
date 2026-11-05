@@ -157,19 +157,22 @@ function passato(chiave, stato) {
 
 function rigaGiorno(giorno, stato, eOggi, giaPassato) {
   const pasti = M.pastiDi(giorno);
-  const primo = pasti.length ? stato.indicePiatti.get(pasti[0][1].piatto) : null;
   const kcal = M.kcalGiorno(giorno, stato.indicePiatti, stato.indiceIngredienti);
   const data = giorno.data ? Number(giorno.data.slice(8, 10)) : '';
 
-  const apri = el('button', { class: 'apriGiorno', type: 'button', onclick: () => mostraGiorno(giorno.giorno, stato) }, [
-    fotoPiatto(primo, stato, 'mini'),
+  // a sinistra il foglio di calendario, a destra pranzo (sole) e cena (luna)
+  const apri = el('button', { class: 'apriGiorno', type: 'button',
+    'aria-label': `${cap(M.NOME_GIORNO[giorno.giorno])} ${data}${eOggi ? ', oggi' : ''}`,
+    onclick: () => mostraGiorno(giorno.giorno, stato) }, [
+    el('div', { class: 'calendario' + (eOggi ? ' diOggi' : '') }, [
+      el('span', { class: 'sigla' }, M.GIORNO_BREVE[giorno.giorno].toUpperCase()),
+      el('span', { class: 'numero' }, String(data))
+    ]),
     el('div', { class: 'testoGiorno' }, [
-      el('div', { class: 'nomeGiorno' }, [
-        el('b', {}, cap(M.NOME_GIORNO[giorno.giorno])),
-        el('span', {}, ` ${data}`),
-        eOggi ? el('span', { class: 'bollino' }, 'oggi') : null
-      ]),
-      el('div', { class: 'piattiGiorno' }, pasti.map(([, p]) => nomeDi(stato, p.piatto)).join(' · ')),
+      ...pasti.map(([nome, p]) => el('div', { class: 'pastoRiga' }, [
+        icona(nome === 'pranzo' ? 'sole' : 'luna', M.NOME_PASTO[nome]),
+        el('span', {}, nomeDi(stato, p.piatto))
+      ])),
       kcal ? el('div', { class: 'kcalGiorno' }, `${kcal} kcal`) : null
     ])
   ]);
