@@ -21,7 +21,7 @@ const vista = { passati: false };
 
 /** Firma in fondo alle pagine: la versione e Cleopatra, in oro. */
 export function firma(prima = '') {
-  return el('span', { class: 'firma' }, [`${prima}${VERSIONE_APP} · Powered by `, el('span', { class: 'oro' }, 'Cleopatra')]);
+  return el('span', { class: 'firma' }, [`${prima}${VERSIONE_APP}`, el('br'), 'Powered by ', el('span', { class: 'oro' }, 'Cleopatra')]);
 }
 
 export function render(contenitore, stato) {
@@ -191,7 +191,7 @@ function giorniVuoti(stato) {
 
 function vuota(stato) {
   return el('section', { class: 'vuota' }, [
-    el('div', { class: 'foto sf2 media' }, [icona('settimana')]),
+    el('div', { class: 'foto cat-pasta media' }, [icona('settimana')]),
     el('h2', {}, stato.scarto === 1 ? 'La prossima settimana è ancora da fare' : 'La settimana è ancora da fare'),
     el('p', {}, 'Un tocco e l\'app sceglie pranzi e cene. Poi cambi quello che non ti va.'),
     el('button', { class: 'grande', type: 'button', onclick: () => stato.azioni.generaSettimana() },

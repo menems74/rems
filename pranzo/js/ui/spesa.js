@@ -37,7 +37,7 @@ export function render(contenitore, stato) {
 
   if (!lista) {
     corpo.appendChild(el('section', { class: 'vuota' }, [
-      el('div', { class: 'foto sf4 media' }, [icona('spesa')]),
+      el('div', { class: 'foto cat-legumi media' }, [icona('spesa')]),
       el('h2', {}, 'Niente da comprare, per ora'),
       el('p', {}, 'La lista si fa da sola quando c\'è il menù della settimana.'),
       el('a', { class: 'grande', href: '#/' }, [icona('settimana'), 'Vai alla settimana'])

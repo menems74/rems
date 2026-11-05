@@ -204,23 +204,35 @@ span.chip { cursor: default; }
 
 .foto {
   position: relative; display: flex; align-items: center; justify-content: center; flex: none;
-  color: rgba(255, 255, 255, .9); background-size: cover; background-position: center;
+  background-color: var(--fondoCat, #f3eee6); color: var(--trattoCat, #8a6a2c);
+  background-size: cover; background-position: center;
 }
 .foto .icona { width: 24px; height: 24px; }
-.foto.conFoto > .icona { display: none; }
+.disegno { width: 40px; height: 40px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.foto.conFoto > .disegno, .foto.conFoto > .icona { display: none; }
 .foto.grande { width: 100%; height: 210px; border-radius: var(--raggio); margin-bottom: 14px; }
-.foto.grande > .icona { width: 36px; height: 36px; }
+.foto.grande > .disegno { width: 84px; height: 84px; stroke-width: 2; }
 .foto.media { width: 92px; align-self: stretch; min-height: 92px; }
 .foto.mini { width: 56px; height: 56px; border-radius: 13px; }
-.foto.mini .icona { width: 18px; height: 18px; }
+.foto.mini > .disegno { width: 32px; height: 32px; stroke-width: 2.8; }
 .foto.micro { width: 28px; height: 28px; border-radius: 8px; }
-.foto.micro .icona { width: 14px; height: 14px; }
-.sf0 { background-image: linear-gradient(135deg, #ffb347, #ff5e3a); }
-.sf1 { background-image: linear-gradient(135deg, #a8e063, #3fa34d); }
-.sf2 { background-image: linear-gradient(135deg, #ffd76a, #ff9a3c); }
-.sf3 { background-image: linear-gradient(135deg, #ff9a8b, #e8456b); }
-.sf4 { background-image: linear-gradient(135deg, #b9a4ff, #6a3fb5); }
-.sf5 { background-image: linear-gradient(135deg, #c9b38a, #8b6b4a); }
+.foto.micro > .disegno { width: 18px; height: 18px; stroke-width: 3.2; }
+
+/* i colori delle categorie: un fondo tenue e il tratto pieno */
+.cat-pasta     { --fondoCat: #ffe6cf; --trattoCat: #c2510f; }
+.cat-cereali   { --fondoCat: #f4ead6; --trattoCat: #8a6a2c; }
+.cat-pizza     { --fondoCat: #ffe0d6; --trattoCat: #d6452a; }
+.cat-zuppa     { --fondoCat: #d9f0ea; --trattoCat: #1f7a6c; }
+.cat-carne     { --fondoCat: #fbdcdc; --trattoCat: #b3363c; }
+.cat-pesce     { --fondoCat: #dcebfa; --trattoCat: #2c6aa8; }
+.cat-uova      { --fondoCat: #fff1c4; --trattoCat: #a07606; }
+.cat-legumi    { --fondoCat: #efe2d2; --trattoCat: #8a5a2b; }
+.cat-formaggio { --fondoCat: #fdf0c9; --trattoCat: #9c7a00; }
+.cat-verdura   { --fondoCat: #e2f1d9; --trattoCat: #3f7d2a; }
+:root[data-tema="scuro"] .foto { background-color: color-mix(in srgb, var(--trattoCat) 24%, var(--carta)); color: color-mix(in srgb, var(--trattoCat) 55%, #fff); }
+@media (prefers-color-scheme: dark) {
+  :root[data-tema="auto"] .foto { background-color: color-mix(in srgb, var(--trattoCat) 24%, var(--carta)); color: color-mix(in srgb, var(--trattoCat) 55%, #fff); }
+}
 
 .occhiello { font-size: 12.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--arancioTesto); }
 .nomePiatto { font: 800 20px/1.15 var(--display); letter-spacing: -.01em; margin-top: 2px; text-wrap: balance; }
@@ -263,6 +275,7 @@ span.chip { cursor: default; }
   padding: 24px 18px; border-radius: var(--raggio); background: var(--carta); box-shadow: var(--ombra);
 }
 .vuota .foto { width: 72px; height: 72px; min-height: 0; border-radius: 22px; }
+.vuota .foto .icona { width: 32px; height: 32px; }
 .vuota h2 { font: 800 20px/1.2 var(--display); }
 .vuota p { margin: 0 0 6px; color: var(--tenue); }
 
@@ -499,7 +512,7 @@ details.giaInCasa ul { margin-top: 4px; }
   .rigaGiorno .freccia { display: none; }
   .apriGiorno { flex-direction: column; align-items: stretch; gap: 0; height: 100%; }
   .apriGiorno .foto.mini { width: 100%; height: 120px; border-radius: 0; }
-  .apriGiorno .foto.mini .icona { width: 30px; height: 30px; }
+  .apriGiorno .foto.mini > .disegno { width: 56px; height: 56px; stroke-width: 2.2; }
   .testoGiorno { padding: 12px 14px 14px; }
   .piattiGiorno { -webkit-line-clamp: 4; }
   .completa { max-width: 420px; }

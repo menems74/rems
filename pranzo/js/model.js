@@ -197,6 +197,37 @@ export function famigliaProteinaPrincipale(piatto, indiceIngredienti) {
   return migliore;
 }
 
+/* ------------------------------------------------- che cibo è ----------
+   Quando un piatto non ha la foto, al suo posto c'è un disegno di che cosa
+   c'è nel piatto: lo si capisce dal nome, dal tipo e dagli ingredienti.  */
+
+export const CATEGORIE = ['pasta', 'cereali', 'pizza', 'zuppa', 'carne', 'pesce',
+                          'uova', 'legumi', 'formaggio', 'verdura'];
+
+const PASTA = new Set(['ing_pasta_corta', 'ing_spaghetti', 'ing_gnocchi', 'ing_tortellini']);
+const CEREALI = new Set(['ing_riso', 'ing_riso_venere', 'ing_farro', 'ing_orzo', 'ing_bulgur',
+                         'ing_cous_cous', 'ing_quinoa', 'ing_polenta']);
+const PANE = new Set(['ing_base_pizza', 'ing_piadina', 'ing_focaccia', 'ing_tortilla', 'ing_pane_toast']);
+const DA_FAMIGLIA = { pesce: 'pesce', pollame: 'carne', manzo: 'carne', maiale: 'carne', salumi: 'carne',
+                      uova: 'uova', legumi: 'legumi', formaggio: 'formaggio', latticini: 'formaggio' };
+
+export function categoriaPiatto(piatto, indiceIngredienti) {
+  if (!piatto) return 'verdura';
+  const nome = (piatto.nome || '').toLowerCase();
+  const ids = (piatto.ingredienti || []).map((v) => v.ingredienteId);
+  if ((piatto.tags || []).includes('zuppa') || /zupp|minestr|vellut|crema di/.test(nome)) return 'zuppa';
+  if (ids.some((id) => PANE.has(id)) || /pizz|piadin|focacc|toast|panin|bruschett|wrap/.test(nome)) return 'pizza';
+  if (piatto.tipo === 'contorno') return 'verdura';
+  if (piatto.tipo !== 'secondo') {
+    if (ids.some((id) => PASTA.has(id)) || /pasta|spaghett|penne|gnocch|tortell|lasagn/.test(nome)) return 'pasta';
+    if (ids.some((id) => CEREALI.has(id)) || /riso|risott|farro|orzo|cous|quinoa|polent/.test(nome)) return 'cereali';
+  }
+  if (/pollo|tacchino|manzo|maiale|lonza|vitello|salsicc|polpett|hamburger|arrost|spezzatin|brasat/.test(nome)) return 'carne';
+  if (/salmone|merluzzo|tonno|platessa|gamber|sgombro|alici|pesce/.test(nome)) return 'pesce';
+  const famiglia = famigliaProteinaPrincipale(piatto, indiceIngredienti);
+  return DA_FAMIGLIA[famiglia] || 'verdura';
+}
+
 /* --------------------------------------------------------- stagione ----- */
 
 export function mesecorrente(data = new Date()) { return data.getMonth() + 1; }
