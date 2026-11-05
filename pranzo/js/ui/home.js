@@ -83,8 +83,7 @@ function testata(stato) {
   const regole = el('button', { class: 'regole', type: 'button', onclick: () => mostraRegole(stato) }, [
     el('span', {}, [icona('persone'), `${pref.porzioni || 1}`]),
     el('span', {}, M.NOME_PESO[pref.peso] || 'Tutti'),
-    el('span', {}, (pref.pasti || []).includes('pranzo') ? 'Pranzo e cena' : 'Solo cena'),
-    icona('regola')
+    el('span', {}, (pref.pasti || []).includes('pranzo') ? 'Pranzo e cena' : 'Solo cena')
   ]);
   regole.setAttribute('aria-label', 'Come mangiate: persone, piatti, pasti. Tocca per cambiare');
 

@@ -151,12 +151,13 @@ button { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-colo
 
 .regole {
   position: relative; display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0;
-  padding: 6px 10px 6px 6px; min-height: 46px;
+  padding: 6px; min-height: 46px;
   border: 0; border-radius: 99px; background: rgba(27, 22, 38, .1); color: inherit;
   font-size: 16px; font-weight: 600;
 }
 .rigaRegole { position: relative; display: flex; align-items: center; gap: 8px; margin-top: 14px; }
-.tondo.regoleImpostazioni { width: 46px; height: 46px; border-radius: 99px; background: rgba(27, 22, 38, .1); box-shadow: none; color: inherit; }
+.tondo.regoleImpostazioni { width: 46px; height: 46px; border-radius: 99px; background: #1b1626; box-shadow: none; color: #ffd23f; }
+.tondo.regoleImpostazioni .icona { width: 22px; height: 22px; }
 .regole > span { flex: 1; justify-content: center; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; padding: 5px 9px; border-radius: 99px; background: rgba(255, 255, 255, .7); }
 .regole > span .icona { width: 15px; height: 15px; }
 .regole > .icona { margin-left: 2px; width: 18px; height: 18px; }
@@ -330,7 +331,7 @@ span.chip { cursor: default; }
 .nota { margin: 0; font-size: 15px; color: var(--tenue); }
 .nota.centro { text-align: center; }
 .piede { margin: 10px 0 0; text-align: center; font-size: 14px; color: var(--tenue); line-height: 1.6; }
-.firma { font-weight: 700; color: var(--inchiostro); }
+.firma { font-size: 12px; font-weight: 700; color: var(--inchiostro); }
 .oro {
   font-family: var(--display); font-weight: 800; letter-spacing: .01em;
   background: linear-gradient(100deg, #b8860b, #e8c25a 45%, #b8860b);
