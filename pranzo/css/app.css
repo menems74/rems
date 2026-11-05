@@ -118,7 +118,10 @@ button { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-colo
 
 /* il marchio della prima pagina: a destra, con l'adesivo "2.0" che entra
    con un piccolo rimbalzo e un riflesso che passa una volta sola */
-.barraTesta.destra { justify-content: flex-end; }
+/* in prima pagina il marchio galleggia a destra: il saluto sale accanto a
+   lui e non resta una riga vuota in cima */
+.barraTesta.destra { float: right; justify-content: flex-end; margin: 0 0 6px 12px; z-index: 1; }
+.barraTesta.destra + h1 { margin-top: 4px; }
 .marchio.marchioCasa { display: inline-flex; align-items: center; gap: 6px; font-size: 26px; letter-spacing: -.02em; }
 .marchio.marchioCasa .parola {
   background: linear-gradient(100deg, #1b1626 0%, #1b1626 40%, #6a3fb5 50%, #1b1626 60%, #1b1626 100%);
