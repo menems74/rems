@@ -17,6 +17,8 @@ const TRATTI = {
   copia: '<rect x="8.5" y="8.5" width="12" height="12" rx="2.5"/><path d="M15.5 8.5V6a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 6v7A2.5 2.5 0 0 0 6 15.5h2.5"/>',
   indietro: '<path d="M15 5l-7 7 7 7"/>',
   avanti: '<path d="M9 5l7 7-7 7"/>',
+  giu: '<path d="M5 9l7 7 7-7"/>',
+  su: '<path d="M5 15l7-7 7 7"/>',
   orologio: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
   fiamma: '<path d="M12 21c-3.9 0-6.5-2.6-6.5-6.2 0-3.4 2.4-5.2 3.6-8.3.5 1.8 1.6 3 2.9 3.6C12.6 7 13.5 4.6 13 2.5c3.5 2.3 5.5 6.6 5.5 11 0 4.4-2.6 7.5-6.5 7.5z"/>',
   foto: '<rect x="3" y="5" width="18" height="15" rx="3"/><circle cx="9" cy="10.5" r="1.8"/><path d="M21 16l-5-5-8.5 9"/>',

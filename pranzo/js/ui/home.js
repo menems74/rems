@@ -6,15 +6,23 @@
 
 import { el, svuotaNodo } from './dom.js';
 import { icona } from './icone.js';
-import { fotoPiatto, bottoneIcona, segmenti, occhiello, datiPiatto, nomeDi, ghirigoro } from './comuni.js';
+import { fotoPiatto, segmenti, occhiello, datiPiatto, nomeDi, ghirigoro } from './comuni.js';
 import { mostraGiorno } from './giorno.js';
-import { mostraPiatto } from './piatto.js';
 import { mostraRegole } from './regole.js';
 import * as M from '../model.js';
 
 /* Il numero mostrato in fondo alla pagina. Si cambia a mano, quando serve:
    non c'entra con la VERSIONE di sw.js, che è solo il nome della cache. */
 export const VERSIONE_APP = 'V.3.0';
+
+/* I giorni già passati di questa settimana si nascondono: si rivedono con
+   la fascia "mostra". La scelta dura finché l'app resta aperta. */
+const vista = { passati: false };
+
+/** Firma in fondo alle pagine: la versione e Cleopatra, in oro. */
+export function firma(prima = '') {
+  return el('span', { class: 'firma' }, [`${prima}${VERSIONE_APP} · Powered by `, el('span', { class: 'oro' }, 'Cleopatra')]);
+}
 
 export function render(contenitore, stato) {
   svuotaNodo(contenitore);
@@ -35,9 +43,17 @@ export function render(contenitore, stato) {
     corpo.appendChild(vuota(stato));
   } else {
     const elenco = el('div', { class: 'elencoGiorni' });
+    const passati = stato.menu.giorni.filter((g) => passato(g.giorno, stato) && M.pastiDi(g).length);
+    if (passati.length) {
+      elenco.appendChild(el('button', { class: 'fasciaPassati', type: 'button', 'aria-expanded': vista.passati ? 'true' : 'false',
+        onclick: () => { vista.passati = !vista.passati; render(contenitore, stato); } },
+        [vista.passati ? 'Nascondi i giorni passati' : `Mostra tutto (${passati.length} ${passati.length === 1 ? 'giorno passato' : 'giorni passati'})`,
+         icona(vista.passati ? 'su' : 'giu')]));
+    }
     for (const g of stato.menu.giorni) {
       if (!M.pastiDi(g).length) continue;
-      elenco.appendChild(rigaGiorno(g, stato, oggi && oggi.giorno === g.giorno));
+      if (!vista.passati && passato(g.giorno, stato)) continue;
+      elenco.appendChild(rigaGiorno(g, stato, oggi && oggi.giorno === g.giorno, passato(g.giorno, stato)));
     }
     corpo.appendChild(elenco);
     const vuoti = giorniVuoti(stato);
@@ -52,7 +68,7 @@ export function render(contenitore, stato) {
   corpo.appendChild(el('p', { class: 'piede' }, [
     'Le calorie sono stime per persona, solo dei piatti: non sono un consiglio nutrizionale.',
     el('br'),
-    el('span', { class: 'firma' }, `Pranzo ${VERSIONE_APP} · powered by Rems`)
+    firma('Pranzo 2.0 · ')
   ]));
   contenitore.appendChild(corpo);
 }
@@ -75,7 +91,7 @@ function testata(stato) {
   return el('header', { class: 'testata gialla' }, [
     ghirigoro(),
     el('div', { class: 'barraTesta' }, [
-      el('span', { class: 'marchio' }, ['Pranzo', el('i', {}, '.')]),
+      el('span', { class: 'marchio' }, ['Pranzo 2.0', el('i', {}, '.')]),
       el('a', { class: 'tondo chiaro', href: '#/impostazioni', 'aria-label': 'Impostazioni' }, [icona('ingranaggio')])
     ]),
     el('h1', {}, [
@@ -120,7 +136,7 @@ function rigaPastoOggi(giorno, nome, pasto, stato) {
   const contorno = pasto.contorno ? stato.indicePiatti.get(pasto.contorno) : null;
   const apri = el('button', {
     class: 'pastoOggi', type: 'button',
-    onclick: () => piatto && mostraPiatto(piatto, stato)
+    onclick: () => mostraGiorno(giorno.giorno, stato)
   }, [
     fotoPiatto(piatto, stato, 'media'),
     el('div', { class: 'testoPasto' }, [
@@ -129,16 +145,17 @@ function rigaPastoOggi(giorno, nome, pasto, stato) {
       contorno ? el('div', { class: 'conContorno' }, `con ${contorno.nome.toLowerCase()}`) : null
     ])
   ]);
-  return el('div', { class: 'rigaOggi' }, [
-    apri,
-    bottoneIcona('scambia', `Cambia ${M.NOME_PASTO[nome].toLowerCase()}`,
-      () => stato.azioni.rigeneraPasto(giorno.giorno, nome), 'viola')
-  ]);
+  return el('div', { class: 'rigaOggi' }, [apri, el('span', { class: 'freccia' }, [icona('avanti')])]);
 }
 
 /* ---------------------------------------------------------- la settimana - */
 
-function rigaGiorno(giorno, stato, eOggi) {
+/** Un giorno di questa settimana che è già passato. */
+function passato(chiave, stato) {
+  return stato.scarto === 0 && M.GIORNI.indexOf(chiave) < M.GIORNI.indexOf(stato.oggiChiave);
+}
+
+function rigaGiorno(giorno, stato, eOggi, giaPassato) {
   const pasti = M.pastiDi(giorno);
   const primo = pasti.length ? stato.indicePiatti.get(pasti[0][1].piatto) : null;
   const kcal = M.kcalGiorno(giorno, stato.indicePiatti, stato.indiceIngredienti);
@@ -156,10 +173,8 @@ function rigaGiorno(giorno, stato, eOggi) {
       kcal ? el('div', { class: 'kcalGiorno' }, `${kcal} kcal`) : null
     ])
   ]);
-  return el('div', { class: 'rigaGiorno' + (eOggi ? ' eOggi' : '') }, [
-    apri,
-    bottoneIcona('scambia', `Cambia i piatti di ${M.NOME_GIORNO[giorno.giorno]}`,
-      () => stato.azioni.rigeneraGiorno(giorno.giorno), 'viola')
+  return el('div', { class: 'rigaGiorno' + (eOggi ? ' eOggi' : '') + (giaPassato ? ' passato' : '') }, [
+    apri, el('span', { class: 'freccia' }, [icona('avanti')])
   ]);
 }
 
@@ -168,6 +183,7 @@ function giorniVuoti(stato) {
   const pref = stato.preferenze;
   const pasti = pref.pasti || M.PASTI;
   return (pref.giorni || M.GIORNI).filter((chiave) => {
+    if (passato(chiave, stato)) return false;           // il passato non si completa
     const g = stato.menu.giorni.find((x) => x.giorno === chiave);
     return !g || pasti.some((p) => !(g.pasti || {})[p]);
   });

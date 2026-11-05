@@ -6,7 +6,7 @@
 import { el, svuotaNodo, avviso } from './dom.js';
 import { icona } from './icone.js';
 import { segmenti, ghirigoro } from './comuni.js';
-import { VERSIONE_APP } from './home.js';
+import { firma } from './home.js';
 import * as M from '../model.js';
 import * as B from '../backup.js';
 import * as DB from '../db.js';
@@ -99,8 +99,8 @@ export function render(contenitore, stato) {
   if (!comeApp()) corpo.appendChild(bloccoInstalla(stato));
 
   corpo.appendChild(el('p', { class: 'piede' }, [
-    `Pranzo ${VERSIONE_APP} · dati nel telefono (${DB.motoreInUso() === 'indexeddb' ? 'IndexedDB' : 'localStorage'})`,
-    el('br'), el('span', { class: 'firma' }, 'powered by Rems')
+    `Dati nel telefono (${DB.motoreInUso() === 'indexeddb' ? 'IndexedDB' : 'localStorage'})`,
+    el('br'), firma('Pranzo 2.0 · ')
   ]));
 }
 

@@ -66,7 +66,7 @@ body {
   margin: 0;
   background: var(--sfondo);
   color: var(--inchiostro);
-  font: 16px/1.5 var(--testo);
+  font: 17px/1.5 var(--testo);
   -webkit-font-smoothing: antialiased;
   min-height: 100dvh;
   padding-bottom: calc(var(--barra) + env(safe-area-inset-bottom) + 16px);
@@ -106,7 +106,7 @@ button { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-colo
 .testata.viola .ghirigoro { opacity: .28; }
 
 .barraTesta { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; }
-.marchio { font: 800 17px/1 var(--display); letter-spacing: -.01em; }
+.marchio { font: 800 20px/1 var(--display); letter-spacing: -.01em; }
 .marchio i { font-style: normal; color: #ff5e3a; }
 .testata.arancio .marchio i, .testata.viola .marchio i { color: var(--giallo); }
 .testata h1 {
@@ -119,7 +119,7 @@ button { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-colo
 
 .stagione { position: relative; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
 .etichetta {
-  font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 99px;
+  font-size: 14px; font-weight: 600; padding: 5px 11px; border-radius: 99px;
   background: rgba(255, 255, 255, .62); color: #4a3b0a;
 }
 
@@ -127,7 +127,7 @@ button { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-colo
   position: relative; display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap;
   margin-top: 12px; padding: 6px 8px 6px 6px; min-height: 40px;
   border: 0; border-radius: 99px; background: rgba(27, 22, 38, .1); color: inherit;
-  font-size: 13px; font-weight: 600;
+  font-size: 15px; font-weight: 600;
 }
 .regole > span { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px; background: rgba(255, 255, 255, .7); }
 .regole > span .icona { width: 15px; height: 15px; }
@@ -155,12 +155,12 @@ button { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-colo
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   width: 100%; min-height: 52px; padding: 12px 18px; border: 0; border-radius: 99px;
   background: linear-gradient(90deg, #ff7a45, #ff4d5e); color: #fff;
-  font-weight: 700; font-size: 16px; text-decoration: none; box-shadow: var(--ombraForte);
+  font-weight: 700; font-size: 17px; text-decoration: none; box-shadow: var(--ombraForte);
 }
 .secondario {
   flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   min-height: 46px; padding: 10px 14px; border: 1.5px solid var(--linea); border-radius: 14px;
-  background: var(--carta); color: var(--inchiostro); font-weight: 600; font-size: 15px;
+  background: var(--carta); color: var(--inchiostro); font-weight: 600; font-size: 16px;
 }
 .secondario.cuoreAcceso { border-color: transparent; background: #ffe3ea; color: #c2185b; }
 .secondario.cuoreAcceso .icona { fill: currentColor; }
@@ -171,28 +171,28 @@ button { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-colo
 .pillola {
   display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 6px 12px;
   border: 0; border-radius: 99px; background: var(--sfondo); color: var(--inchiostro);
-  font-size: 13px; font-weight: 600; white-space: nowrap;
+  font-size: 15px; font-weight: 600; white-space: nowrap;
 }
 .pillola .icona { width: 16px; height: 16px; }
 .pillola.chiara { background: rgba(255, 255, 255, .2); color: #fff; }
 .pillola.viola { background: var(--violaTenue); color: var(--violaTesto); }
 button.piccolo {
   display: inline-flex; align-items: center; gap: 4px; min-height: 36px; padding: 4px 10px;
-  border: 0; border-radius: 99px; background: transparent; color: var(--violaTesto); font-size: 13px; font-weight: 600;
+  border: 0; border-radius: 99px; background: transparent; color: var(--violaTesto); font-size: 15px; font-weight: 600;
 }
 button.piccolo .icona { width: 16px; height: 16px; }
 
 .segmenti { display: flex; padding: 4px; gap: 4px; border-radius: 99px; background: var(--carta); box-shadow: var(--ombra); }
 .segmenti button {
   flex: 1; min-height: 40px; padding: 6px 10px; border: 0; border-radius: 99px;
-  background: transparent; color: var(--tenue); font-size: 14px; font-weight: 600;
+  background: transparent; color: var(--tenue); font-size: 16px; font-weight: 600;
 }
 .segmenti button.acceso { background: var(--viola); color: #fff; }
 
 .chip {
   display: inline-flex; align-items: center; gap: 5px; min-height: 36px; padding: 6px 12px;
   border: 1.5px solid var(--linea); border-radius: 99px; background: var(--carta);
-  font-size: 14px; font-weight: 600; color: var(--inchiostro);
+  font-size: 15px; font-weight: 600; color: var(--inchiostro);
 }
 .chip .icona { width: 16px; height: 16px; color: var(--tenue); }
 .chip.acceso { background: var(--viola); border-color: var(--viola); color: #fff; }
@@ -211,7 +211,7 @@ span.chip { cursor: default; }
 .foto.grande { width: 100%; height: 210px; border-radius: var(--raggio); margin-bottom: 14px; }
 .foto.grande > .icona { width: 36px; height: 36px; }
 .foto.media { width: 92px; align-self: stretch; min-height: 92px; }
-.foto.mini { width: 48px; height: 48px; border-radius: 13px; }
+.foto.mini { width: 56px; height: 56px; border-radius: 13px; }
 .foto.mini .icona { width: 18px; height: 18px; }
 .foto.micro { width: 28px; height: 28px; border-radius: 8px; }
 .foto.micro .icona { width: 14px; height: 14px; }
@@ -222,10 +222,10 @@ span.chip { cursor: default; }
 .sf4 { background-image: linear-gradient(135deg, #b9a4ff, #6a3fb5); }
 .sf5 { background-image: linear-gradient(135deg, #c9b38a, #8b6b4a); }
 
-.occhiello { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--arancioTesto); }
-.nomePiatto { font: 800 17px/1.15 var(--display); letter-spacing: -.01em; margin-top: 2px; text-wrap: balance; }
-.nomePiatto.piccolo { font-size: 15px; }
-.conContorno { font-size: 13px; color: var(--tenue); margin-top: 3px; }
+.occhiello { font-size: 12.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--arancioTesto); }
+.nomePiatto { font: 800 20px/1.15 var(--display); letter-spacing: -.01em; margin-top: 2px; text-wrap: balance; }
+.nomePiatto.piccolo { font-size: 17px; }
+.conContorno { font-size: 15px; color: var(--tenue); margin-top: 3px; }
 .testoPasto { flex: 1; min-width: 0; padding: 10px 4px 10px 12px; text-align: left; }
 
 /* ------------------------------------------------------------ oggi ------- */
@@ -233,7 +233,7 @@ span.chip { cursor: default; }
 .oggi { background: var(--carta); border-radius: 24px; overflow: hidden; box-shadow: var(--ombraForte); }
 .oggiTesta {
   display: flex; justify-content: space-between; padding: 12px 14px 8px;
-  font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--tenue);
+  font-size: 13.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--tenue);
 }
 .rigaOggi { display: flex; align-items: center; gap: 8px; padding-right: 12px; border-top: 1px solid var(--linea); }
 .pastoOggi { flex: 1; min-width: 0; display: flex; align-items: stretch; padding: 0; border: 0; background: none; text-align: left; }
@@ -248,13 +248,13 @@ span.chip { cursor: default; }
 .rigaGiorno.eOggi { outline: 2px solid var(--giallo); }
 .apriGiorno { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; padding: 0; border: 0; background: none; text-align: left; }
 .testoGiorno { min-width: 0; }
-.nomeGiorno { font-size: 15px; }
+.nomeGiorno { font-size: 18px; }
 .nomeGiorno span { color: var(--tenue); }
-.piattiGiorno { font-size: 13px; color: var(--tenue); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.kcalGiorno { font-size: 11px; font-weight: 600; color: var(--arancioTesto); margin-top: 2px; }
+.piattiGiorno { font-size: 15.5px; color: var(--tenue); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.kcalGiorno { font-size: 13px; font-weight: 600; color: var(--arancioTesto); margin-top: 2px; }
 .bollino {
   display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 99px;
-  background: var(--giallo); color: var(--suGiallo) !important; font-size: 11px; font-weight: 700; vertical-align: 1px;
+  background: var(--giallo); color: var(--suGiallo) !important; font-size: 12.5px; font-weight: 700; vertical-align: 1px;
 }
 .bollino.viola { background: var(--violaTenue); color: var(--violaTesto) !important; text-transform: none; letter-spacing: 0; }
 
@@ -266,10 +266,23 @@ span.chip { cursor: default; }
 .vuota h2 { font: 800 20px/1.2 var(--display); }
 .vuota p { margin: 0 0 6px; color: var(--tenue); }
 
-.nota { margin: 0; font-size: 13px; color: var(--tenue); }
+.nota { margin: 0; font-size: 15px; color: var(--tenue); }
 .nota.centro { text-align: center; }
-.piede { margin: 10px 0 0; text-align: center; font-size: 12px; color: var(--tenue); line-height: 1.6; }
+.piede { margin: 10px 0 0; text-align: center; font-size: 14px; color: var(--tenue); line-height: 1.6; }
 .firma { font-weight: 700; color: var(--inchiostro); }
+.oro {
+  font-family: var(--display); font-weight: 800; letter-spacing: .01em;
+  background: linear-gradient(100deg, #b8860b, #e8c25a 45%, #b8860b);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.freccia { display: inline-flex; color: var(--tenue); padding: 0 4px; }
+.rigaGiorno.passato { opacity: .6; }
+.fasciaPassati {
+  display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px;
+  padding: 6px 14px; border: 1.5px dashed var(--linea); border-radius: 14px;
+  background: transparent; color: var(--tenue); font-size: 15px; font-weight: 600;
+}
+.fasciaPassati .icona { width: 18px; height: 18px; }
 .errore { margin: 24px 16px; padding: 14px; border-radius: 14px; background: var(--rossoTenue); color: var(--rosso); white-space: pre-line; }
 
 /* ------------------------------------------------------- barra in basso -- */
@@ -283,7 +296,7 @@ span.chip { cursor: default; }
 .barra a {
   flex: 1; max-width: 160px; display: flex; flex-direction: column; align-items: center; gap: 2px;
   min-height: 52px; padding: 6px 4px; border-radius: 14px;
-  font-size: 12px; font-weight: 600; color: var(--tenue); text-decoration: none;
+  font-size: 13.5px; font-weight: 600; color: var(--tenue); text-decoration: none;
 }
 .barra a .icona { width: 24px; height: 24px; }
 .barra a[aria-current="page"] { color: var(--violaTesto); }
@@ -308,18 +321,18 @@ span.chip { cursor: default; }
 .testaFoglio h2 { font: 800 22px/1.15 var(--display); letter-spacing: -.01em; }
 .testaFoglio .tondo { box-shadow: none; }
 .corpoFoglio { overflow-y: auto; overscroll-behavior: contain; padding: 4px 16px 24px; display: flex; flex-direction: column; gap: 12px; }
-.sottotitolo { margin: -6px 0 0; font-size: 14px; color: var(--tenue); }
+.sottotitolo { margin: -6px 0 0; font-size: 15.5px; color: var(--tenue); }
 
 .sezionePasto { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: var(--raggio); background: var(--carta); box-shadow: var(--ombra); }
-.sezionePasto h3 { font-size: 13px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--tenue); }
+.sezionePasto h3 { font-size: 14px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--tenue); }
 .schedaPiatto { display: flex; align-items: stretch; padding: 0; border: 0; border-radius: 16px; overflow: hidden; background: var(--sfondo); text-align: left; }
 .schedaPiatto .foto.media { min-height: 84px; }
 .rigaContorno { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.linkContorno { display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 40px; padding: 0; border: 0; background: none; text-align: left; font-size: 14px; color: var(--tenue); }
+.linkContorno { display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 40px; padding: 0; border: 0; background: none; text-align: left; font-size: 16px; color: var(--tenue); }
 .linkContorno b { color: var(--inchiostro); font-weight: 600; }
 .azioniPasto, .azioniPiatto { display: flex; gap: 8px; }
 .tempi { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-.etichettaTempi { display: inline-flex; align-items: center; gap: 4px; margin-right: 2px; font-size: 13px; font-weight: 600; color: var(--tenue); }
+.etichettaTempi { display: inline-flex; align-items: center; gap: 4px; margin-right: 2px; font-size: 15px; font-weight: 600; color: var(--tenue); }
 .etichettaTempi .icona { width: 16px; height: 16px; }
 .tempi .chip { min-width: 44px; justify-content: center; padding: 6px 10px; }
 
@@ -327,7 +340,7 @@ span.chip { cursor: default; }
 .comandiFoto .pillola { background: rgba(20, 15, 30, .55); color: #fff; backdrop-filter: blur(4px); }
 .titoloPiatto { font: 800 26px/1.1 var(--display); letter-spacing: -.02em; text-wrap: balance; }
 .datiPiatto { display: flex; flex-wrap: wrap; gap: 6px; }
-.titoletto { margin-top: 6px; font-size: 13px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--tenue); }
+.titoletto { margin-top: 6px; font-size: 14px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--tenue); }
 ul.ingredienti { list-style: none; margin: 0; padding: 4px 14px; border-radius: var(--raggio); background: var(--carta); box-shadow: var(--ombra); }
 ul.ingredienti li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--linea); }
 ul.ingredienti li:last-child { border-bottom: 0; }
@@ -336,7 +349,7 @@ ol.passi { margin: 0; padding: 0 0 0 22px; display: flex; flex-direction: column
 ol.passi li::marker { font-weight: 700; color: var(--arancioTesto); }
 
 .domanda { display: flex; flex-direction: column; gap: 8px; }
-.etichettaDomanda { margin: 0; font-size: 14px; font-weight: 600; }
+.etichettaDomanda { margin: 0; font-size: 16px; font-weight: 600; }
 .contatore { display: flex; align-items: center; gap: 16px; }
 .contatore .numero { font: 800 28px/1 var(--display); min-width: 28px; text-align: center; }
 
@@ -363,15 +376,15 @@ ol.passi li::marker { font-weight: 700; color: var(--arancioTesto); }
   background: var(--carta); box-shadow: var(--ombraForte); text-decoration: none;
 }
 .iconaAi { display: inline-flex; padding: 10px; border-radius: 14px; background: linear-gradient(135deg, #b9a4ff, #6a3fb5); color: #fff; }
-.testoAi { flex: 1; font-size: 13px; color: var(--tenue); line-height: 1.35; }
-.testoAi b { font-size: 15px; color: var(--inchiostro); }
+.testoAi { flex: 1; font-size: 15px; color: var(--tenue); line-height: 1.35; }
+.testoAi b { font-size: 17px; color: var(--inchiostro); }
 
 /* ------------------------------------------------------------- spesa ----- */
 
 .avanzamento { position: relative; height: 10px; margin-top: 14px; border-radius: 99px; background: rgba(255, 255, 255, .22); overflow: hidden; }
 .avanzamento div { height: 100%; border-radius: 99px; background: var(--giallo); transition: width .3s ease; }
-.contoSpesa { position: relative; margin: 6px 0 0; font-size: 13px; font-weight: 600; }
-h2.reparto { margin-top: 6px; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--violaTesto); }
+.contoSpesa { position: relative; margin: 6px 0 0; font-size: 15px; font-weight: 600; }
+h2.reparto { margin-top: 6px; font-size: 13.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--violaTesto); }
 ul.voci { list-style: none; margin: 0; padding: 2px 12px; border-radius: var(--raggio); background: var(--carta); box-shadow: var(--ombra); }
 .voce { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 6px 0; border-bottom: 1px solid var(--linea); }
 .voce:last-child { border-bottom: 0; }
@@ -385,7 +398,7 @@ ul.voci { list-style: none; margin: 0; padding: 2px 12px; border-radius: var(--r
 .voce.presa .spunta { background: var(--verde); border-color: var(--verde); color: #fff; }
 .testoVoce { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .nomeVoce { font-weight: 500; flex: 1; }
-.qtaVoce { font-size: 13px; color: var(--tenue); font-variant-numeric: tabular-nums; }
+.qtaVoce { font-size: 15px; color: var(--tenue); font-variant-numeric: tabular-nums; }
 .voce.presa .nomeVoce { text-decoration: line-through; color: var(--tenue); }
 .voce.spenta .nomeVoce { color: var(--tenue); }
 form.aggiungi { display: flex; gap: 8px; align-items: center; }
@@ -416,7 +429,7 @@ details.giaInCasa ul { margin-top: 4px; }
   position: fixed; left: 16px; right: 16px; z-index: 60; max-width: 520px; margin: 0 auto;
   bottom: calc(var(--barra) + env(safe-area-inset-bottom) + 12px);
   padding: 12px 16px; border-radius: 16px; background: var(--inchiostro); color: var(--sfondo);
-  font-size: 14px; font-weight: 500; box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
+  font-size: 15px; font-weight: 500; box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
 }
 #avviso[data-tipo="errore"] { background: var(--rosso); color: #fff; }
 
