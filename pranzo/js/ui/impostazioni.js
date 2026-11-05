@@ -5,7 +5,7 @@
 
 import { el, svuotaNodo, avviso } from './dom.js';
 import { icona } from './icone.js';
-import { segmenti, ghirigoro } from './comuni.js';
+import { segmenti } from './comuni.js';
 import { firma } from './home.js';
 import * as M from '../model.js';
 import * as B from '../backup.js';
@@ -34,13 +34,16 @@ const vista = { anteprima: null };
 
 export function render(contenitore, stato) {
   svuotaNodo(contenitore);
-  contenitore.appendChild(el('header', { class: 'testata scura' }, [
-    ghirigoro(),
+  // testata nel colore della pagina, con un grande ingranaggio in filigrana
+  const filigrana = icona('ingranaggio');
+  filigrana.classList.add('filigrana');
+  contenitore.appendChild(el('header', { class: 'testata neutra' }, [
+    filigrana,
     el('div', { class: 'barraTesta' }, [
-      el('a', { class: 'tondo chiaro', href: '#/', 'aria-label': 'Torna alla settimana' }, [icona('indietro')]),
-      el('span', { class: 'marchio' }, ['Impostazioni'])
+      el('a', { class: 'tondo', href: '#/', 'aria-label': 'Torna alla settimana' }, [icona('indietro')])
     ]),
-    el('h1', {}, ['Le cose da', el('br'), 'decidere una volta'])
+    el('h1', {}, 'Impostazioni'),
+    el('p', { class: 'sottoTitolo' }, 'Le cose da decidere una volta')
   ]));
 
   const corpo = el('div', { class: 'corpo sovrapposto' });

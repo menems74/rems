@@ -99,6 +99,13 @@ button { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-colo
 .testata.arancio { background: linear-gradient(135deg, #ffb347, #ff5e3a); color: #fff; }
 .testata.scura { background: var(--scuraTesta); color: #fff; }
 .testata.corta { padding-bottom: 18px; }
+.testata.neutra { background: var(--carta); color: var(--inchiostro); box-shadow: var(--ombra); }
+.testata.neutra .tondo { background: var(--sfondo); box-shadow: none; }
+.testata .filigrana {
+  position: absolute; right: -36px; top: -30px; width: 210px; height: 210px;
+  color: var(--inchiostro); opacity: .07; stroke-width: 1.4; pointer-events: none;
+}
+.sottoTitolo { position: relative; margin: 4px 0 0; font-size: 16px; color: var(--tenue); }
 .ghirigoro { position: absolute; right: -24px; top: 34px; width: 170px; opacity: .35; pointer-events: none; }
 .ghirigoro svg { width: 100%; height: auto; display: block; }
 .ghirigoro path { fill: none; stroke: #fff; stroke-width: 14; stroke-linecap: round; }
