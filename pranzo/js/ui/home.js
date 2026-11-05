@@ -90,7 +90,12 @@ function testata(stato) {
 
   return el('header', { class: 'testata gialla' }, [
     ghirigoro(),
-    el('div', { class: 'barraTesta' }, [el('span', { class: 'marchio' }, ['Pranzo 2.0'])]),
+    el('div', { class: 'barraTesta destra' }, [
+      el('span', { class: 'marchio marchioCasa', 'aria-label': 'Pranzo 2.0' }, [
+        el('span', { class: 'parola', 'aria-hidden': 'true' }, 'Pranzo'),
+        el('span', { class: 'adesivo', 'aria-hidden': 'true' }, '2.0')
+      ])
+    ]),
     el('h1', {}, [
       nome ? `Ciao ${nome},` : 'Ciao,', el('br'),
       el('span', { class: 'sottoSaluto' },
