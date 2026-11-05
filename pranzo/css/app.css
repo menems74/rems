@@ -468,3 +468,67 @@ details.giaInCasa ul { margin-top: 4px; }
 .nuovi .campiNuovo select { width: auto; flex: 1; min-width: 120px; }
 .nuovi .nomeNuovo { font-weight: 600; }
 .nuovi .vuoto { color: var(--tenue); }
+
+/* ------------------------------------------------------ schermo largo ----
+   Su PC e tablet in orizzontale non si allunga il telefono: la pagina si
+   allarga, "oggi" mette pranzo e cena affiancati, i giorni diventano una
+   griglia di schede, spesa e catalogo vanno su più colonne. La barra delle
+   sezioni diventa una pillola centrata.                                  */
+
+@media (min-width: 900px) {
+  body { padding-bottom: 110px; }
+  #vista { max-width: 1180px; padding: 0 24px; }
+  .testata { border-radius: 0 0 36px 36px; padding: calc(18px + env(safe-area-inset-top)) 32px 52px; }
+  .testata h1 { font-size: 40px; }
+  .ghirigoro { width: 260px; right: 4%; top: 24px; }
+  .corpo { padding: 20px 8px 8px; gap: 16px; }
+  .corpo.sovrapposto { margin-top: -32px; }
+
+  /* oggi: pranzo e cena uno accanto all'altro */
+  .oggi { display: grid; grid-template-columns: 1fr 1fr; }
+  .oggiTesta { grid-column: 1 / -1; }
+  .rigaOggi + .rigaOggi { border-left: 1px solid var(--linea); }
+  .pastoOggi .foto.media { width: 132px; min-height: 120px; }
+
+  .segmenti { max-width: 460px; }
+
+  /* la settimana: una scheda per giorno */
+  .elencoGiorni { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+  .fasciaPassati { grid-column: 1 / -1; justify-self: start; }
+  .rigaGiorno { padding: 0; flex-direction: column; align-items: stretch; overflow: hidden; border-radius: 22px; }
+  .rigaGiorno .freccia { display: none; }
+  .apriGiorno { flex-direction: column; align-items: stretch; gap: 0; height: 100%; }
+  .apriGiorno .foto.mini { width: 100%; height: 120px; border-radius: 0; }
+  .apriGiorno .foto.mini .icona { width: 30px; height: 30px; }
+  .testoGiorno { padding: 12px 14px 14px; }
+  .piattiGiorno { -webkit-line-clamp: 4; }
+  .completa { max-width: 420px; }
+
+  /* spesa: i reparti su colonne */
+  body[data-pagina="spesa"] .corpo { display: block; columns: 2 340px; column-gap: 20px; }
+  body[data-pagina="spesa"] h2.reparto { break-after: avoid; margin: 14px 0 8px; }
+  body[data-pagina="spesa"] ul.voci, body[data-pagina="spesa"] form.aggiungi,
+  body[data-pagina="spesa"] details.giaInCasa { break-inside: avoid; margin-bottom: 12px; }
+  body[data-pagina="spesa"] .vuota { column-span: all; }
+
+  /* catalogo e impostazioni */
+  body[data-pagina="piatti"] .elencoScelta { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+  body[data-pagina="piatti"] .cerca, body[data-pagina="piatti"] .segmenti, body[data-pagina="piatti"] .bandaAi { max-width: 560px; }
+  body[data-pagina="impostazioni"] .corpo { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); align-items: start; }
+  body[data-pagina="impostazioni"] .piede { grid-column: 1 / -1; }
+  body[data-pagina="nuovi"] .corpo { max-width: 720px; }
+
+  /* la barra: una pillola centrata in basso */
+  .barra {
+    left: 50%; right: auto; bottom: 16px; transform: translateX(-50%);
+    width: 460px; padding: 6px; border: 1px solid var(--linea); border-radius: 22px;
+    box-shadow: 0 10px 30px rgba(30, 20, 50, .12);
+  }
+  #avviso { bottom: 96px; }
+
+  /* il foglio: al centro, non incollato in basso */
+  .pannello { bottom: 50%; transform: translateY(calc(50% + 40px)); opacity: 0; border-radius: 26px; max-height: 86dvh;
+    transition: transform .24s cubic-bezier(.2, .8, .2, 1), opacity .2s ease; }
+  #foglio.aperto .pannello { transform: translateY(50%); opacity: 1; }
+  .maniglia { display: none; }
+}

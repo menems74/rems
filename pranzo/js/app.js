@@ -652,6 +652,7 @@ function disegna() {
   const resto = conto ? conto.totale - conto.fatti : 0;
   document.getElementById('contoSpesa').textContent = resto ? ` · ${resto}` : '';
 
+  document.body.dataset.pagina = nome;      // il CSS largo la usa per le colonne
   ROTTE[nome](document.getElementById('vista'));
   rottaDisegnata = nome;
   window.scrollTo(0, scorrimento);
