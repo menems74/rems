@@ -64,7 +64,7 @@ async function avvia() {
   stato.azioni = {
     generaSettimana, cambiaSettimana, rigeneraPasto, rigeneraGiorno, cambiaContorno,
     scegliPiatto, impostaTempo, cuore, escludi,
-    segnaComprato, segnaInCasa, aggiungiLibera, togliLibera, copiaLista,
+    segnaComprato, segnaInCasa, aggiungiLibera, togliLibera, copiaLista, inviaLista,
     importaPiatto, salvaPreferenze, ricarica, ridisegna: disegna
   };
   // le foto stanno in IndexedDB come immagini vere: col ripiego su
@@ -507,9 +507,26 @@ async function togliLibera(id) {
   await salvaLista();
 }
 
+/** Il testo della lista da mandare: solo quello che manca, con un titolo. */
+function testoLista() {
+  const corpo = S.testoDaCopiare(stato.lista, stato.preferenze.ordineReparti || M.REPARTI, M.NOME_REPARTO);
+  return corpo ? 'Lista della spesa\n\n' + corpo : '';
+}
+
+/**
+ * Su WhatsApp: si apre l'app (o WhatsApp Web sul PC) con la lista già
+ * scritta; il destinatario lo scegli tu lì.
+ */
+function inviaLista() {
+  if (!stato.lista) return;
+  const testo = testoLista();
+  if (!testo) { avviso('Non manca niente: hai già tutto.'); return; }
+  window.open('https://wa.me/?text=' + encodeURIComponent(testo), '_blank', 'noopener');
+}
+
 async function copiaLista() {
   if (!stato.lista) return;
-  const testo = S.testoDaCopiare(stato.lista, stato.preferenze.ordineReparti || M.REPARTI, M.NOME_REPARTO);
+  const testo = testoLista();
   if (!testo) { avviso('Non manca niente: hai già tutto.'); return; }
   try {
     await navigator.clipboard.writeText(testo);

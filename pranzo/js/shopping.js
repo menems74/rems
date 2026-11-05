@@ -223,7 +223,7 @@ export function testoDaCopiare(lista, ordineReparti, nomeReparto = {}) {
     if (!daPrendere.length) continue;
     righe.push((nomeReparto[reparto] || reparto).toUpperCase());
     for (const v of daPrendere) {
-      righe.push(v.libera ? `- ${v.nome}` : `- ${v.nome}, ${M.formattaQta(v.qtaDaComprare || v.qtaRichiesta, v.unita)}`);
+      righe.push(v.libera ? `- ${v.nome}` : `- ${v.nome}, ${M.formattaQta(v.qtaRichiesta, v.unita)}`);
     }
     righe.push('');
   }

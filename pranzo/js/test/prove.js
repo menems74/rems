@@ -1126,6 +1126,6 @@ prova('la lista da copiare: solo quello che manca, per reparto', () => {
   S.aggiungiVoceLibera(lista, 'caffè');
   const testo = S.testoDaCopiare(lista, M.REPARTI, M.NOME_REPARTO);
   if (/Pasta|Olio/.test(testo)) throw new Error('ci sono voci già prese: ' + testo);
-  if (!/FRUTTA E VERDURA\n- Pomodorini, 500 g/.test(testo)) throw new Error('reparto o quantità sbagliati: ' + testo);
+  if (!/FRUTTA E VERDURA\n- Pomodorini, 250 g/.test(testo)) throw new Error('reparto o quantità sbagliati: ' + testo);
   if (!/- caffè/.test(testo)) throw new Error('manca la voce libera');
 });

@@ -400,24 +400,29 @@ ol.passi li::marker { font-weight: 700; color: var(--arancioTesto); }
 .avanzamento { position: relative; height: 10px; margin-top: 14px; border-radius: 99px; background: rgba(255, 255, 255, .22); overflow: hidden; }
 .avanzamento div { height: 100%; border-radius: 99px; background: var(--giallo); transition: width .3s ease; }
 .contoSpesa { position: relative; margin: 6px 0 0; font-size: 15px; font-weight: 600; }
-h2.reparto { margin-top: 6px; font-size: 13.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--violaTesto); }
+h2.reparto { margin-top: 10px; font-size: 15px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--violaTesto); }
 ul.voci { list-style: none; margin: 0; padding: 2px 12px; border-radius: var(--raggio); background: var(--carta); box-shadow: var(--ombra); }
-.voce { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 6px 0; border-bottom: 1px solid var(--linea); }
+.voce { display: flex; align-items: center; gap: 14px; min-height: 72px; padding: 10px 0; border-bottom: 1px solid var(--linea); }
 .voce:last-child { border-bottom: 0; }
 .spunta {
-  width: 30px; height: 30px; flex: none; display: inline-flex; align-items: center; justify-content: center;
-  border: 2px solid var(--linea); border-radius: 10px; background: none; color: transparent; padding: 0;
+  width: 38px; height: 38px; flex: none; display: inline-flex; align-items: center; justify-content: center;
+  border: 2.5px solid color-mix(in srgb, var(--tenue) 55%, transparent); border-radius: 10px; background: none; color: transparent; padding: 0;
   position: relative;
 }
 .spunta::after { content: ""; position: absolute; inset: -8px; }
-.spunta .icona { width: 18px; height: 18px; stroke-width: 3; }
+.spunta .icona { width: 24px; height: 24px; stroke-width: 3; }
 .voce.presa .spunta { background: var(--verde); border-color: var(--verde); color: #fff; }
 .testoVoce { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.nomeVoce { font-weight: 500; flex: 1; }
-.qtaVoce { font-size: 15px; color: var(--tenue); font-variant-numeric: tabular-nums; }
+.nomeVoce { font-weight: 600; flex: 1; font-size: 21px; line-height: 1.25; }
+.qtaVoce { font-size: 17px; color: var(--tenue); font-variant-numeric: tabular-nums; }
 .voce.presa .nomeVoce { text-decoration: line-through; color: var(--tenue); }
 .voce.spenta .nomeVoce { color: var(--tenue); }
 form.aggiungi { display: flex; gap: 8px; align-items: center; }
+.voce .pillola { min-height: 44px; padding: 8px 16px; font-size: 16px; }
+.azioniSpesa { display: flex; gap: 8px; }
+.pillola.whatsapp { background: #25d366; color: #0b3d1f; min-height: 40px; }
+.pillola.whatsapp .icona { width: 18px; height: 18px; }
+.azioniSpesa .pillola.chiara { min-width: 40px; justify-content: center; }
 form.aggiungi input {
   flex: 1; min-width: 0; min-height: 48px; padding: 0 16px; border: 2px dashed var(--linea);
   border-radius: 16px; background: transparent; font-size: 16px;

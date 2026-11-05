@@ -20,8 +20,12 @@ export function render(contenitore, stato) {
     ghirigoro(),
     el('div', { class: 'barraTesta' }, [
       el('span', { class: 'marchio' }, ['Spesa', el('i', {}, '.')]),
-      lista ? el('button', { class: 'pillola chiara', type: 'button', onclick: () => stato.azioni.copiaLista() },
-        [icona('copia'), 'Copia']) : null
+      lista ? el('div', { class: 'azioniSpesa' }, [
+        el('button', { class: 'pillola whatsapp', type: 'button', onclick: () => stato.azioni.inviaLista() },
+          [icona('whatsapp'), 'WhatsApp']),
+        el('button', { class: 'pillola chiara', type: 'button', 'aria-label': 'Copia la lista',
+          onclick: () => stato.azioni.copiaLista() }, [icona('copia')])
+      ]) : null
     ]),
     el('h1', {}, ['La spesa', el('br'), stato.scarto === 1 ? 'della prossima settimana' : 'della settimana']),
     lista ? el('div', { class: 'avanzamento', role: 'progressbar', 'aria-valuemin': '0',
