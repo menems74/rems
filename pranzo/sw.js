@@ -1,5 +1,5 @@
 /* =========================================================================
-   sw.js — service worker di Pranzo 2.0.
+   sw.js — service worker di Pranzo.
 
    L'app deve funzionare in aereo: si mette in cache tutto il guscio (HTML,
    CSS, moduli, dati iniziali, icone) e si serve prima dalla cache, poi si
@@ -10,7 +10,7 @@
    i telefoni continuano a servire la copia vecchia.
    ========================================================================= */
 
-const VERSIONE = 'pranzo-v19';
+const VERSIONE = 'pranzo-v30';
 
 /* Il guscio: tutto ciò che serve per aprire l'app senza rete. */
 const GUSCIO = [
@@ -22,21 +22,21 @@ const GUSCIO = [
   './js/model.js',
   './js/planner.js',
   './js/shopping.js',
-  './js/tastes.js',
   './js/ai-import.js',
   './js/backup.js',
   './js/photo.js',
   './js/ui/dom.js',
+  './js/ui/icone.js',
+  './js/ui/comuni.js',
   './js/ui/home.js',
-  './js/ui/week.js',
-  './js/ui/catalog.js',
-  './js/ui/dish.js',
-  './js/ui/pick.js',
-  './js/ui/shopping.js',
-  './js/ui/pantry.js',
-  './js/ui/tastes.js',
+  './js/ui/giorno.js',
+  './js/ui/piatto.js',
+  './js/ui/scegli.js',
+  './js/ui/regole.js',
+  './js/ui/spesa.js',
+  './js/ui/piatti.js',
   './js/ui/import.js',
-  './js/ui/settings.js',
+  './js/ui/impostazioni.js',
   './data/seed-ingredienti.json',
   './data/seed-piatti.json',
   './manifest.webmanifest',
@@ -75,6 +75,9 @@ self.addEventListener('fetch', (evento) => {
 
   const url = new URL(richiesta.url);
   if (url.origin !== self.location.origin) return;      // niente di esterno, qui non ce n'è
+
+  // la pagina delle prove va sempre in rete: non fa parte dell'app
+  if (url.pathname.endsWith('/test.html') || url.pathname.includes('/js/test/')) return;
 
   // navigazione: si apre sempre, anche offline
   if (richiesta.mode === 'navigate') {

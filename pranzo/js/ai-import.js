@@ -13,7 +13,6 @@
    ========================================================================= */
 
 import * as M from './model.js';
-import * as G from './tastes.js';
 
 /* ============================================================== il prompt */
 
@@ -39,24 +38,22 @@ export function creaPrompt(ctx, opzioni = {}) {
     : `Propongimi ${quanti} idee per pranzo o per cena, una persona, una porzione a testa.`);
   righe.push('');
   righe.push('Come sono fatti i miei pasti:');
-  righe.push('- meglio se il pasto porta proteine, carboidrati e fibre, ma non è obbligatorio;');
-  righe.push(`- "tipo" può essere: unico (piatto completo da solo), primo, secondo, contorno;`);
+  righe.push('- a pranzo un primo o un piatto unico, a cena un secondo con contorno, una zuppa o un piatto unico;');
+  righe.push(`- "tipo" può essere: unico (piatto completo da solo, anche le zuppe), primo, secondo, contorno;`);
   righe.push(`- tempo massimo di preparazione ${pref.tempoMaxMin} minuti;`);
   righe.push(`- siamo nel mese ${mese}: usa ingredienti di stagione;`);
   righe.push('- cucina italiana di casa, ingredienti che si trovano al supermercato.');
 
-  const amati = nomi(pref.amoIngredienti, ctx.indiceIngredienti);
   const esclusi = nomi(pref.escludiIngredienti, ctx.indiceIngredienti);
-  const piaciuti = piattiPiuVotati(ctx, 4, 4);
-  const bocciati = piattiPiuVotati(ctx, 1, 2.4);
+  const piaciuti = nomiPiatti(pref.amoPiatti, ctx.piatti).slice(0, 6);
+  const bocciati = nomiPiatti(pref.escludiPiatti, ctx.piatti).slice(0, 4);
 
-  if (amati.length || esclusi.length || piaciuti.length || bocciati.length) {
+  if (esclusi.length || piaciuti.length || bocciati.length) {
     righe.push('');
     righe.push('I miei gusti:');
-    if (amati.length) righe.push(`- mi piacciono molto: ${amati.join(', ')};`);
     if (esclusi.length) righe.push(`- NON usare, per nessun motivo: ${esclusi.join(', ')};`);
-    if (piaciuti.length) righe.push(`- piatti che ho apprezzato: ${piaciuti.join(', ')};`);
-    if (bocciati.length) righe.push(`- piatti che non mi sono piaciuti: ${bocciati.join(', ')};`);
+    if (piaciuti.length) righe.push(`- piatti che mi piacciono: ${piaciuti.join(', ')};`);
+    if (bocciati.length) righe.push(`- piatti che non voglio più: ${bocciati.join(', ')};`);
   }
 
   if (opzioni.richiesta && opzioni.richiesta.trim()) {
@@ -74,7 +71,8 @@ export function creaPrompt(ctx, opzioni = {}) {
              'in cui ha senso (array vuoto se va tutto l\'anno); "passi" brevi, ' +
              'in italiano, uno per riga; per gli ingredienti usa i nomi comuni del ' +
              'supermercato ("Petto di pollo", "Pasta corta", "Pomodorini"), non marche ' +
-             'né descrizioni.');
+             'né descrizioni; "kcal" sono le calorie di ogni ingrediente per 100 g ' +
+             '(per 100 ml se è un liquido, per un pezzo se "unita" è "pz").');
 
   return righe.join('\n');
 }
@@ -93,9 +91,9 @@ function esempioJson() {
     '  "stagioni": [6, 7, 8],',
     '  "tags": ["estate"],',
     '  "ingredienti": [',
-    '   {"nome": "Farro perlato", "qta": 80, "unita": "g"},',
-    '   {"nome": "Zucchine", "qta": 150, "unita": "g"},',
-    '   {"nome": "Feta", "qta": 90, "unita": "g"}',
+    '   {"nome": "Farro perlato", "qta": 80, "unita": "g", "kcal": 340},',
+    '   {"nome": "Zucchine", "qta": 150, "unita": "g", "kcal": 15},',
+    '   {"nome": "Feta", "qta": 90, "unita": "g", "kcal": 265}',
     '  ],',
     '  "passi": ["Lessa il farro.", "Salta le zucchine.", "Unisci la feta a cubetti."]',
     ' }',
@@ -107,16 +105,9 @@ function nomi(ids, indice) {
   return (ids || []).map((id) => (indice.get(id) || {}).nome).filter(Boolean);
 }
 
-/** I piatti con media sopra/sotto una soglia: servono come esempio di gusto. */
-function piattiPiuVotati(ctx, quanti, soglia) {
-  const righe = [];
-  for (const piatto of ctx.piatti || []) {
-    const media = G.votoMedio((ctx.voti || {})[piatto.id]);
-    if (media == null) continue;
-    if (soglia >= 3 ? media >= soglia : media <= soglia) righe.push({ nome: piatto.nome, media });
-  }
-  righe.sort((a, b) => (soglia >= 3 ? b.media - a.media : a.media - b.media));
-  return righe.slice(0, quanti).map((r) => r.nome);
+function nomiPiatti(ids, piatti) {
+  const scelti = new Set(ids || []);
+  return (piatti || []).filter((p) => scelti.has(p.id)).map((p) => p.nome);
 }
 
 /* =========================================================== la risposta */
@@ -274,7 +265,8 @@ export function esamina(grezzo, ctx) {
     ingredientiNuovi.push({
       id, nome: ripulisciNome(nomeIng), macro: '', unita,
       reparto: '', formatoAcquisto: { qta: qta && qta > 0 ? arrotondaFormato(qta, unita) : 500 },
-      conversioni: [], stagioni: [], origine: 'ai'
+      conversioni: [], stagioni: [], origine: 'ai',
+      ...(kcalDi(voce) != null ? { kcal: kcalDi(voce) } : {})
     });
     if (!qtaFinale) problemi.push(`${nomeIng}: quantità mancante`);
     else voci.push({ ingredienteId: id, qta: qtaFinale, unita });
@@ -304,13 +296,6 @@ export function esamina(grezzo, ctx) {
     problemi.push(`contiene ${nomeEscluso.toLowerCase()}, che escludi`);
   }
 
-  // copertura dei macro: solo un avviso, si può accettare comunque
-  if (!ingredientiNuovi.length && voci.length) {
-    const mancanti = M.macroMancanti([piatto], ctx.indiceIngredienti);
-    if (piatto.tipo === 'unico' && mancanti.length) {
-      avvisi.push('come piatto unico non copre ' + mancanti.map((m) => M.NOME_MACRO[m]).join(' e '));
-    }
-  }
   if (ingredientiNuovi.length) {
     avvisi.push(ingredientiNuovi.length === 1
       ? 'un ingrediente è nuovo: dimmi cos\'è'
@@ -374,6 +359,12 @@ export function preparaSalvataggio(esito, ctx) {
 }
 
 /* ------------------------------------------------------- letture generose */
+
+/** Le calorie di un ingrediente, se l'AI le ha date: per 100 g, 100 ml o pezzo. */
+function kcalDi(voce) {
+  const n = numeroDi(voce, ['kcal', 'calorie', 'kcal100', 'kcalPer100']);
+  return n > 0 && n < 1000 ? Math.round(n) : null;
+}
 
 function testoDi(oggetto, chiavi) {
   if (typeof oggetto === 'string') return oggetto.trim();

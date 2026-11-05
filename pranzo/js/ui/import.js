@@ -26,7 +26,7 @@ export function render(contenitore, stato) {
    diventa una rincorsa. */
 function ridisegna(stato) {
   const scorrimento = window.scrollY;
-  render(document.getElementById('vista'), stato);
+  render(document.getElementById('corpoNuovi') || document.getElementById('vista'), stato);
   window.scrollTo(0, scorrimento);
 }
 

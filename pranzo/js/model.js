@@ -1,85 +1,77 @@
 /* =========================================================================
-   model.js — schemi, validazione, conversioni di unità e calcolo dei macro.
+   model.js — schemi, validazione, unità, calorie e forma del menù.
    Nessun accesso al database: qui dentro sono solo funzioni pure, così si
    possono provare in isolamento (vedi test.html).
    ========================================================================= */
 
 export const MACRO = ['proteina', 'carboidrato', 'fibra', 'grasso', 'condimento'];
-/** Solo questi tre contano per la copertura nutrizionale del pranzo. */
-export const MACRO_NUTRIENTI = ['proteina', 'carboidrato', 'fibra'];
+/* Che cos'è un ingrediente: serve a riconoscere la proteina di un piatto
+   e a chiedere le cose giuste quando un'AI ne porta uno nuovo. */
+export const NOME_MACRO = {
+  proteina: 'proteina', carboidrato: 'carboidrato', fibra: 'verdura o legume',
+  grasso: 'grasso', condimento: 'condimento'
+};
 export const UNITA = ['g', 'ml', 'pz'];
 export const TIPI_PIATTO = ['primo', 'secondo', 'contorno', 'unico'];
 export const NOME_TIPO = {
   primo: 'primo', secondo: 'secondo', contorno: 'contorno', unico: 'piatto unico'
 };
 export const ORIGINI = ['base', 'ai', 'utente'];
-export const MOTIVI_VOTO = ['buono', 'troppoLungo', 'noioso', 'nonMiPiace', 'daRifare'];
 export const GIORNI = ['lun', 'mar', 'mer', 'gio', 'ven', 'sab', 'dom'];
 export const NOME_GIORNO = {
   lun: 'lunedì', mar: 'martedì', mer: 'mercoledì', gio: 'giovedì',
   ven: 'venerdì', sab: 'sabato', dom: 'domenica'
 };
+export const GIORNO_BREVE = {
+  lun: 'Lun', mar: 'Mar', mer: 'Mer', gio: 'Gio', ven: 'Ven', sab: 'Sab', dom: 'Dom'
+};
 
-/* Dalla 2.0 un giorno ha due pasti. L'ordine di questo elenco è l'ordine in
-   cui si mangia, e quindi anche quello in cui si mostra. */
+/* Due pasti al giorno, nell'ordine in cui si mangiano. */
 export const PASTI = ['pranzo', 'cena'];
 export const NOME_PASTO = { pranzo: 'Pranzo', cena: 'Cena' };
 
-/* La forma di un pasto. "secondoContorno" è nata per la cena, ma nessuno
-   vieta di usarla a pranzo. */
-export const MODALITA = ['unico', 'primoSecondo', 'secondoContorno'];
-export const NOME_MODALITA = {
-  unico: 'piatto unico',
-  primoSecondo: 'primo + secondo',
-  secondoContorno: 'secondo + contorno'
+/* La regola della 3.0: a pranzo un primo o un piatto unico, a cena un
+   secondo (che si porta dietro un contorno) o un piatto unico. Le zuppe
+   sono piatti unici con l'etichetta "zuppa", e vanno bene la sera. */
+export const TIPI_PASTO = {
+  pranzo: ['primo', 'unico'],
+  cena: ['secondo', 'unico']
 };
-/** La forma di un pasto fatto da un piatto solo di questo tipo. */
-export function formaDelTipo(tipo) {
-  if (tipo === 'unico') return 'unico';
-  if (tipo === 'primo') return 'primoSecondo';
-  return 'secondoContorno';        // un secondo o un contorno, da completare
-}
 
-/* Quali tipi di piatto compongono ogni forma, nell'ordine in cui si servono. */
-export const TIPI_MODALITA = {
-  unico: ['unico'],
-  primoSecondo: ['primo', 'secondo'],
-  secondoContorno: ['secondo', 'contorno']
-};
+/* Leggeri o sostanziosi: si confronta un piatto con gli altri del suo tipo. */
+export const PESI = ['tutti', 'leggeri', 'sostanziosi'];
+export const NOME_PESO = { tutti: 'Tutti', leggeri: 'Leggeri', sostanziosi: 'Sostanziosi' };
+
+/* I minuti che si possono scegliere per un pasto. */
+export const TEMPI = [15, 30, 45, 60, 90];
+
 export const REPARTI = ['ortofrutta', 'macelleria', 'pescheria', 'latticini',
                         'panetteria', 'dispensa', 'surgelati', 'altro'];
-
-/**
- * Quanto ci vuole di un ingrediente perché il piatto "copra" quel macro.
- * Le specifiche danno le soglie in grammi; per i millilitri valgono le stesse
- * e per i pezzi basta un pezzo intero (2 uova = proteina, mezza cipolla no —
- * ma la cipolla è condimento, quindi non entra comunque nel conto).
- */
-export const SOGLIE_MACRO = {
-  proteina:    { g: 80, ml: 80, pz: 1 },
-  carboidrato: { g: 30, ml: 30, pz: 1 },
-  fibra:       { g: 30, ml: 30, pz: 1 }
+export const NOME_REPARTO = {
+  ortofrutta: 'Frutta e verdura', macelleria: 'Carne e salumi', pescheria: 'Pesce',
+  latticini: 'Latticini e uova', panetteria: 'Pane', dispensa: 'Dispensa',
+  surgelati: 'Surgelati', altro: 'Altro'
 };
+
+/* Quanto ci vuole di una proteina perché conti come "la" proteina del
+   piatto: serve solo al vincolo "mai la stessa due pasti di fila". */
+const SOGLIA_PROTEINA = { g: 80, ml: 80, pz: 1 };
 
 export function preferenzePredefinite() {
   return {
     chiave: 'preferenze',
-    porzioni: 1,
-    giorni: ['lun', 'mar', 'mer', 'gio', 'ven'],
+    nome: '',
+    porzioni: 2,
+    peso: 'tutti',
+    giorni: GIORNI.slice(),
     pasti: ['pranzo', 'cena'],
-    tempoMaxMin: 40,            // il pranzo
-    tempoMaxCena: 0,            // 0 = la cena non ha limite di tempo
-    tempoMaxPerGiorno: {},      // eccezioni al tempo del pranzo, giorno per giorno
-    avanziASettimana: 1,        // cene fatte con gli avanzi del pranzo
-    quotaNovita: 2,
-    cooldownSettimane: 4,
-    maxGiorniPrimoSecondo: 3,
+    tempoMaxMin: 30,            // il pranzo, di solito
+    tempoMaxCena: 45,           // la cena, di solito; 0 = nessun limite
     escludiPiatti: [],
     escludiIngredienti: [],
     amoPiatti: [],
-    amoIngredienti: [],
     ordineReparti: REPARTI.slice(),
-    tema: 'chiaro'         // 'scuro' e 'auto' si scelgono dalle impostazioni
+    tema: 'auto'
   };
 }
 
@@ -121,109 +113,167 @@ export function qtaCanonicaVoce(voce, ingrediente, porzioni = 1) {
   return inCanonica(ingrediente, voce.qta, voce.unita) * porzioni;
 }
 
-/* ----------------------------------------------------------- macro ------- */
+/* ----------------------------------------------------------- calorie -----
+   Le calorie stanno sull'ingrediente (per 100 g o 100 ml, o per pezzo) e
+   si sommano sul piatto: non si salvano mai sul piatto, così se cambio un
+   ingrediente il piatto si aggiorna da sé. Un ingrediente senza calorie
+   (importato senza il dato) semplicemente non conta.                     */
 
-/**
- * Macro coperti da un piatto, calcolati dagli ingredienti: non si salva mai
- * sul piatto, così se cambio un ingrediente il piatto si aggiorna da sé.
- */
-export function macroCoperti(piatto, indiceIngredienti) {
-  const coperti = new Set();
+/** Calorie di una porzione del piatto, arrotondate. 0 se non si sa niente. */
+export function kcalPiatto(piatto, indiceIngredienti) {
+  if (!piatto) return 0;
+  let totale = 0;
   for (const voce of piatto.ingredienti || []) {
     const ing = indiceIngredienti.get(voce.ingredienteId);
-    if (!ing) continue;
-    const soglia = SOGLIE_MACRO[ing.macro];
-    if (!soglia) continue;                       // grasso e condimento non contano
+    if (!ing || typeof ing.kcal !== 'number') continue;
     let qta;
     try { qta = inCanonica(ing, voce.qta, voce.unita); } catch (e) { continue; }
-    if (qta >= soglia[ing.unita]) coperti.add(ing.macro);
+    totale += ing.unita === 'pz' ? qta * ing.kcal : qta * ing.kcal / 100;
   }
-  return MACRO_NUTRIENTI.filter((m) => coperti.has(m));
+  return Math.round(totale);
 }
 
-/** La copertura è del pranzo, non del piatto: si guarda l'unione. */
-export function macroCopertiGiorno(piatti, indiceIngredienti) {
-  const unione = new Set();
-  for (const p of piatti) for (const m of macroCoperti(p, indiceIngredienti)) unione.add(m);
-  return MACRO_NUTRIENTI.filter((m) => unione.has(m));
+/** Calorie di un pasto (piatto più l'eventuale contorno), a persona. */
+export function kcalPasto(pasto, indicePiatti, indiceIngredienti) {
+  if (!pasto) return 0;
+  return idsDelPasto(pasto)
+    .reduce((s, id) => s + kcalPiatto(indicePiatti.get(id), indiceIngredienti), 0);
 }
 
-export function macroMancanti(piatti, indiceIngredienti) {
-  const coperti = new Set(macroCopertiGiorno(piatti, indiceIngredienti));
-  return MACRO_NUTRIENTI.filter((m) => !coperti.has(m));
+export function kcalGiorno(giorno, indicePiatti, indiceIngredienti) {
+  return pastiDi(giorno)
+    .reduce((s, [, pasto]) => s + kcalPasto(pasto, indicePiatti, indiceIngredienti), 0);
 }
 
-export function giornoCompleto(piatti, indiceIngredienti) {
-  return macroMancanti(piatti, indiceIngredienti).length === 0;
+/**
+ * La mediana delle calorie per tipo di piatto: è la riga che divide i
+ * leggeri dai sostanziosi. Si calcola sul catalogo, così vale anche per i
+ * piatti importati.
+ * @returns Map tipo -> kcal
+ */
+export function medianeKcal(piatti, indiceIngredienti) {
+  const perTipo = new Map();
+  for (const p of piatti) {
+    const k = kcalPiatto(p, indiceIngredienti);
+    if (!k) continue;
+    if (!perTipo.has(p.tipo)) perTipo.set(p.tipo, []);
+    perTipo.get(p.tipo).push(k);
+  }
+  const out = new Map();
+  for (const [tipo, valori] of perTipo) {
+    valori.sort((a, b) => a - b);
+    const m = Math.floor(valori.length / 2);
+    out.set(tipo, valori.length % 2 ? valori[m] : (valori[m - 1] + valori[m]) / 2);
+  }
+  return out;
+}
+
+/** Il piatto passa il filtro "leggeri / sostanziosi"? */
+export function passaPeso(piatto, peso, mediane, indiceIngredienti) {
+  if (!peso || peso === 'tutti') return true;
+  const soglia = mediane.get(piatto.tipo);
+  const k = kcalPiatto(piatto, indiceIngredienti);
+  if (!soglia || !k) return true;                // senza dati non si esclude
+  return peso === 'leggeri' ? k <= soglia : k >= soglia;
 }
 
 /* ------------------------------------------------- proteina principale ---
-   Serve al vincolo "mai la stessa proteina in due giorni consecutivi".
-   Si confronta la famiglia (pollame, manzo, pesce, uova, legumi...), non
+   Serve al vincolo "mai la stessa proteina in due pasti di fila". Si
+   confronta la famiglia (pollame, manzo, pesce, uova, legumi...), non
    l'ingrediente: altrimenti petto e cosce di pollo sarebbero "diversi".   */
 
 export function famigliaProteinaPrincipale(piatto, indiceIngredienti) {
+  if (!piatto) return null;
   let migliore = null, maxQta = 0;
   for (const voce of piatto.ingredienti || []) {
     const ing = indiceIngredienti.get(voce.ingredienteId);
     if (!ing || ing.macro !== 'proteina') continue;
     let qta;
     try { qta = inCanonica(ing, voce.qta, voce.unita); } catch (e) { continue; }
-    // i pezzi non sono confrontabili con i grammi: si normalizza a "porzioni di soglia"
-    const peso = qta / SOGLIE_MACRO.proteina[ing.unita];
+    // i pezzi non sono confrontabili con i grammi: si normalizza alla soglia
+    const peso = qta / SOGLIA_PROTEINA[ing.unita];
     if (peso > maxQta) { maxQta = peso; migliore = ing.famiglia || ing.id; }
   }
   return migliore;
 }
 
-export function famiglieProteine(piatto, indiceIngredienti) {
-  const out = new Set();
-  for (const voce of piatto.ingredienti || []) {
-    const ing = indiceIngredienti.get(voce.ingredienteId);
-    if (ing && ing.macro === 'proteina' && ing.famiglia) out.add(ing.famiglia);
-  }
-  return [...out];
+/* --------------------------------------------------------- stagione ----- */
+
+export function mesecorrente(data = new Date()) { return data.getMonth() + 1; }
+
+/** Le verdure e la frutta del mese, per le etichette in prima pagina. */
+export function verdureDiStagione(ingredienti, mese, quante = 6) {
+  return ingredienti
+    .filter((i) => i.reparto === 'ortofrutta' && (i.stagioni || []).length &&
+                   i.stagioni.length < 12 && i.stagioni.includes(mese))
+    .sort((a, b) => a.stagioni.length - b.stagioni.length)
+    .slice(0, quante);
 }
 
-export function fibrePrincipali(piatto, indiceIngredienti) {
-  const out = new Set();
-  for (const voce of piatto.ingredienti || []) {
-    const ing = indiceIngredienti.get(voce.ingredienteId);
-    if (ing && ing.macro === 'fibra') out.add(ing.id);
-  }
-  return [...out];
+/** Un piatto è "di stagione" se lo dice lui o se usa una verdura del mese. */
+export function diStagione(piatto, indiceIngredienti, mese) {
+  if ((piatto.stagioni || []).includes(mese)) return true;
+  return (piatto.ingredienti || []).some((v) => {
+    const ing = indiceIngredienti.get(v.ingredienteId);
+    return ing && (ing.stagioni || []).length && ing.stagioni.length < 12 && ing.stagioni.includes(mese);
+  });
 }
 
 /* ------------------------------------------------------------- pasti -----
-   Il menù della 1.x aveva un solo pasto per giorno, scritto direttamente
-   dentro il giorno. Dalla 2.0 i pasti stanno in `pasti`, uno per chiave.
-   Si legge sempre passando da qui, così i menù vecchi continuano ad aprirsi
-   senza toccare l'archivio.                                              */
+   Dalla 3.0 un pasto è un piatto, più un contorno quando il piatto è un
+   secondo:
+     { piatto: id, contorno: id|null, tempoMax: minuti|null, scelto: bool }
+   "scelto" vuol dire che l'ha deciso l'utente: rigenerare la settimana non
+   lo tocca. I menù della 2.x avevano un elenco di piatti per pasto e quelli
+   della 1.x un solo pasto per giorno: si leggono sempre passando da qui.  */
 
-export const FORMATO_MENU = 2;
+export const FORMATO_MENU = 3;
+
+/** Gli id di un pasto, piatto e contorno, nell'ordine in cui si servono. */
+export function idsDelPasto(pasto) {
+  if (!pasto) return [];
+  return [pasto.piatto, pasto.contorno].filter(Boolean);
+}
 
 /** Un pasto pulito, con i campi che servono e niente altro. */
-export function pastoPulito(grezzo) {
+export function pastoPulito(grezzo, indicePiatti) {
   const x = grezzo || {};
+  let piatto = x.piatto || null;
+  let contorno = x.contorno || null;
+
+  // formato 2: un elenco di piatti. Il primo che non è un contorno è il
+  // piatto, il primo contorno resta contorno; il resto si lascia andare.
+  if (!piatto && Array.isArray(x.piatti)) {
+    const tipoDi = (id) => (indicePiatti && indicePiatti.get(id) || {}).tipo;
+    const ids = x.piatti.filter(Boolean);
+    piatto = ids.find((id) => tipoDi(id) !== 'contorno') || ids[0] || null;
+    contorno = ids.find((id) => id !== piatto && tipoDi(id) === 'contorno') || null;
+  }
   return {
-    modalita: MODALITA.includes(x.modalita) ? x.modalita : 'unico',
-    piatti: (x.piatti || []).slice(),
-    bloccato: !!x.bloccato,
-    // 'pranzo' significa: questa è la cena fatta con gli avanzi del pranzo
-    avanziDa: x.avanziDa || null
+    piatto,
+    contorno,
+    tempoMax: typeof x.tempoMax === 'number' && x.tempoMax > 0 ? x.tempoMax : null,
+    scelto: !!(x.scelto || x.bloccato)
   };
 }
 
 /** Porta un menù di qualunque versione alla forma di adesso. */
-export function normalizzaMenu(menu) {
+export function normalizzaMenu(menu, indicePiatti) {
   if (!menu) return menu;
   const giorni = (menu.giorni || []).map((g) => {
     const pasti = {};
     if (g.pasti) {
-      for (const nome of PASTI) if (g.pasti[nome]) pasti[nome] = pastoPulito(g.pasti[nome]);
+      for (const nome of PASTI) {
+        const p = g.pasti[nome];
+        if (!p) continue;
+        // una cena "avanzi del pranzo" della 2.x torna una cena normale
+        const pulito = pastoPulito(p.avanziDa ? null : p, indicePiatti);
+        if (pulito.piatto) pasti[nome] = pulito;
+      }
     } else {
       // formato 1: il giorno *era* il pranzo
-      pasti.pranzo = pastoPulito(g);
+      const pulito = pastoPulito(g, indicePiatti);
+      if (pulito.piatto) pasti.pranzo = pulito;
     }
     return { giorno: g.giorno, data: g.data || null, pasti };
   });
@@ -236,32 +286,17 @@ export function pastiDi(giorno) {
   return PASTI.filter((nome) => pasti[nome]).map((nome) => [nome, pasti[nome]]);
 }
 
-/** Tutti gli id dei piatti di un giorno, pasti compresi. */
+/** Tutti gli id dei piatti di un giorno, contorni compresi. */
 export function piattiDelGiorno(giorno) {
-  return pastiDi(giorno).flatMap(([, pasto]) => pasto.piatti || []);
-}
-
-/**
- * Com'è messa la giornata: cosa coprono i due pasti messi insieme e cosa
- * manca. Dalla 2.0 non è più un obbligo, è un'informazione da mostrare.
- */
-export function macroDellaGiornata(giorno, indicePiatti, indiceIngredienti) {
-  const piatti = piattiDelGiorno(giorno)
-    .map((id) => indicePiatti.get(id)).filter(Boolean);
-  return {
-    coperti: macroCopertiGiorno(piatti, indiceIngredienti),
-    mancanti: macroMancanti(piatti, indiceIngredienti)
-  };
+  return pastiDi(giorno).flatMap(([, pasto]) => idsDelPasto(pasto));
 }
 
 /* ------------------------------------------------------ disponibilità ---- */
 
-export function mesecorrente(data = new Date()) { return data.getMonth() + 1; }
-
 /**
  * Perché un piatto non può entrare nel menù. Restituisce null se va bene,
  * altrimenti {codice, motivo}: il catalogo mostra il motivo all'utente.
- * La blacklist non si rilassa mai, in nessun ramo del codice.
+ * Gli esclusi non si rilassano mai, in nessun ramo del codice.
  */
 export function motivoIndisponibilita(piatto, contesto) {
   const { indiceIngredienti, preferenze, mese } = contesto;
@@ -270,7 +305,7 @@ export function motivoIndisponibilita(piatto, contesto) {
   if (piatto.attivo === false) return { codice: 'archiviato', motivo: 'piatto archiviato' };
 
   if ((pref.escludiPiatti || []).includes(piatto.id)) {
-    return { codice: 'piattoEscluso', motivo: 'è nella lista dei piatti che escludi' };
+    return { codice: 'piattoEscluso', motivo: 'l\'hai escluso' };
   }
 
   for (const voce of piatto.ingredienti || []) {
@@ -317,6 +352,10 @@ export function validaIngrediente(x) {
   for (const m of x.stagioni || []) {
     if (!Number.isInteger(m) || m < 1 || m > 12) errori.push(`mese non valido: ${m}`);
   }
+  if (x.kcal !== undefined && x.kcal !== null &&
+      !(typeof x.kcal === 'number' && isFinite(x.kcal) && x.kcal >= 0)) {
+    errori.push(`calorie non valide: ${x.kcal}`);
+  }
   if (x.macro === 'proteina' && !x.famiglia) errori.push('proteina senza famiglia');
   return { ok: errori.length === 0, errori };
 }
@@ -343,16 +382,6 @@ export function validaPiatto(x, indiceIngredienti) {
       catch (e) { errori.push(e.message); }
     }
   }
-  return { ok: errori.length === 0, errori };
-}
-
-export function validaVoto(x) {
-  const errori = [];
-  if (!x || typeof x !== 'object') return { ok: false, errori: ['non è un oggetto'] };
-  if (!x.piattoId) errori.push('piattoId mancante');
-  if (!Number.isInteger(x.stelle) || x.stelle < 1 || x.stelle > 5) errori.push('stelle fuori da 1-5');
-  if (x.motivo && !MOTIVI_VOTO.includes(x.motivo)) errori.push(`motivo non valido: ${x.motivo}`);
-  if (!x.data || !/^\d{4}-\d{2}-\d{2}$/.test(x.data)) errori.push('data non valida (atteso AAAA-MM-GG)');
   return { ok: errori.length === 0, errori };
 }
 
@@ -384,6 +413,11 @@ export function etichettaUnita(unita, qta) {
 
 /** "400 g", "2 pz", "1,5 pz", "2 cucchiai": virgola decimale e plurali. */
 export function formattaQta(qta, unita) {
+  // dal chilo in su si legge meglio in kg e in litri
+  if ((unita === 'g' || unita === 'ml') && qta >= 1000) {
+    const grande = Math.round(qta / 100) / 10;
+    return `${String(grande).replace('.', ',')} ${unita === 'g' ? 'kg' : 'l'}`;
+  }
   const arrotondato = Math.round(qta * 100) / 100;
   const testo = Number.isInteger(arrotondato)
     ? String(arrotondato)
@@ -394,8 +428,5 @@ export function formattaQta(qta, unita) {
 export function formattaTempo(minuti) {
   if (minuti < 60) return `${minuti} min`;
   const ore = Math.floor(minuti / 60), resto = minuti % 60;
-  return resto ? `${ore} h ${resto} min` : `${ore} h`;
+  return resto ? `${ore} h ${resto}` : `${ore} h`;
 }
-
-export const ETICHETTA_MACRO = { proteina: 'P', carboidrato: 'C', fibra: 'F' };
-export const NOME_MACRO = { proteina: 'proteine', carboidrato: 'carboidrati', fibra: 'fibre' };

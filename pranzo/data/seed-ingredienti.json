@@ -17,7 +17,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "pollame"
+  "famiglia": "pollame",
+  "kcal": 100
  },
  {
   "id": "ing_pollo_cosce",
@@ -37,7 +38,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "pollame"
+  "famiglia": "pollame",
+  "kcal": 170
  },
  {
   "id": "ing_tacchino_fesa",
@@ -57,7 +59,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "pollame"
+  "famiglia": "pollame",
+  "kcal": 105
  },
  {
   "id": "ing_manzo_macinato",
@@ -72,7 +75,8 @@
   "conversioni": [],
   "stagioni": [],
   "note": "",
-  "famiglia": "manzo"
+  "famiglia": "manzo",
+  "kcal": 220
  },
  {
   "id": "ing_manzo_fettine",
@@ -92,7 +96,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "manzo"
+  "famiglia": "manzo",
+  "kcal": 130
  },
  {
   "id": "ing_maiale_lonza",
@@ -112,7 +117,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "maiale"
+  "famiglia": "maiale",
+  "kcal": 150
  },
  {
   "id": "ing_salsiccia",
@@ -132,7 +138,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "maiale"
+  "famiglia": "maiale",
+  "kcal": 300
  },
  {
   "id": "ing_pancetta",
@@ -147,7 +154,8 @@
   "conversioni": [],
   "stagioni": [],
   "note": "",
-  "famiglia": "maiale"
+  "famiglia": "maiale",
+  "kcal": 330
  },
  {
   "id": "ing_prosciutto_cotto",
@@ -167,7 +175,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "salumi"
+  "famiglia": "salumi",
+  "kcal": 215
  },
  {
   "id": "ing_prosciutto_crudo",
@@ -187,7 +196,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "salumi"
+  "famiglia": "salumi",
+  "kcal": 250
  },
  {
   "id": "ing_bresaola",
@@ -207,7 +217,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "salumi"
+  "famiglia": "salumi",
+  "kcal": 150
  },
  {
   "id": "ing_speck",
@@ -227,7 +238,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "salumi"
+  "famiglia": "salumi",
+  "kcal": 300
  },
  {
   "id": "ing_wurstel",
@@ -247,7 +259,8 @@
   ],
   "stagioni": [],
   "note": "per le cene svelte",
-  "famiglia": "maiale"
+  "famiglia": "maiale",
+  "kcal": 270
  },
  {
   "id": "ing_tonno_scatola",
@@ -267,7 +280,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "pesce"
+  "famiglia": "pesce",
+  "kcal": 190
  },
  {
   "id": "ing_sgombro_scatola",
@@ -287,7 +301,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "pesce"
+  "famiglia": "pesce",
+  "kcal": 210
  },
  {
   "id": "ing_salmone_filetto",
@@ -307,7 +322,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "pesce"
+  "famiglia": "pesce",
+  "kcal": 185
  },
  {
   "id": "ing_merluzzo_filetto",
@@ -327,7 +343,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "pesce"
+  "famiglia": "pesce",
+  "kcal": 75
  },
  {
   "id": "ing_platessa",
@@ -347,7 +364,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "pesce"
+  "famiglia": "pesce",
+  "kcal": 85
  },
  {
   "id": "ing_gamberi",
@@ -362,7 +380,8 @@
   "conversioni": [],
   "stagioni": [],
   "note": "",
-  "famiglia": "pesce"
+  "famiglia": "pesce",
+  "kcal": 75
  },
  {
   "id": "ing_alici_marinate",
@@ -377,7 +396,8 @@
   "conversioni": [],
   "stagioni": [],
   "note": "",
-  "famiglia": "pesce"
+  "famiglia": "pesce",
+  "kcal": 130
  },
  {
   "id": "ing_salmone_affumicato",
@@ -397,7 +417,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "pesce"
+  "famiglia": "pesce",
+  "kcal": 150
  },
  {
   "id": "ing_uova",
@@ -412,7 +433,8 @@
   "conversioni": [],
   "stagioni": [],
   "note": "",
-  "famiglia": "uova"
+  "famiglia": "uova",
+  "kcal": 75
  },
  {
   "id": "ing_mozzarella",
@@ -432,7 +454,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "formaggio"
+  "famiglia": "formaggio",
+  "kcal": 250
  },
  {
   "id": "ing_ricotta",
@@ -447,7 +470,8 @@
   "conversioni": [],
   "stagioni": [],
   "note": "",
-  "famiglia": "formaggio"
+  "famiglia": "formaggio",
+  "kcal": 150
  },
  {
   "id": "ing_stracchino",
@@ -462,7 +486,8 @@
   "conversioni": [],
   "stagioni": [],
   "note": "",
-  "famiglia": "formaggio"
+  "famiglia": "formaggio",
+  "kcal": 300
  },
  {
   "id": "ing_feta",
@@ -477,7 +502,8 @@
   "conversioni": [],
   "stagioni": [],
   "note": "",
-  "famiglia": "formaggio"
+  "famiglia": "formaggio",
+  "kcal": 265
  },
  {
   "id": "ing_scamorza",
@@ -492,7 +518,8 @@
   "conversioni": [],
   "stagioni": [],
   "note": "",
-  "famiglia": "formaggio"
+  "famiglia": "formaggio",
+  "kcal": 335
  },
  {
   "id": "ing_formaggio_fette",
@@ -512,7 +539,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "formaggio"
+  "famiglia": "formaggio",
+  "kcal": 300
  },
  {
   "id": "ing_yogurt_greco",
@@ -532,7 +560,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "latticini"
+  "famiglia": "latticini",
+  "kcal": 95
  },
  {
   "id": "ing_latte",
@@ -552,7 +581,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "latticini"
+  "famiglia": "latticini",
+  "kcal": 60
  },
  {
   "id": "ing_ceci_lessati",
@@ -572,7 +602,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "legumi"
+  "famiglia": "legumi",
+  "kcal": 120
  },
  {
   "id": "ing_cannellini",
@@ -592,7 +623,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "legumi"
+  "famiglia": "legumi",
+  "kcal": 100
  },
  {
   "id": "ing_borlotti",
@@ -612,7 +644,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "legumi"
+  "famiglia": "legumi",
+  "kcal": 100
  },
  {
   "id": "ing_lenticchie",
@@ -627,7 +660,8 @@
   "conversioni": [],
   "stagioni": [],
   "note": "",
-  "famiglia": "legumi"
+  "famiglia": "legumi",
+  "kcal": 330
  },
  {
   "id": "ing_tofu",
@@ -647,7 +681,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "famiglia": "legumi"
+  "famiglia": "legumi",
+  "kcal": 145
  },
  {
   "id": "ing_pasta_corta",
@@ -661,7 +696,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 355
  },
  {
   "id": "ing_spaghetti",
@@ -675,7 +711,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 355
  },
  {
   "id": "ing_riso",
@@ -689,7 +726,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 350
  },
  {
   "id": "ing_riso_venere",
@@ -703,7 +741,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 350
  },
  {
   "id": "ing_farro",
@@ -717,7 +756,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 340
  },
  {
   "id": "ing_orzo",
@@ -731,7 +771,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 340
  },
  {
   "id": "ing_bulgur",
@@ -745,7 +786,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 340
  },
  {
   "id": "ing_cous_cous",
@@ -759,7 +801,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 360
  },
  {
   "id": "ing_quinoa",
@@ -773,7 +816,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 365
  },
  {
   "id": "ing_pane",
@@ -792,7 +836,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 270
  },
  {
   "id": "ing_piadina",
@@ -806,7 +851,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 270
  },
  {
   "id": "ing_pane_toast",
@@ -825,7 +871,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 280
  },
  {
   "id": "ing_base_pizza",
@@ -839,7 +886,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": "la base pronta, da farcire"
+  "note": "la base pronta, da farcire",
+  "kcal": 650
  },
  {
   "id": "ing_focaccia",
@@ -858,7 +906,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 300
  },
  {
   "id": "ing_tortilla",
@@ -872,7 +921,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": "per i wrap"
+  "note": "per i wrap",
+  "kcal": 180
  },
  {
   "id": "ing_gnocchi",
@@ -886,7 +936,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 160
  },
  {
   "id": "ing_tortellini",
@@ -900,7 +951,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": "banco frigo"
+  "note": "banco frigo",
+  "kcal": 300
  },
  {
   "id": "ing_patate",
@@ -919,7 +971,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 80
  },
  {
   "id": "ing_polenta",
@@ -933,7 +986,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 360
  },
  {
   "id": "ing_farina",
@@ -953,7 +1007,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "dispensaBase": true
+  "dispensaBase": true,
+  "kcal": 350
  },
  {
   "id": "ing_pangrattato",
@@ -973,7 +1028,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "dispensaBase": true
+  "dispensaBase": true,
+  "kcal": 360
  },
  {
   "id": "ing_mais",
@@ -992,7 +1048,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 95
  },
  {
   "id": "ing_zucchine",
@@ -1011,7 +1068,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 15
  },
  {
   "id": "ing_melanzane",
@@ -1035,7 +1093,8 @@
    8,
    9
   ],
-  "note": ""
+  "note": "",
+  "kcal": 20
  },
  {
   "id": "ing_peperoni",
@@ -1059,7 +1118,8 @@
    8,
    9
   ],
-  "note": ""
+  "note": "",
+  "kcal": 30
  },
  {
   "id": "ing_pomodorini",
@@ -1073,7 +1133,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 20
  },
  {
   "id": "ing_pomodori",
@@ -1098,7 +1159,8 @@
    8,
    9
   ],
-  "note": ""
+  "note": "",
+  "kcal": 20
  },
  {
   "id": "ing_insalata",
@@ -1112,7 +1174,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 15
  },
  {
   "id": "ing_rucola",
@@ -1126,7 +1189,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 25
  },
  {
   "id": "ing_spinaci",
@@ -1140,7 +1204,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 25
  },
  {
   "id": "ing_broccoli",
@@ -1161,7 +1226,8 @@
    2,
    3
   ],
-  "note": ""
+  "note": "",
+  "kcal": 30
  },
  {
   "id": "ing_cavolfiore",
@@ -1182,7 +1248,8 @@
    2,
    3
   ],
-  "note": ""
+  "note": "",
+  "kcal": 25
  },
  {
   "id": "ing_verza",
@@ -1202,7 +1269,8 @@
    1,
    2
   ],
-  "note": ""
+  "note": "",
+  "kcal": 25
  },
  {
   "id": "ing_bietole",
@@ -1216,7 +1284,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 20
  },
  {
   "id": "ing_cicoria",
@@ -1238,7 +1307,8 @@
    3,
    4
   ],
-  "note": ""
+  "note": "",
+  "kcal": 15
  },
  {
   "id": "ing_radicchio",
@@ -1259,7 +1329,8 @@
    1,
    2
   ],
-  "note": ""
+  "note": "",
+  "kcal": 15
  },
  {
   "id": "ing_fagiolini",
@@ -1278,7 +1349,8 @@
    8,
    9
   ],
-  "note": ""
+  "note": "",
+  "kcal": 20
  },
  {
   "id": "ing_carote",
@@ -1297,7 +1369,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 35
  },
  {
   "id": "ing_finocchi",
@@ -1323,7 +1396,8 @@
    3,
    4
   ],
-  "note": ""
+  "note": "",
+  "kcal": 15
  },
  {
   "id": "ing_asparagi",
@@ -1341,7 +1415,8 @@
    4,
    5
   ],
-  "note": ""
+  "note": "",
+  "kcal": 25
  },
  {
   "id": "ing_carciofi",
@@ -1362,7 +1437,8 @@
    3,
    4
   ],
-  "note": ""
+  "note": "",
+  "kcal": 40
  },
  {
   "id": "ing_zucca",
@@ -1381,7 +1457,8 @@
    11,
    12
   ],
-  "note": ""
+  "note": "",
+  "kcal": 20
  },
  {
   "id": "ing_funghi",
@@ -1395,7 +1472,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 25
  },
  {
   "id": "ing_cetriolo",
@@ -1414,7 +1492,8 @@
    8,
    9
   ],
-  "note": ""
+  "note": "",
+  "kcal": 35
  },
  {
   "id": "ing_sedano",
@@ -1433,7 +1512,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 15
  },
  {
   "id": "ing_piselli",
@@ -1447,7 +1527,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 70
  },
  {
   "id": "ing_minestrone",
@@ -1461,7 +1542,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 40
  },
  {
   "id": "ing_pelati",
@@ -1480,7 +1562,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 20
  },
  {
   "id": "ing_passata",
@@ -1499,7 +1582,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 30
  },
  {
   "id": "ing_olio_evo",
@@ -1519,7 +1603,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "dispensaBase": true
+  "dispensaBase": true,
+  "kcal": 900
  },
  {
   "id": "ing_burro",
@@ -1538,7 +1623,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 750
  },
  {
   "id": "ing_noci",
@@ -1552,7 +1638,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 690
  },
  {
   "id": "ing_pinoli",
@@ -1566,7 +1653,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 600
  },
  {
   "id": "ing_mandorle",
@@ -1580,7 +1668,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 600
  },
  {
   "id": "ing_sesamo",
@@ -1599,7 +1688,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 575
  },
  {
   "id": "ing_cipolla",
@@ -1613,7 +1703,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 40
  },
  {
   "id": "ing_cipolla_rossa",
@@ -1627,7 +1718,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 40
  },
  {
   "id": "ing_aglio",
@@ -1641,7 +1733,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": "l'unità è lo spicchio"
+  "note": "l'unità è lo spicchio",
+  "kcal": 4
  },
  {
   "id": "ing_limone",
@@ -1655,7 +1748,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 20
  },
  {
   "id": "ing_prezzemolo",
@@ -1674,7 +1768,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 35
  },
  {
   "id": "ing_basilico",
@@ -1693,7 +1788,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 25
  },
  {
   "id": "ing_rosmarino",
@@ -1712,7 +1808,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 130
  },
  {
   "id": "ing_salvia",
@@ -1731,7 +1828,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 300
  },
  {
   "id": "ing_parmigiano",
@@ -1750,7 +1848,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 390
  },
  {
   "id": "ing_pecorino",
@@ -1769,7 +1868,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 390
  },
  {
   "id": "ing_sale",
@@ -1789,7 +1889,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "dispensaBase": true
+  "dispensaBase": true,
+  "kcal": 0
  },
  {
   "id": "ing_pepe",
@@ -1804,7 +1905,8 @@
   "conversioni": [],
   "stagioni": [],
   "note": "",
-  "dispensaBase": true
+  "dispensaBase": true,
+  "kcal": 250
  },
  {
   "id": "ing_aceto",
@@ -1824,7 +1926,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "dispensaBase": true
+  "dispensaBase": true,
+  "kcal": 20
  },
  {
   "id": "ing_balsamico",
@@ -1844,7 +1947,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "dispensaBase": true
+  "dispensaBase": true,
+  "kcal": 110
  },
  {
   "id": "ing_senape",
@@ -1864,7 +1968,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "dispensaBase": true
+  "dispensaBase": true,
+  "kcal": 65
  },
  {
   "id": "ing_maionese",
@@ -1883,7 +1988,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 700
  },
  {
   "id": "ing_olive",
@@ -1897,7 +2003,8 @@
   },
   "conversioni": [],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 150
  },
  {
   "id": "ing_capperi",
@@ -1916,7 +2023,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 25
  },
  {
   "id": "ing_pesto",
@@ -1935,7 +2043,8 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 450
  },
  {
   "id": "ing_brodo_granulare",
@@ -1955,7 +2064,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "dispensaBase": true
+  "dispensaBase": true,
+  "kcal": 250
  },
  {
   "id": "ing_curry",
@@ -1975,7 +2085,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "dispensaBase": true
+  "dispensaBase": true,
+  "kcal": 325
  },
  {
   "id": "ing_paprika",
@@ -1995,7 +2106,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "dispensaBase": true
+  "dispensaBase": true,
+  "kcal": 280
  },
  {
   "id": "ing_origano",
@@ -2015,7 +2127,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "dispensaBase": true
+  "dispensaBase": true,
+  "kcal": 265
  },
  {
   "id": "ing_peperoncino",
@@ -2035,7 +2148,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "dispensaBase": true
+  "dispensaBase": true,
+  "kcal": 300
  },
  {
   "id": "ing_noce_moscata",
@@ -2055,7 +2169,8 @@
   ],
   "stagioni": [],
   "note": "",
-  "dispensaBase": true
+  "dispensaBase": true,
+  "kcal": 525
  },
  {
   "id": "ing_vino_bianco",
@@ -2074,6 +2189,7 @@
    }
   ],
   "stagioni": [],
-  "note": ""
+  "note": "",
+  "kcal": 70
  }
 ]

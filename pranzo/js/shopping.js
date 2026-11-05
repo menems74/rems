@@ -7,27 +7,15 @@
 import * as M from './model.js';
 
 /**
- * Quante porzioni servono di ogni piatto in tutta la settimana.
- *
- * È qui che vivono gli avanzi, ed è il punto dove sarebbe facile sbagliare:
- * una cena "avanzi del pranzo" non aggiunge un piatto nuovo alla spesa, ma
- * raddoppia quello del pranzo, perché quel giorno se ne cucina il doppio.
- * Contarla come un pasto in più farebbe comprare roba per due volte; non
- * contarla affatto farebbe mancare metà cena.
- *
- * @returns Map piattoId -> numero di porzioni (1 = una volta sola)
+ * Quante porzioni servono di ogni piatto in tutta la settimana: un piatto
+ * che torna due volte si compra due volte, contorni compresi.
+ * @returns Map piattoId -> numero di volte
  */
 export function quantePorzioni(menu) {
   const conto = new Map();
-  const aggiungi = (piattoId, volte) =>
-    conto.set(piattoId, (conto.get(piattoId) || 0) + volte);
-
   for (const giorno of menu.giorni || []) {
     for (const [, pasto] of M.pastiDi(giorno)) {
-      // la cena con gli avanzi porta gli stessi id del pranzo: contando ogni
-      // pasto una volta, quel piatto finisce contato due — che è appunto
-      // "cucinane il doppio". Nessun caso speciale, e nessun doppione.
-      for (const piattoId of pasto.piatti || []) aggiungi(piattoId, 1);
+      for (const piattoId of M.idsDelPasto(pasto)) conto.set(piattoId, (conto.get(piattoId) || 0) + 1);
     }
   }
   return conto;
@@ -43,7 +31,7 @@ export function quantePorzioni(menu) {
  * @param precedente  lista già esistente: le spunte vengono conservate
  */
 export function generaLista(menuGrezzo, ctx, precedente) {
-  const menu = M.normalizzaMenu(menuGrezzo);
+  const menu = M.normalizzaMenu(menuGrezzo, ctx.indicePiatti);
   const { indicePiatti: piatti, indiceIngredienti: ingredienti } = ctx;
   const porzioni = ctx.porzioni || 1;
   const dispensa = ctx.dispensa || new Map();
@@ -91,7 +79,8 @@ export function generaLista(menuGrezzo, ctx, precedente) {
       qtaDaComprare: arrotondamento.qta,
       pacchi: arrotondamento.pacchi,
       notaArrotondamento: arrotondamento.nota,
-      giaInCasa: vecchia ? !!vecchia.giaInCasa : false,
+      // sale, olio, spezie: di solito ci sono già, si parte con "ce l'ho"
+      giaInCasa: vecchia ? !!vecchia.giaInCasa : !!ing.dispensaBase,
       comprato: vecchia ? !!vecchia.comprato : false,
       usatoIn: [...riga.usatoIn].sort((a, b) => a.localeCompare(b, 'it'))
     });
@@ -194,10 +183,7 @@ export function segnaComprato(lista, chiave, valore) {
   return lista;
 }
 
-/**
- * "Ce l'ho già": la voce esce dalla lista da comprare ed entra in dispensa
- * con la quantità che serviva. Restituisce l'aggiornamento per la dispensa.
- */
+/** "Ce l'ho già": la voce esce dalla lista da comprare. Si accende e si spegne. */
 export function segnaInCasa(lista, ingredienteId, valore) {
   const voce = (lista.voci || []).find((v) => v.ingredienteId === ingredienteId);
   if (!voce) return null;
@@ -227,30 +213,19 @@ function trova(lista, chiave) {
       || (lista.libere || []).find((v) => v.id === chiave);
 }
 
-/* ------------------------------------------------------------- dispensa -- */
+/* --------------------------------------------------------- da copiare --- */
 
-/**
- * Quanto scalare dalla dispensa dopo aver cucinato un piatto: proposta, non
- * automatismo. L'interfaccia la mostra e l'utente conferma.
- */
-export function propostaScarico(piatto, ctx) {
-  const porzioni = ctx.porzioni || 1;
-  const dispensa = ctx.dispensa || new Map();
+/** La lista come testo, per mandarla in chat: solo quello che manca. */
+export function testoDaCopiare(lista, ordineReparti, nomeReparto = {}) {
   const righe = [];
-  for (const voce of piatto.ingredienti || []) {
-    const ing = ctx.indiceIngredienti.get(voce.ingredienteId);
-    if (!ing) continue;
-    let usata;
-    try { usata = M.qtaCanonicaVoce(voce, ing, porzioni); } catch (e) { continue; }
-    const inCasa = dispensa.get(ing.id) || 0;
-    if (inCasa <= 0) continue;                       // non c'era: niente da scalare
-    righe.push({
-      ingredienteId: ing.id, nome: ing.nome, unita: ing.unita,
-      usata: arrotondaSensato(usata),
-      inCasa: arrotondaSensato(inCasa),
-      restante: arrotondaSensato(Math.max(0, inCasa - usata)),
-      scarica: true
-    });
+  for (const [reparto, voci] of perReparto(lista, ordineReparti)) {
+    const daPrendere = voci.filter((v) => !v.giaInCasa && !v.comprato);
+    if (!daPrendere.length) continue;
+    righe.push((nomeReparto[reparto] || reparto).toUpperCase());
+    for (const v of daPrendere) {
+      righe.push(v.libera ? `- ${v.nome}` : `- ${v.nome}, ${M.formattaQta(v.qtaDaComprare || v.qtaRichiesta, v.unita)}`);
+    }
+    righe.push('');
   }
-  return righe;
+  return righe.join('\n').trim();
 }

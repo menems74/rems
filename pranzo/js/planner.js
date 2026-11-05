@@ -1,20 +1,28 @@
 /* =========================================================================
-   planner.js — vincoli, punteggi e generazione del menù.
-   Non tocca il database: riceve tutto in un "contesto" e restituisce dati.
-   Così si può provare in isolamento e non fallisce mai in silenzio: ogni
-   rilassamento dei vincoli viene restituito e mostrato in interfaccia.
+   planner.js — come si sceglie il piatto di un pasto, e la settimana.
+   Non tocca il database: riceve tutto in un "contesto" e restituisce dati,
+   così si può provare in isolamento.
+
+   La 3.0 è volutamente semplice. Per ogni pasto:
+   - regole che non si piegano mai: il tipo giusto per il pasto, niente
+     piatti o ingredienti esclusi, niente fuori stagione;
+   - regole che si piegano solo se non c'è altro, in quest'ordine: la
+     proteina diversa dal pasto prima, il filtro leggeri/sostanziosi, il
+     tempo, e infine il divieto di ripetere un piatto nella settimana;
+   - tra i candidati vince il punteggio, con un po' di caso: più punti ai
+     piatti col cuore e a quelli di stagione, meno a quelli mangiati da poco.
    ========================================================================= */
 
 import * as M from './model.js';
-import { votoMedio, tempoPercepito } from './tastes.js';
-
-/* La media pesata dei voti vive con i gusti, ma serve qui per il punteggio:
-   si ri-esporta perché planner resta l'unico punto d'ingresso del motore. */
-export { votoMedio };
 
 /* ------------------------------------------------------------ contesto ---
-   { piatti, indiceIngredienti, preferenze, voti, ultimaVolta (Map
-   piattoId -> 'AAAA-MM-GG'), dispensa (Set ingredienteId), mese, oggi }   */
+   { piatti, indiceIngredienti, preferenze, ultimaVolta (Map piattoId ->
+     'AAAA-MM-GG'), mese, oggi, mediane (facoltativo) }                    */
+
+function conMediane(ctx) {
+  if (!ctx.mediane) ctx.mediane = M.medianeKcal(ctx.piatti, ctx.indiceIngredienti);
+  return ctx;
+}
 
 export function settimaneDa(dataISO, oggi) {
   if (!dataISO) return null;
@@ -22,121 +30,31 @@ export function settimaneDa(dataISO, oggi) {
   return giorni / 7;
 }
 
-/**
- * Punteggio di un piatto per uno slot, con i componenti in chiaro:
- * la schermata "perché questo piatto" mostra esattamente questa lista.
- */
+/** Il punteggio di un piatto: più alto, più probabile. */
 export function punteggio(piatto, ctx, opzioni = {}) {
-  const { preferenze: pref, indiceIngredienti: idx, oggi } = ctx;
-  const componenti = [];
+  const pref = ctx.preferenze;
   let totale = 50;
-  componenti.push({ etichetta: 'base', valore: 50 });
+  if ((pref.amoPiatti || []).includes(piatto.id)) totale += 25;
+  if (M.diStagione(piatto, ctx.indiceIngredienti, ctx.mese)) totale += 12;
+  // la sera, come in casa: un secondo col contorno o una zuppa, più che un piatto unico
+  if (opzioni.pasto === 'cena' && (piatto.tipo === 'secondo' || (piatto.tags || []).includes('zuppa'))) totale += 14;
 
-  const media = votoMedio((ctx.voti || {})[piatto.id]);
-  if (media != null) {
-    const delta = Math.round((media - 3) * 12);
-    totale += delta;
-    componenti.push({ etichetta: `votato ${media.toFixed(1)}`, valore: delta });
+  // mangiato da poco: pesa meno, e il peso sparisce dopo tre settimane
+  const settimane = settimaneDa(ctx.ultimaVolta && ctx.ultimaVolta.get(piatto.id), ctx.oggi || new Date());
+  if (settimane != null && settimane >= 0 && settimane < 3) {
+    totale -= Math.round(35 * (1 - settimane / 3));
   }
-
-  if ((pref.amoPiatti || []).includes(piatto.id)) {
-    totale += 15; componenti.push({ etichetta: 'piatto che ami', valore: 15 });
-    // le specifiche chiedono che un piatto amato torni almeno ogni 2 settimane:
-    // non come vincolo rigido (romperebbe i macro), ma con una spinta forte
-    const da = settimaneDa(ctx.ultimaVolta && ctx.ultimaVolta.get(piatto.id), oggi || new Date());
-    if (da == null || da >= 2) {
-      totale += 25; componenti.push({ etichetta: 'lo ami e manca da 2 settimane', valore: 25 });
-    }
-  }
-
-  const amati = (piatto.ingredienti || [])
-    .filter((v) => (pref.amoIngredienti || []).includes(v.ingredienteId)).length;
-  if (amati) {
-    totale += 6 * amati;
-    componenti.push({ etichetta: `${amati} ingredienti che ami`, valore: 6 * amati });
-  }
-
-  const maiCucinato = !(ctx.ultimaVolta && ctx.ultimaVolta.get(piatto.id));
-  if (maiCucinato && opzioni.slotNovitaLibero) {
-    totale += 20; componenti.push({ etichetta: 'mai cucinato', valore: 20 });
-  }
-
-  const stagioni = piatto.stagioni || [];
-  if (stagioni.length && stagioni.includes(ctx.mese)) {
-    totale += 10; componenti.push({ etichetta: 'di stagione', valore: 10 });
-  }
-
-  if (ctx.dispensa && ctx.dispensa.size) {
-    const voci = piatto.ingredienti || [];
-    const inCasa = voci.filter((v) => ctx.dispensa.has(v.ingredienteId)).length;
-    if (inCasa) {
-      const bonus = Math.round(8 * inCasa / voci.length);
-      totale += bonus;
-      componenti.push({ etichetta: `${inCasa} ingredienti in dispensa`, valore: bonus });
-    }
-  }
-
-  const cooldown = opzioni.cooldown != null ? opzioni.cooldown : pref.cooldownSettimane;
-  const settimane = settimaneDa(ctx.ultimaVolta && ctx.ultimaVolta.get(piatto.id), oggi || new Date());
-  if (settimane != null && cooldown > 0 && settimane < cooldown) {
-    const penalita = -Math.round(30 * (1 - settimane / cooldown));
-    totale += penalita;
-    componenti.push({ etichetta: `fatto ${Math.max(0, Math.round(settimane))} settimane fa`, valore: penalita });
-  }
-
-  /* Quello che era l'obbligo (proteine, carboidrati e fibre a ogni pasto)
-     dalla 2.0 è una preferenza: un piatto che porta quello che al pasto
-     ancora manca vale qualche punto in più. L'app continua a proporre
-     giornate equilibrate, ma non si rifiuta più di comporre il pasto. */
-  const mancanti = opzioni.macroMancanti || [];
-  if (mancanti.length) {
-    const coperti = M.macroCoperti(piatto, idx);
-    const utili = mancanti.filter((m) => coperti.includes(m));
-    if (utili.length) {
-      const bonus = 8 * utili.length;
-      totale += bonus;
-      componenti.push({
-        etichetta: 'porta ' + utili.map((m) => M.NOME_MACRO[m]).join(' e '),
-        valore: bonus
-      });
-    }
-  }
-
-  // il tempo che conta è quello percepito: se l'ho segnato "troppo lungo",
-  // il piatto pesa come se durasse di più anche se la ricetta dice altro.
-  // tempoMax a 0 vuol dire nessun limite: è il caso della cena.
-  const tempoMax = opzioni.tempoMax != null ? opzioni.tempoMax : pref.tempoMaxMin;
-  const tempo = tempoPercepito(piatto, (ctx.voti || {})[piatto.id]);
-  if (tempoMax > 0 && tempo > tempoMax) {
-    totale -= 15;
-    componenti.push({
-      etichetta: tempo > piatto.tempoMin
-        ? `l'hai trovato lungo: conta ${tempo} min su ${tempoMax}`
-        : `più lungo di ${tempoMax} min`,
-      valore: -15
-    });
-  }
-
-  if (piatto.difficolta === 3) {
-    totale -= 10; componenti.push({ etichetta: 'difficile', valore: -10 });
-  }
-
-  const jitter = opzioni.senzaCaso ? 0 : Math.round((Math.random() * 10 - 5));
-  if (jitter) { totale += jitter; componenti.push({ etichetta: 'caso', valore: jitter }); }
-
-  return { totale, componenti, maiCucinato };
+  if (!opzioni.senzaCaso) totale += Math.round(Math.random() * 16);
+  return totale;
 }
 
-/* -------------------------------------------------------- vincoli rigidi - */
-
-/** Estrazione pesata tra i primi N: non sempre il massimo, o il menù si ripete. */
-function estraiPesato(candidati, quanti = 5) {
-  const migliori = candidati.slice(0, quanti);
+/** Estrazione pesata tra i primi cinque: non sempre il massimo, o il menù si ripete. */
+function estraiPesato(candidati) {
+  const migliori = candidati.slice(0, 5);
   if (!migliori.length) return null;
   const minimo = Math.min(...migliori.map((c) => c.punteggio));
-  const pesi = migliori.map((c) => Math.max(1, c.punteggio - minimo + 5));
-  const totale = pesi.reduce((a, b) => a + b, 0);
-  let tiro = Math.random() * totale;
+  const pesi = migliori.map((c) => c.punteggio - minimo + 5);
+  let tiro = Math.random() * pesi.reduce((a, b) => a + b, 0);
   for (let i = 0; i < migliori.length; i++) {
     tiro -= pesi[i];
     if (tiro <= 0) return migliori[i];
@@ -144,316 +62,242 @@ function estraiPesato(candidati, quanti = 5) {
   return migliori[migliori.length - 1];
 }
 
+/** Il piatto va bene per sempre in questo contesto? (esclusi, stagione) */
+function disponibile(piatto, ctx) {
+  return !M.motivoIndisponibilita(piatto, {
+    indiceIngredienti: ctx.indiceIngredienti, preferenze: ctx.preferenze, mese: ctx.mese
+  });
+}
+
 /**
- * Candidati per uno slot: filtra i vincoli rigidi (la blacklist non si
- * rilassa mai), calcola il punteggio e ordina.
+ * I candidati per un pasto, ordinati per punteggio.
+ * filtro: { tipi, pasto, giaUsati, famigliaVietata, peso, tempoMax }
  */
-function candidati(ctx, filtro, opzioni) {
-  const { piatti, indiceIngredienti: idx, preferenze: pref } = ctx;
-  const fuori = new Set(opzioni.giaUsati || []);
-  const cooldown = opzioni.cooldown != null ? opzioni.cooldown : pref.cooldownSettimane;
-
+export function candidati(ctx, filtro) {
+  conMediane(ctx);
+  const usati = new Set(filtro.giaUsati || []);
   const out = [];
-  for (const piatto of piatti) {
-    if (fuori.has(piatto.id)) continue;
-    if (M.motivoIndisponibilita(piatto, { indiceIngredienti: idx, preferenze: pref, mese: ctx.mese })) continue;
-    if (filtro.tipi && !filtro.tipi.includes(piatto.tipo)) continue;
-
-    // cooldown: dentro la finestra il piatto è escluso, non solo penalizzato
-    if (cooldown > 0) {
-      const s = settimaneDa(ctx.ultimaVolta && ctx.ultimaVolta.get(piatto.id), ctx.oggi || new Date());
-      if (s != null && s < cooldown) continue;
-    }
-
-    // il tempo che resta al pasto: un piatto che non ci sta non è un
-    // candidato peggiore, è un candidato sbagliato. Se poi non si compone
-    // niente, il rilassamento toglie il tetto e lo dichiara.
-    // null = nessun tetto; 0 = tetto esaurito, e allora non entra più niente
-    if (filtro.tempoRimasto != null &&
-        tempoPercepito(piatto, (ctx.voti || {})[piatto.id]) > filtro.tempoRimasto) continue;
-
-    // mai la stessa proteina del pasto precedente
-    if (filtro.famigliaVietata) {
-      const fam = M.famigliaProteinaPrincipale(piatto, idx);
-      if (fam && fam === filtro.famigliaVietata) continue;
-    }
-
-    const p = punteggio(piatto, ctx, opzioni);
-    out.push({ piatto, punteggio: p.totale, componenti: p.componenti, maiCucinato: p.maiCucinato });
+  for (const piatto of ctx.piatti) {
+    if (!filtro.tipi.includes(piatto.tipo)) continue;
+    if (usati.has(piatto.id)) continue;
+    if (!disponibile(piatto, ctx)) continue;
+    if (filtro.tempoMax && piatto.tempoMin > filtro.tempoMax) continue;
+    if (filtro.peso && !M.passaPeso(piatto, filtro.peso, ctx.mediane, ctx.indiceIngredienti)) continue;
+    if (filtro.famigliaVietata &&
+        M.famigliaProteinaPrincipale(piatto, ctx.indiceIngredienti) === filtro.famigliaVietata) continue;
+    out.push({ piatto, punteggio: punteggio(piatto, ctx, { pasto: filtro.pasto }) });
   }
   out.sort((a, b) => b.punteggio - a.punteggio);
   return out;
 }
-/* --------------------------------------------------------- componi pasto -
-   Un pasto ha una forma (piatto unico, primo + secondo, secondo + contorno)
-   e la si riempie un posto alla volta, scegliendo ogni volta tra i primi
-   cinque candidati. Dalla 2.0 non c'è più nessun obbligo nutrizionale: se
-   per un posto non c'è niente, si va avanti con quello che si è trovato.  */
 
-/**
- * Compone un pasto. Restituisce {piatti, modalita, perche} oppure null se
- * davvero non c'è niente da mettere in tavola.
- */
-export function componiPasto(ctx, opzioni) {
-  const idx = ctx.indiceIngredienti;
-  const modalita = M.MODALITA.includes(opzioni.modalita) ? opzioni.modalita : 'unico';
-  const scelti = [];
-  const perche = {};
-  // il tempo è del pasto intero, non del singolo piatto: ogni posto che si
-  // riempie si porta via un pezzo del tempo che resta
-  const tempoMax = opzioni.tempoMax || 0;
-  let tempoUsato = 0;
-
-  for (const tipo of M.TIPI_MODALITA[modalita]) {
-    aggiungi(tipo, tipo !== 'primo' && tipo !== 'contorno');
-  }
-
-  // un contorno in più se manca la fibra: non è un obbligo, è buona cucina
-  if (modalita === 'primoSecondo' && M.macroMancanti(scelti, idx).includes('fibra')) {
-    aggiungi('contorno', false);
-  }
-
-  if (!scelti.length) return null;
-  return { piatti: scelti, modalita, perche };
-
-  function aggiungi(tipo, guardaProteina) {
-    const c = estraiPesato(candidati(ctx, {
-      tipi: [tipo],
-      famigliaVietata: guardaProteina ? opzioni.famigliaVietata : null,
-      tempoRimasto: tempoMax > 0 ? Math.max(0, tempoMax - tempoUsato) : null
-    }, Object.assign({}, opzioni, {
-      giaUsati: (opzioni.giaUsati || []).concat(scelti.map((p) => p.id)),
-      macroMancanti: M.macroMancanti(scelti, idx)
-    })));
-    if (!c) return;
-    scelti.push(c.piatto);
-    tempoUsato += tempoPercepito(c.piatto, (ctx.voti || {})[c.piatto.id]);
-    perche[c.piatto.id] = c.componenti;
-  }
-}
-
-/* ------------------------------------------------------ genera settimana - */
-
-const LIVELLI_RILASSAMENTO = [
-  { chiave: 'nessuno', etichetta: null },
-  { chiave: 'quotaNovita', etichetta: 'quota di piatti nuovi ridotta' },
-  { chiave: 'varietaProteine', etichetta: 'varietà delle proteine non garantita' },
-  { chiave: 'cooldownDimezzato', etichetta: 'cooldown dimezzato: qualche piatto torna prima' },
-  { chiave: 'tempoLibero', etichetta: 'qualche pasto sfora il tempo massimo' }
+/* I passi con cui si allentano le regole, dal più stretto al più largo. */
+const ALLENTAMENTI = [
+  { famiglia: true, peso: true, tempo: true, ripetuti: false, nota: null },
+  { famiglia: false, peso: true, tempo: true, ripetuti: false, nota: null },
+  { famiglia: false, peso: false, tempo: true, ripetuti: false, nota: 'fuori dal filtro leggeri/sostanziosi' },
+  { famiglia: false, peso: false, tempo: false, ripetuti: false, nota: 'più lungo del tempo che hai' },
+  { famiglia: false, peso: false, tempo: false, ripetuti: true, nota: 'già in settimana' }
 ];
 
 /**
- * Genera la settimana, pranzo e cena.
- * `giorniFissi` è una mappa giorno -> { pranzo: {...}, cena: {...} } con i
- * pasti bloccati, che non vengono toccati.
- * Restituisce { giorni, rilassamenti, avvisi, perche }.
+ * Sceglie il piatto per un pasto, e il contorno se è un secondo.
+ * opzioni: { pasto, tempoMax, giaUsati, famigliaVietata, contorniUsati }
+ * @returns { pasto: {piatto, contorno, tempoMax, scelto}, nota } oppure null
  */
-export function generaSettimana(ctx, opzioni = {}) {
+export function componiPasto(ctx, opzioni) {
   const pref = ctx.preferenze;
-  const giorniRichiesti = opzioni.giorni || pref.giorni;
-  const pastiRichiesti = (opzioni.pasti || pref.pasti || ['pranzo'])
-    .filter((x) => M.PASTI.includes(x));
-  const fissi = opzioni.giorniFissi || {};
+  const tipi = M.TIPI_PASTO[opzioni.pasto] || M.TIPI_PASTO.pranzo;
 
-  for (let livello = 0; livello < LIVELLI_RILASSAMENTO.length; livello++) {
-    const rilassa = {
-      quotaNovita: livello >= 1 ? 0 : pref.quotaNovita,
-      varietaProteine: livello < 2,
-      cooldown: livello >= 3 ? Math.floor(pref.cooldownSettimane / 2) : pref.cooldownSettimane,
-      tempoLibero: livello >= 4
+  for (const regola of ALLENTAMENTI) {
+    const lista = candidati(ctx, {
+      tipi,
+      pasto: opzioni.pasto,
+      giaUsati: regola.ripetuti ? [] : opzioni.giaUsati,
+      famigliaVietata: regola.famiglia ? opzioni.famigliaVietata : null,
+      peso: regola.peso ? pref.peso : 'tutti',
+      tempoMax: regola.tempo ? opzioni.tempoMax : 0
+    });
+    const scelto = estraiPesato(lista);
+    if (!scelto) continue;
+
+    const piatto = scelto.piatto;
+    const contorno = piatto.tipo === 'secondo'
+      ? scegliContorno(ctx, opzioni.contorniUsati || [], opzioni.tempoMax, piatto)
+      : null;
+    return {
+      pasto: {
+        piatto: piatto.id,
+        contorno: contorno ? contorno.id : null,
+        tempoMax: opzioni.tempoMaxScelto || null,
+        scelto: false
+      },
+      nota: regola.nota
     };
-
-    for (let tentativo = 0; tentativo < 60; tentativo++) {
-      const esito = unTentativo(ctx, giorniRichiesti, pastiRichiesti, fissi, rilassa);
-      if (!esito) continue;
-
-      const avvisi = [];
-      if (esito.novita < rilassa.quotaNovita) continue;      // riprova
-      if (rilassa.varietaProteine && esito.proteine.size < 3) continue;
-
-      const rilassamenti = LIVELLI_RILASSAMENTO.slice(1, livello + 1)
-        .map((r) => r.etichetta).filter(Boolean);
-
-      if (livello >= 1 && pref.quotaNovita > 0 && esito.novita < pref.quotaNovita) {
-        avvisi.push(`Piatti mai cucinati disponibili: ${esito.novita} invece di ${pref.quotaNovita}. ` +
-                    'Puoi importarne di nuovi da "Nuovi piatti".');
-      }
-      return { giorni: esito.giorni, perche: esito.perche, rilassamenti, avvisi };
-    }
-  }
-
-  return {
-    giorni: [], perche: {}, rilassamenti: [],
-    avvisi: ['Non riesco a comporre la settimana: i vincoli sono troppo stretti. ' +
-             'Controlla gli ingredienti esclusi e il catalogo.']
-  };
-}
-
-/** Il tempo massimo di un pasto: 0 vuol dire che non ce n'è. */
-export function tempoMassimo(pasto, giorno, pref) {
-  if (pasto === 'cena') return pref.tempoMaxCena || 0;
-  return (pref.tempoMaxPerGiorno || {})[giorno] || pref.tempoMaxMin;
-}
-
-function unTentativo(ctx, giorniRichiesti, pastiRichiesti, fissi, rilassa) {
-  const idx = ctx.indiceIngredienti;
-  const pref = ctx.preferenze;
-  const giorni = [];
-  const usati = [];
-  const proteine = new Set(), fibre = new Set();
-  let novita = 0;
-  let primoSecondoUsati = 0;
-  let famigliaPrecedente = null;      // la proteina del pasto appena messo
-  let avanziRimasti = Math.max(0, Math.min(pref.avanziASettimana || 0, giorniRichiesti.length));
-  let perche = {};
-
-  giorniRichiesti.forEach((giorno, indiceGiorno) => {
-    const pasti = {};
-
-    for (const pasto of pastiRichiesti) {
-      const fisso = (fissi[giorno] || {})[pasto];
-      if (fisso) {
-        pasti[pasto] = Object.assign({}, M.pastoPulito(fisso), { bloccato: true });
-        for (const p of fisso.piattiOggetti || []) segnaUsato(p, false);
-        famigliaPrecedente = ultimaFamiglia(fisso.piattiOggetti || []) || famigliaPrecedente;
-        if (fisso.modalita === 'primoSecondo') primoSecondoUsati++;
-        continue;
-      }
-
-      // la cena con gli avanzi non consuma catalogo: si ricucina il pranzo
-      if (pasto === 'cena' && pasti.pranzo && (pasti.pranzo.piatti || []).length &&
-          !pasti.pranzo.avanziDa && avanziRimasti > 0 &&
-          Math.random() < avanziRimasti / Math.max(1, giorniRichiesti.length - indiceGiorno)) {
-        pasti.cena = M.pastoPulito({ modalita: pasti.pranzo.modalita,
-                                     piatti: pasti.pranzo.piatti, avanziDa: 'pranzo' });
-        avanziRimasti--;
-        continue;
-      }
-
-      const tempoMax = rilassa.tempoLibero ? 0 : tempoMassimo(pasto, giorno, pref);
-      const modalita = scegliModalita(pasto, pref, primoSecondoUsati, tempoMax);
-      const esito = componiPasto(ctx, {
-        modalita, tempoMax, cooldown: rilassa.cooldown, giaUsati: usati,
-        famigliaVietata: rilassa.varietaProteine ? famigliaPrecedente : null,
-        slotNovitaLibero: novita < rilassa.quotaNovita
-      }) || componiPasto(ctx, {
-        // ripiego: se quella forma non si riempie, si prova il piatto unico.
-        // La proteina resta vietata anche qui: due pasti di fila con la stessa
-        // si vedono, e se proprio non se ne esce ci pensa il rilassamento.
-        modalita: 'unico', tempoMax, cooldown: rilassa.cooldown, giaUsati: usati,
-        famigliaVietata: rilassa.varietaProteine ? famigliaPrecedente : null,
-        slotNovitaLibero: false
-      });
-      if (!esito) return;                     // giorno impossibile: tentativo fallito
-
-      if (esito.modalita === 'primoSecondo') primoSecondoUsati++;
-      for (const p of esito.piatti) segnaUsato(p, true);
-      famigliaPrecedente = ultimaFamiglia(esito.piatti) || famigliaPrecedente;
-      perche = Object.assign(perche, esito.perche);
-      pasti[pasto] = M.pastoPulito({ modalita: esito.modalita,
-                                     piatti: esito.piatti.map((p) => p.id) });
-    }
-
-    if (!Object.keys(pasti).length) return;
-    giorni.push({ giorno, pasti });
-  });
-
-  if (giorni.length !== giorniRichiesti.length) return null;
-  return { giorni, novita, proteine, fibre, perche };
-
-  function segnaUsato(piatto, contaNovita) {
-    usati.push(piatto.id);
-    const fam = M.famigliaProteinaPrincipale(piatto, idx);
-    if (fam) proteine.add(fam);
-    for (const f of M.fibrePrincipali(piatto, idx)) fibre.add(f);
-    if (contaNovita && !(ctx.ultimaVolta && ctx.ultimaVolta.get(piatto.id))) novita++;
-  }
-
-  function ultimaFamiglia(piatti) {
-    return piatti.map((p) => M.famigliaProteinaPrincipale(p, idx)).filter(Boolean)[0] || null;
-  }
-}
-
-/**
- * La forma del pasto, §4.1 aggiornato: i giorni corti vanno al piatto unico,
- * c'è un tetto ai pranzi con primo e secondo, e la cena preferisce il piatto
- * unico o un secondo con il contorno. Poi il caso, per non avere settimane
- * tutte uguali.
- */
-export function scegliModalita(pasto, pref, primoSecondoUsati, tempoMax) {
-  if (pasto === 'cena') return Math.random() < 0.65 ? 'unico' : 'secondoContorno';
-  if (tempoMax > 0 && tempoMax <= 25) return 'unico';
-  if (primoSecondoUsati >= (pref.maxGiorniPrimoSecondo != null ? pref.maxGiorniPrimoSecondo : 3)) {
-    return 'unico';
-  }
-  return Math.random() < 0.6 ? 'unico' : 'primoSecondo';
-}
-
-/* ------------------------------------------------------ rigenera un pasto - */
-
-/** Rigenera un solo pasto, tenendo conto degli altri per non ripetere piatti. */
-export function rigeneraPasto(ctx, menu, giorno, pasto, opzioni = {}) {
-  const pref = ctx.preferenze;
-  const idx = ctx.indiceIngredienti;
-  const indice = menu.giorni.findIndex((g) => g.giorno === giorno);
-  if (indice < 0) return null;
-  const attuale = (menu.giorni[indice].pasti || {})[pasto];
-
-  // tutti i piatti già in settimana, tranne quelli del pasto che si rifà
-  const usati = [];
-  menu.giorni.forEach((g, i) => {
-    for (const [nome, p] of M.pastiDi(g)) {
-      if (i === indice && nome === pasto) continue;
-      if (p.avanziDa) continue;              // gli avanzi non occupano un piatto
-      usati.push(...(p.piatti || []));
-    }
-  });
-
-  const famigliaPrecedente = famigliaPrimaDi(menu, indice, pasto, idx);
-  const tempoMax = tempoMassimo(pasto, giorno, pref);
-  const modalita = opzioni.modalita || (attuale && attuale.modalita) ||
-                   scegliModalita(pasto, pref, 0, tempoMax);
-
-  // stessa scala di rilassamenti, ma su un solo pasto
-  for (const tetto of [tempoMax, 0]) {
-    for (const cooldown of [pref.cooldownSettimane, Math.floor(pref.cooldownSettimane / 2), 0]) {
-      for (const famiglia of [famigliaPrecedente, null]) {
-        for (let t = 0; t < 30; t++) {
-          const esito = componiPasto(ctx, {
-            modalita, tempoMax: tetto, cooldown, giaUsati: usati,
-            famigliaVietata: famiglia, slotNovitaLibero: true
-          });
-          if (esito) {
-            return {
-              pasto: M.pastoPulito({ modalita: esito.modalita,
-                                     piatti: esito.piatti.map((p) => p.id) }),
-              piattiOggetti: esito.piatti,
-              perche: esito.perche,
-              rilassamenti: [
-                tetto !== tempoMax ? 'tempo massimo superato per questo pasto' : null,
-                cooldown !== pref.cooldownSettimane ? 'cooldown ridotto per questo pasto' : null,
-                famiglia === null && famigliaPrecedente ? 'ripetuta la proteina del pasto prima' : null
-              ].filter(Boolean)
-            };
-          }
-        }
-      }
-    }
   }
   return null;
 }
 
-/** La proteina del pasto che viene subito prima di questo, nella settimana. */
-function famigliaPrimaDi(menu, indiceGiorno, pasto, idx) {
+/**
+ * Il contorno di un secondo. Meglio uno non ancora usato in settimana e
+ * che ci stia nel tempo che resta; se no, uno qualunque purché permesso.
+ */
+export function scegliContorno(ctx, contorniUsati, tempoMax, piatto) {
+  const resto = tempoMax ? Math.max(15, tempoMax - (piatto ? piatto.tempoMin : 0)) : 0;
+  const tentativi = [
+    { giaUsati: contorniUsati, tempoMax: resto },
+    { giaUsati: contorniUsati, tempoMax: 0 },
+    { giaUsati: [], tempoMax: 0 }
+  ];
+  for (const t of tentativi) {
+    const c = estraiPesato(candidati(ctx, { tipi: ['contorno'], giaUsati: t.giaUsati, tempoMax: t.tempoMax }));
+    if (c) return c.piatto;
+  }
+  return null;
+}
+
+/* ------------------------------------------------------ genera settimana - */
+
+/** Il tempo di un pasto: quello scelto per quel giorno, o quello di sempre. */
+export function tempoDelPasto(pasto, pref, scelto) {
+  if (scelto) return scelto;
+  if (pasto === 'cena') return pref.tempoMaxCena || 0;
+  return pref.tempoMaxMin || 0;
+}
+
+/**
+ * Genera la settimana.
+ * opzioni.fissi: mappa giorno -> { pranzo, cena } con i pasti scelti a mano
+ * (o con un tempo scelto), che restano dove sono. Un pasto con `tieni`
+ * resta com'è anche se non l'ha scelto l'utente: serve a completare i
+ * giorni vuoti senza toccare gli altri.
+ * @returns { giorni, note }
+ */
+export function generaSettimana(ctx, opzioni = {}) {
+  const pref = ctx.preferenze;
+  const giorniRichiesti = M.GIORNI.filter((g) => (opzioni.giorni || pref.giorni || M.GIORNI).includes(g));
+  const pastiRichiesti = M.PASTI.filter((p) => (opzioni.pasti || pref.pasti || M.PASTI).includes(p));
+  const fissi = opzioni.fissi || {};
+  const idx = ctx.indiceIngredienti;
+
+  // i piatti scelti a mano occupano il loro posto fin dall'inizio
+  const usati = [], contorniUsati = [];
+  for (const g of Object.values(fissi)) {
+    for (const p of Object.values(g)) {
+      const resta = p && (p.scelto || p.tieni);
+      if (resta && p.piatto) usati.push(p.piatto);
+      if (resta && p.contorno) contorniUsati.push(p.contorno);
+    }
+  }
+
+  const giorni = [];
+  const note = new Set();
+  let famigliaPrima = null;
+
+  for (const giorno of giorniRichiesti) {
+    const pasti = {};
+    for (const nome of pastiRichiesti) {
+      const fisso = (fissi[giorno] || {})[nome];
+      if (fisso && (fisso.scelto || fisso.tieni) && fisso.piatto) {
+        pasti[nome] = M.pastoPulito(fisso);
+        famigliaPrima = M.famigliaProteinaPrincipale(ctx.piatti.find((x) => x.id === fisso.piatto), idx) || famigliaPrima;
+        continue;
+      }
+      const tempoScelto = fisso && fisso.tempoMax ? fisso.tempoMax : null;
+      const esito = componiPasto(ctx, {
+        pasto: nome,
+        tempoMax: tempoDelPasto(nome, pref, tempoScelto),
+        tempoMaxScelto: tempoScelto,
+        giaUsati: usati,
+        contorniUsati,
+        famigliaVietata: famigliaPrima
+      });
+      if (!esito) continue;
+      pasti[nome] = esito.pasto;
+      if (esito.nota) note.add(esito.nota);
+      usati.push(esito.pasto.piatto);
+      if (esito.pasto.contorno) contorniUsati.push(esito.pasto.contorno);
+      famigliaPrima = M.famigliaProteinaPrincipale(
+        ctx.piatti.find((x) => x.id === esito.pasto.piatto), idx) || famigliaPrima;
+    }
+    giorni.push({ giorno, pasti });
+  }
+
+  const vuoti = giorni.every((g) => !Object.keys(g.pasti).length);
+  return {
+    giorni: vuoti ? [] : giorni,
+    note: vuoti
+      ? ['Non trovo piatti adatti: controlla gli esclusi e il catalogo.']
+      : [...note].map((n) => `Qualche piatto è ${n}: non c'era di meglio.`)
+  };
+}
+
+/* ------------------------------------------------------ rigenera un pasto - */
+
+/**
+ * Rifà un solo pasto, tenendo conto degli altri per non ripetere piatti.
+ * opzioni.tempoMax: il tempo scelto per quel pasto (resta salvato).
+ * @returns { pasto, nota } oppure null
+ */
+export function rigeneraPasto(ctx, menu, giorno, pasto, opzioni = {}) {
+  const idx = ctx.indiceIngredienti;
+  const indice = menu.giorni.findIndex((g) => g.giorno === giorno);
+  if (indice < 0) return null;
+  const attuale = (menu.giorni[indice].pasti || {})[pasto] || null;
+
+  const usati = [], contorniUsati = [];
+  menu.giorni.forEach((g) => {
+    for (const [, p] of M.pastiDi(g)) {
+      if (p.piatto) usati.push(p.piatto);       // anche quello di adesso: si cambia davvero
+      if (p.contorno) contorniUsati.push(p.contorno);
+    }
+  });
+
+  const tempoScelto = opzioni.tempoMax !== undefined
+    ? opzioni.tempoMax
+    : (attuale && attuale.tempoMax) || null;
+
+  const prima = pastoPrima(menu, indice, pasto);
+  const esito = componiPasto(ctx, {
+    pasto,
+    tempoMax: tempoDelPasto(pasto, ctx.preferenze, tempoScelto),
+    tempoMaxScelto: tempoScelto,
+    giaUsati: usati,
+    contorniUsati,
+    famigliaVietata: prima
+      ? M.famigliaProteinaPrincipale(ctx.piatti.find((x) => x.id === prima.piatto), idx)
+      : null
+  });
+  return esito;
+}
+
+/** Cambia solo il contorno di un pasto. */
+export function rigeneraContorno(ctx, menu, giorno, pasto) {
+  const riga = menu.giorni.find((g) => g.giorno === giorno);
+  const attuale = riga && (riga.pasti || {})[pasto];
+  if (!attuale || !attuale.piatto) return null;
+  const piatto = ctx.piatti.find((x) => x.id === attuale.piatto);
+  const usati = [];
+  for (const g of menu.giorni) for (const [, p] of M.pastiDi(g)) if (p.contorno) usati.push(p.contorno);
+  const c = scegliContorno(ctx, usati, tempoDelPasto(pasto, ctx.preferenze, attuale.tempoMax), piatto);
+  return c ? Object.assign({}, attuale, { contorno: c.id }) : null;
+}
+
+/** Il pasto che viene subito prima di questo, nella settimana. */
+function pastoPrima(menu, indiceGiorno, pasto) {
   const sequenza = [];
   menu.giorni.forEach((g, i) => {
     for (const [nome, p] of M.pastiDi(g)) sequenza.push({ i, nome, p });
   });
   const posto = sequenza.findIndex((x) => x.i === indiceGiorno && x.nome === pasto);
-  const prima = posto > 0 ? sequenza[posto - 1] : null;
-  if (!prima) return null;
-  const piatti = (prima.p.piattiOggetti || []);
-  return piatti.map((p) => M.famigliaProteinaPrincipale(p, idx)).filter(Boolean)[0] || null;
+  if (posto > 0) return sequenza[posto - 1].p;
+  if (posto < 0) {
+    // il pasto non c'è ancora: il precedente è l'ultimo prima di quel giorno
+    const prima = sequenza.filter((x) => x.i < indiceGiorno ||
+      (x.i === indiceGiorno && M.PASTI.indexOf(x.nome) < M.PASTI.indexOf(pasto)));
+    return prima.length ? prima[prima.length - 1].p : null;
+  }
+  return null;
 }
 
 /* ----------------------------------------------------------- date e id --- */
@@ -472,6 +316,11 @@ export function iso(data) {
   return `${data.getFullYear()}-${m}-${g}`;
 }
 
+/** Il giorno della settimana di una data, come chiave: 'lun', 'mar'... */
+export function chiaveGiorno(data) {
+  return M.GIORNI[(data.getDay() + 6) % 7];
+}
+
 /** Numero di settimana ISO, per dare un id leggibile al menù. */
 export function settimanaIso(data) {
   const d = new Date(Date.UTC(data.getFullYear(), data.getMonth(), data.getDate()));
@@ -488,10 +337,9 @@ export function idMenu(dataInizio) {
 
 /** Assegna le date ai giorni a partire dal lunedì. */
 export function conDate(giorni, lunedi) {
-  const ordine = M.GIORNI;
   return giorni.map((g) => {
     const data = new Date(lunedi);
-    data.setDate(lunedi.getDate() + ordine.indexOf(g.giorno));
+    data.setDate(lunedi.getDate() + M.GIORNI.indexOf(g.giorno));
     return Object.assign({}, g, { data: iso(data) });
   });
 }

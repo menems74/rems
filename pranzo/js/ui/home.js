@@ -1,232 +1,186 @@
 /* =========================================================================
-   ui/home.js — la prima pagina.
-
-   Non è un menu di bottoni: è la prima pagina del quaderno. In alto la data
-   e i pasti di oggi (pranzo e cena), sotto le sezioni, ognuna col dato vero
-   ("12 da prendere", "1 suggerimento"). Così aprendo l'app si sa già
-   qualcosa, invece di dover scegliere dove andare a guardare.
+   ui/home.js — la prima pagina: oggi, la settimana, e niente altro.
+   Aprendo l'app si deve capire tutto subito: cosa si mangia oggi in cima,
+   i giorni sotto, la spesa a un tocco nella barra in basso.
    ========================================================================= */
 
 import { el, svuotaNodo } from './dom.js';
+import { icona } from './icone.js';
+import { fotoPiatto, bottoneIcona, segmenti, occhiello, datiPiatto, nomeDi, ghirigoro } from './comuni.js';
+import { mostraGiorno } from './giorno.js';
+import { mostraPiatto } from './piatto.js';
+import { mostraRegole } from './regole.js';
 import * as M from '../model.js';
-import * as P from '../planner.js';
-import * as S from '../shopping.js';
-import { mostraDettaglio } from './dish.js';
-import { siPuoInstallare } from './settings.js';
 
-const MESI = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno',
-              'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
-
-/* La versione dell'app, in fondo alla prima pagina. Si cambia qui a mano,
-   quando lo dice Rems: non si alza da sola e non c'entra niente con la
-   VERSIONE di sw.js, che è solo il numero di serie della cache. */
-const VERSIONE_APP = 'V.2.01';
+/* Il numero mostrato in fondo alla pagina. Si cambia a mano, quando serve:
+   non c'entra con la VERSIONE di sw.js, che è solo il nome della cache. */
+export const VERSIONE_APP = 'V.3.0';
 
 export function render(contenitore, stato) {
   svuotaNodo(contenitore);
-  contenitore.appendChild(copertina(stato));
-  contenitore.appendChild(scorciatoie(stato));
-  contenitore.appendChild(el('div', { class: 'firma' }, [
-    el('p', {}, 'powered by Rems'),
-    el('p', { class: 'versione num' }, VERSIONE_APP)
-  ]));
-}
+  contenitore.appendChild(testata(stato));
 
-/* ---------------------------------------------------------- la copertina -
-   Data grande nel margine, e accanto il pranzo di oggi: è la cosa che si
-   viene a sapere aprendo l'app.                                          */
+  const corpo = el('div', { class: 'corpo sovrapposto' });
+  const oggi = giornoDiOggi(stato);
+  if (oggi) corpo.appendChild(schedaOggi(oggi, stato));
 
-function copertina(stato) {
-  const oggi = new Date();
-  const iso = P.iso(oggi);
-  const sigla = M.GIORNI[(oggi.getDay() + 6) % 7];
+  corpo.appendChild(segmenti(
+    [{ valore: 0, testo: 'Questa settimana' }, { valore: 1, testo: 'Prossima' }],
+    stato.scarto === 1 ? 1 : 0,
+    (v) => stato.azioni.cambiaSettimana(v),
+    'Quale settimana'
+  ));
 
-  const margine = el('div', { class: 'margine' }, [
-    el('span', { class: 'gg' }, sigla),
-    el('span', { class: 'dd' }, String(oggi.getDate()))
-  ]);
-
-  const corpo = el('div', { class: 'corpoCopertina' });
-  corpo.appendChild(el('p', { class: 'meseOggi' },
-    `${M.NOME_GIORNO[sigla]} ${oggi.getDate()} ${MESI[oggi.getMonth()]}`));
-
-  // oggi sta nella settimana di oggi, anche se in Settimana si sta
-  // guardando la prossima
-  const menuOggi = stato.menuOggi || stato.menu;
-  const giorno = (menuOggi && (menuOggi.giorni || []).find((g) => g.data === iso)) || null;
-  const pasti = giorno ? M.pastiDi(giorno) : [];
-  const conPiatti = pasti.filter(([, pasto]) => (pasto.piatti || []).length);
-
-  if (conPiatti.length) {
-    // la misura dei nomi è una sola per tutta la giornata: pranzo e cena
-    // devono pesare uguale, se no sembra che uno conti più dell'altro
-    const quanti = conPiatti.reduce((n, [, pasto]) =>
-      n + (pasto.avanziDa ? 0 : (pasto.piatti || []).length), 0);
-    for (const [nome, pasto] of conPiatti) {
-      corpo.appendChild(bloccoPastoOggi(nome, pasto, stato, quanti > 2));
-    }
-    corpo.appendChild(rigaGiornata(giorno, stato));
+  if (!stato.menu || !stato.menu.giorni.some((g) => M.pastiDi(g).length)) {
+    corpo.appendChild(vuota(stato));
   } else {
-    corpo.appendChild(el('p', { class: 'nienteOggi' },
-      menuOggi ? 'Oggi non è in programma.' : 'Ancora nessun menù.'));
-    const dopo = prossimoGiorno(stato, iso);
-    if (dopo) {
-      corpo.appendChild(el('button', {
-        class: 'piattoOggi prossimo', type: 'button',
-        onclick: () => { location.hash = '#/settimana'; }
-      }, `${M.NOME_GIORNO[dopo.giorno]}: ${dopo.nomi.join(', ')}`));
+    const elenco = el('div', { class: 'elencoGiorni' });
+    for (const g of stato.menu.giorni) {
+      if (!M.pastiDi(g).length) continue;
+      elenco.appendChild(rigaGiorno(g, stato, oggi && oggi.giorno === g.giorno));
     }
+    corpo.appendChild(elenco);
+    const vuoti = giorniVuoti(stato);
+    if (vuoti.length) {
+      corpo.appendChild(el('button', { class: 'secondario completa', type: 'button',
+        onclick: () => stato.azioni.generaSettimana({ soloVuoti: true }) },
+        [icona('scintilla'), `Completa ${vuoti.map((g) => M.GIORNO_BREVE[g]).join(', ')}`]));
+    }
+    for (const nota of stato.menu.note || []) corpo.appendChild(el('p', { class: 'nota' }, nota));
   }
 
-  // l'azione sta dentro la colonna del testo, così la riga del margine
-  // scende senza interruzioni fino all'indice
-  if (!menuOggi || !(menuOggi.giorni || []).length) {
-    corpo.appendChild(el('button', {
-      class: 'azione', type: 'button',
-      onclick: () => stato.azioni.generaSettimana()
-    }, 'Genera la settimana'));
-  }
-
-  return el('section', { class: 'copertina' }, [margine, corpo]);
-}
-
-/** Un pasto di oggi: l'etichetta piccola e sotto i nomi, grandi. */
-function bloccoPastoOggi(nome, pasto, stato, stretto) {
-  const piatti = (pasto.piatti || [])
-    .map((id) => stato.indicePiatti.get(id)).filter(Boolean);
-  const blocco = el('div', { class: 'pastoOggi' });
-
-  blocco.appendChild(el('p', { class: 'etichettaOggi' }, [
-    el('span', {}, M.NOME_PASTO[nome]),
-    pasto.avanziDa ? el('span', { class: 'segnoAvanzi' }, 'avanzi del pranzo') : null
+  corpo.appendChild(el('p', { class: 'piede' }, [
+    'Le calorie sono stime per persona, solo dei piatti: non sono un consiglio nutrizionale.',
+    el('br'),
+    el('span', { class: 'firma' }, `Pranzo ${VERSIONE_APP} · powered by Rems`)
   ]));
-
-  if (pasto.avanziDa) {
-    // sono i piatti del pranzo, appena sopra: riscriverli non aggiunge niente
-    blocco.appendChild(el('p', { class: 'rimando' }, 'gli stessi piatti del pranzo'));
-    return blocco;
-  }
-
-  // un piatto o due si leggono da lontano; da tre in su stanno più stretti
-  for (const piatto of piatti) {
-    blocco.appendChild(el('button', {
-      class: 'piattoOggi' + (stretto ? ' stretto' : ''), type: 'button',
-      onclick: () => mostraDettaglio(piatto, stato, ((stato.menuOggi || stato.menu || {}).perche || {})[piatto.id])
-    }, piatto.nome));
-  }
-  return blocco;
+  contenitore.appendChild(corpo);
 }
 
-/**
- * La riga sotto i pasti: quanto tempo ai fornelli oggi e cosa coprono i due
- * pasti messi insieme. Dalla 2.0 le macro sono un'informazione, non un
- * obbligo: se ne manca una si vede, e basta.
- */
-function rigaGiornata(giorno, stato) {
-  let minuti = 0;
-  for (const [, pasto] of M.pastiDi(giorno)) {
-    if (pasto.avanziDa) continue;
-    for (const id of pasto.piatti || []) {
-      const p = stato.indicePiatti.get(id);
-      if (p) minuti += p.tempoMin;
-    }
-  }
-  const { coperti } = M.macroDellaGiornata(giorno, stato.indicePiatti, stato.indiceIngredienti);
+/* ------------------------------------------------------------ testata ---- */
 
-  return el('div', { class: 'datiOggi' }, [
-    el('span', { class: 'num' }, M.formattaTempo(minuti)),
-    el('div', { class: 'pastiglie' }, M.MACRO_NUTRIENTI.map((m) => el('span', {
-      class: 'macro ' + (coperti.includes(m) ? 'si' : 'no'),
-      title: (coperti.includes(m) ? 'copre ' : 'manca ') + M.NOME_MACRO[m]
-    }, M.ETICHETTA_MACRO[m])))
+function testata(stato) {
+  const pref = stato.preferenze;
+  const nome = (pref.nome || '').trim();
+  const oggi = giornoDiOggi(stato);
+
+  const regole = el('button', { class: 'regole', type: 'button', onclick: () => mostraRegole(stato) }, [
+    el('span', {}, [icona('persone'), `${pref.porzioni || 1}`]),
+    el('span', {}, M.NOME_PESO[pref.peso] || 'Tutti'),
+    el('span', {}, (pref.pasti || []).includes('pranzo') ? 'Pranzo e cena' : 'Solo cena'),
+    icona('regola')
+  ]);
+  regole.setAttribute('aria-label', 'Come mangiate: persone, piatti, pasti. Tocca per cambiare');
+
+  return el('header', { class: 'testata gialla' }, [
+    ghirigoro(),
+    el('div', { class: 'barraTesta' }, [
+      el('span', { class: 'marchio' }, ['Pranzo', el('i', {}, '.')]),
+      el('a', { class: 'tondo chiaro', href: '#/impostazioni', 'aria-label': 'Impostazioni' }, [icona('ingranaggio')])
+    ]),
+    el('h1', {}, [
+      nome ? `Ciao ${nome},` : 'Ciao,', el('br'),
+      oggi ? 'oggi si mangia così' : (stato.scarto === 1 ? 'ecco la prossima settimana' : 'ecco la tua settimana')
+    ]),
+    stagione(stato),
+    regole
   ]);
 }
 
-/** Il primo giorno pianificato dopo oggi: serve quando oggi è vuoto. */
-function prossimoGiorno(stato, iso) {
-  const menu = stato.menuOggi || stato.menu;
-  if (!menu) return null;
-  for (const g of menu.giorni || []) {
-    if (!g.data || g.data <= iso) continue;
-    const nomi = M.piattiDelGiorno(g)
-      .map((id) => (stato.indicePiatti.get(id) || {}).nome).filter(Boolean);
-    if (nomi.length) return { giorno: g.giorno, nomi };
-  }
-  return null;
+function stagione(stato) {
+  const verdure = M.verdureDiStagione(stato.ingredienti, M.mesecorrente());
+  if (!verdure.length) return null;
+  return el('div', { class: 'stagione', 'aria-label': 'Di stagione questo mese' },
+    verdure.map((v) => el('span', { class: 'etichetta' }, v.nome)));
 }
 
-/* --------------------------------------------------------- le sezioni ---
-   Una riga per sezione, con il dato che conta a destra. Il dato è blu
-   quando c'è qualcosa da fare, grigio quando è solo informazione.        */
+/* ------------------------------------------------------------ oggi ------- */
 
-function scorciatoie(stato) {
-  const elenco = el('nav', { class: 'scorciatoie', 'aria-label': 'Sezioni' });
-  for (const voce of voci(stato)) {
-    elenco.appendChild(el('a', { class: 'scorciatoia', href: voce.href }, [
-      el('span', { class: 'nomeScorciatoia' }, voce.nome),
-      el('span', { class: 'datoScorciatoia' + (voce.dafare ? ' dafare' : '') }, voce.dato)
-    ]));
-  }
-  return elenco;
+function giornoDiOggi(stato) {
+  if (stato.scarto !== 0 || !stato.menu) return null;
+  const g = stato.menu.giorni.find((x) => x.giorno === stato.oggiChiave);
+  return g && M.pastiDi(g).length ? g : null;
 }
 
-function voci(stato) {
-  const menu = stato.menu;
-  const giorniMenu = (menu && menu.giorni) || [];
-
-  // settimana
-  // il dato che conta è quanti pasti sono in programma: i giorni si vedono
-  // aprendo la settimana, e la riga deve stare su una riga sola
-  let quantiPasti = 0;
-  for (const g of giorniMenu) quantiPasti += M.pastiDi(g).length;
-  const settimana = giorniMenu.length ? `${quantiPasti} pasti` : 'da generare';
-
-  // spesa
-  // i dati dell'indice stanno corti apposta: devono entrare accanto al nome
-  // anche sui telefoni stretti, senza mandare la riga a capo
-  let spesa = 'da fare', spesaDaFare = true;
-  if (!giorniMenu.length) {
-    spesa = 'dopo il menù'; spesaDaFare = false;
-  } else if (stato.lista) {
-    const { fatti, totale } = S.conteggio(stato.lista);
-    const restano = totale - fatti;
-    spesa = restano ? `${restano} da prendere` : 'tutte prese';
-    spesaDaFare = restano > 0;
+function schedaOggi(giorno, stato) {
+  const scheda = el('section', { class: 'oggi', 'aria-label': 'Oggi' });
+  const kcal = M.kcalGiorno(giorno, stato.indicePiatti, stato.indiceIngredienti);
+  scheda.appendChild(el('div', { class: 'oggiTesta' }, [
+    el('span', {}, `Oggi · ${M.NOME_GIORNO[giorno.giorno]}`),
+    kcal ? el('span', {}, `${kcal} kcal`) : null
+  ]));
+  for (const [nome, pasto] of M.pastiDi(giorno)) {
+    scheda.appendChild(rigaPastoOggi(giorno, nome, pasto, stato));
   }
-
-  // catalogo
-  const mese = M.mesecorrente();
-  const disponibili = stato.piatti.filter((p) => !M.motivoIndisponibilita(p, {
-    indiceIngredienti: stato.indiceIngredienti, preferenze: stato.preferenze, mese
-  })).length;
-
-  // gusti
-  const pendenti = (stato.suggerimenti || []).filter((s) => s.stato === 'pendente').length;
-  const quantiVoti = Object.values(stato.voti || {}).reduce((n, v) => n + v.length, 0);
-  const gusti = pendenti
-    ? `${pendenti} ${pendenti > 1 ? 'suggerimenti' : 'suggerimento'}`
-    : (quantiVoti ? `${quantiVoti} vot${quantiVoti === 1 ? 'o' : 'i'}` : 'niente ancora');
-
-  const scarto = stato.scarto || 0;
-  const nomeSettimana = scarto === 0 ? 'Settimana'
-    : (scarto === 1 ? 'Settimana prossima'
-    : (scarto === -1 ? 'Settimana scorsa' : 'Settimana'));
-
-  const voci = [
-    { nome: nomeSettimana, href: '#/settimana', dato: settimana, dafare: !giorniMenu.length },
-    { nome: 'Lista della spesa', href: '#/spesa', dato: spesa, dafare: spesaDaFare },
-    { nome: 'Catalogo', href: '#/catalogo', dato: `${disponibili} disponibili` },
-    { nome: 'Gusti', href: '#/gusti', dato: gusti, dafare: pendenti > 0 },
-    { nome: 'Dispensa', href: '#/dispensa',
-      dato: stato.dispensaRighe.length ? `${stato.dispensaRighe.length} voci` : 'vuota' },
-    { nome: 'Nuovi piatti', href: '#/nuovi', dato: 'chiedi a un\'AI' },
-    { nome: 'Impostazioni', href: '#/impostazioni', dato: 'porzioni, backup' }
-  ];
-
-  // l'invito a installare sta qui, e sparisce quando l'app è già installata:
-  // è l'unica cosa che stava in "Altro" e non aveva un'altra casa
-  if (siPuoInstallare()) {
-    voci.push({ nome: 'Installa l\'app', href: '#/impostazioni', dato: 'icona e offline' });
-  }
-  return voci;
+  return scheda;
 }
+
+function rigaPastoOggi(giorno, nome, pasto, stato) {
+  const piatto = stato.indicePiatti.get(pasto.piatto);
+  const contorno = pasto.contorno ? stato.indicePiatti.get(pasto.contorno) : null;
+  const apri = el('button', {
+    class: 'pastoOggi', type: 'button',
+    onclick: () => piatto && mostraPiatto(piatto, stato)
+  }, [
+    fotoPiatto(piatto, stato, 'media'),
+    el('div', { class: 'testoPasto' }, [
+      occhiello([M.NOME_PASTO[nome], ...datiPiatto(piatto, stato)]),
+      el('div', { class: 'nomePiatto' }, nomeDi(stato, pasto.piatto)),
+      contorno ? el('div', { class: 'conContorno' }, `con ${contorno.nome.toLowerCase()}`) : null
+    ])
+  ]);
+  return el('div', { class: 'rigaOggi' }, [
+    apri,
+    bottoneIcona('scambia', `Cambia ${M.NOME_PASTO[nome].toLowerCase()}`,
+      () => stato.azioni.rigeneraPasto(giorno.giorno, nome), 'viola')
+  ]);
+}
+
+/* ---------------------------------------------------------- la settimana - */
+
+function rigaGiorno(giorno, stato, eOggi) {
+  const pasti = M.pastiDi(giorno);
+  const primo = pasti.length ? stato.indicePiatti.get(pasti[0][1].piatto) : null;
+  const kcal = M.kcalGiorno(giorno, stato.indicePiatti, stato.indiceIngredienti);
+  const data = giorno.data ? Number(giorno.data.slice(8, 10)) : '';
+
+  const apri = el('button', { class: 'apriGiorno', type: 'button', onclick: () => mostraGiorno(giorno.giorno, stato) }, [
+    fotoPiatto(primo, stato, 'mini'),
+    el('div', { class: 'testoGiorno' }, [
+      el('div', { class: 'nomeGiorno' }, [
+        el('b', {}, cap(M.NOME_GIORNO[giorno.giorno])),
+        el('span', {}, ` ${data}`),
+        eOggi ? el('span', { class: 'bollino' }, 'oggi') : null
+      ]),
+      el('div', { class: 'piattiGiorno' }, pasti.map(([, p]) => nomeDi(stato, p.piatto)).join(' · ')),
+      kcal ? el('div', { class: 'kcalGiorno' }, `${kcal} kcal`) : null
+    ])
+  ]);
+  return el('div', { class: 'rigaGiorno' + (eOggi ? ' eOggi' : '') }, [
+    apri,
+    bottoneIcona('scambia', `Cambia i piatti di ${M.NOME_GIORNO[giorno.giorno]}`,
+      () => stato.azioni.rigeneraGiorno(giorno.giorno), 'viola')
+  ]);
+}
+
+/** I giorni del menù (o delle impostazioni) a cui manca un pasto. */
+function giorniVuoti(stato) {
+  const pref = stato.preferenze;
+  const pasti = pref.pasti || M.PASTI;
+  return (pref.giorni || M.GIORNI).filter((chiave) => {
+    const g = stato.menu.giorni.find((x) => x.giorno === chiave);
+    return !g || pasti.some((p) => !(g.pasti || {})[p]);
+  });
+}
+
+function vuota(stato) {
+  return el('section', { class: 'vuota' }, [
+    el('div', { class: 'foto sf2 media' }, [icona('settimana')]),
+    el('h2', {}, stato.scarto === 1 ? 'La prossima settimana è ancora da fare' : 'La settimana è ancora da fare'),
+    el('p', {}, 'Un tocco e l\'app sceglie pranzi e cene. Poi cambi quello che non ti va.'),
+    el('button', { class: 'grande', type: 'button', onclick: () => stato.azioni.generaSettimana() },
+      [icona('scintilla'), 'Prepara la settimana'])
+  ]);
+}
+
+function cap(s) { return s ? s[0].toUpperCase() + s.slice(1) : s; }

@@ -142,6 +142,39 @@ DISPENSA_BASE = {
  "ing_brodo_granulare","ing_farina","ing_pangrattato",
 }
 
+# Calorie, dalla 3.0. Per 100 g o 100 ml quando l'unità è g o ml, per un
+# pezzo quando è pz. Sono stime arrotondate da tabelle nutrizionali comuni,
+# sul prodotto come entra in ricetta (crudo, sgocciolato): servono a dire
+# "piatto leggero" o "sostanzioso", non a fare una dieta.
+KCAL = {
+ "ing_pollo_petto":100,"ing_pollo_cosce":170,"ing_tacchino_fesa":105,"ing_manzo_macinato":220,
+ "ing_manzo_fettine":130,"ing_maiale_lonza":150,"ing_salsiccia":300,"ing_pancetta":330,
+ "ing_prosciutto_cotto":215,"ing_prosciutto_crudo":250,"ing_bresaola":150,"ing_speck":300,
+ "ing_wurstel":270,"ing_tonno_scatola":190,"ing_sgombro_scatola":210,"ing_salmone_filetto":185,
+ "ing_merluzzo_filetto":75,"ing_platessa":85,"ing_gamberi":75,"ing_alici_marinate":130,
+ "ing_salmone_affumicato":150,"ing_uova":75,"ing_mozzarella":250,"ing_ricotta":150,
+ "ing_stracchino":300,"ing_feta":265,"ing_scamorza":335,"ing_formaggio_fette":300,
+ "ing_yogurt_greco":95,"ing_latte":60,"ing_ceci_lessati":120,"ing_cannellini":100,
+ "ing_borlotti":100,"ing_lenticchie":330,"ing_tofu":145,"ing_pasta_corta":355,
+ "ing_spaghetti":355,"ing_riso":350,"ing_riso_venere":350,"ing_farro":340,"ing_orzo":340,
+ "ing_bulgur":340,"ing_cous_cous":360,"ing_quinoa":365,"ing_pane":270,"ing_piadina":270,
+ "ing_pane_toast":280,"ing_base_pizza":650,"ing_focaccia":300,"ing_tortilla":180,
+ "ing_gnocchi":160,"ing_tortellini":300,"ing_patate":80,"ing_polenta":360,"ing_farina":350,
+ "ing_pangrattato":360,"ing_mais":95,"ing_zucchine":15,"ing_melanzane":20,"ing_peperoni":30,
+ "ing_pomodorini":20,"ing_pomodori":20,"ing_insalata":15,"ing_rucola":25,"ing_spinaci":25,
+ "ing_broccoli":30,"ing_cavolfiore":25,"ing_verza":25,"ing_bietole":20,"ing_cicoria":15,
+ "ing_radicchio":15,"ing_fagiolini":20,"ing_carote":35,"ing_finocchi":15,"ing_asparagi":25,
+ "ing_carciofi":40,"ing_zucca":20,"ing_funghi":25,"ing_cetriolo":35,"ing_sedano":15,
+ "ing_piselli":70,"ing_minestrone":40,"ing_pelati":20,"ing_passata":30,"ing_olio_evo":900,
+ "ing_burro":750,"ing_noci":690,"ing_pinoli":600,"ing_mandorle":600,"ing_sesamo":575,
+ "ing_cipolla":40,"ing_cipolla_rossa":40,"ing_aglio":4,"ing_limone":20,"ing_prezzemolo":35,
+ "ing_basilico":25,"ing_rosmarino":130,"ing_salvia":300,"ing_parmigiano":390,
+ "ing_pecorino":390,"ing_sale":0,"ing_pepe":250,"ing_aceto":20,"ing_balsamico":110,
+ "ing_senape":65,"ing_maionese":700,"ing_olive":150,"ing_capperi":25,"ing_pesto":450,
+ "ing_brodo_granulare":250,"ing_curry":325,"ing_paprika":280,"ing_origano":265,
+ "ing_peperoncino":300,"ing_noce_moscata":525,"ing_vino_bianco":70,
+}
+
 out = []
 for (i, nome, macro, unita, reparto, fq, fl, conv, stag, fam, note) in ING:
     ing = {"id": i, "nome": nome, "macro": macro, "unita": unita, "reparto": reparto,
@@ -149,6 +182,7 @@ for (i, nome, macro, unita, reparto, fq, fl, conv, stag, fam, note) in ING:
            "conversioni": conv, "stagioni": stag, "note": note}
     if fam: ing["famiglia"] = fam
     if i in DISPENSA_BASE: ing["dispensaBase"] = True
+    ing["kcal"] = KCAL[i]
     out.append(ing)
 
 # controlli

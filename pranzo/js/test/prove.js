@@ -91,58 +91,6 @@ prova('porzioni: la quantità si moltiplica dopo la conversione', () => {
   uguale(160, M.qtaCanonicaVoce(voce, ING.get('ing_tonno'), 2));
 });
 
-/* -------------------------------------------------------- macro --------- */
-
-prova('soglia proteina: 80 g bastano, 79 no', () => {
-  const si = piatto('p1', 'secondo', [{ ingredienteId: 'ing_pollo', qta: 80, unita: 'g' }]);
-  const no = piatto('p2', 'secondo', [{ ingredienteId: 'ing_pollo', qta: 79, unita: 'g' }]);
-  uguale(['proteina'], M.macroCoperti(si, ING));
-  uguale([], M.macroCoperti(no, ING));
-});
-prova('soglia in pezzi: 1 uovo copre, mezzo no', () => {
-  const si = piatto('p3', 'secondo', [{ ingredienteId: 'ing_uova', qta: 1, unita: 'pz' }]);
-  const no = piatto('p4', 'secondo', [{ ingredienteId: 'ing_uova', qta: 0.5, unita: 'pz' }]);
-  uguale(['proteina'], M.macroCoperti(si, ING));
-  uguale([], M.macroCoperti(no, ING));
-});
-prova('la conversione conta per la soglia: 1 fetta di pollo = 120 g', () => {
-  const p = piatto('p5', 'secondo', [{ ingredienteId: 'ing_pollo', qta: 1, unita: 'fetta' }]);
-  uguale(['proteina'], M.macroCoperti(p, ING));
-});
-prova('grassi e condimenti non coprono nulla', () => {
-  const p = piatto('p6', 'contorno', [
-    { ingredienteId: 'ing_olio', qta: 5, unita: 'cucchiaio' },
-    { ingredienteId: 'ing_cipolla', qta: 2, unita: 'pz' }
-  ]);
-  uguale([], M.macroCoperti(p, ING));
-});
-prova('macro in ordine fisso: proteina, carboidrato, fibra', () => {
-  const p = piatto('p7', 'unico', [
-    { ingredienteId: 'ing_pomodorini', qta: 150, unita: 'g' },
-    { ingredienteId: 'ing_pasta', qta: 100, unita: 'g' },
-    { ingredienteId: 'ing_tonno', qta: 1, unita: 'scatoletta' }
-  ]);
-  uguale(['proteina', 'carboidrato', 'fibra'], M.macroCoperti(p, ING));
-});
-prova('la copertura è del pranzo: primo + secondo insieme', () => {
-  const primo = piatto('p8', 'primo', [
-    { ingredienteId: 'ing_pasta', qta: 100, unita: 'g' },
-    { ingredienteId: 'ing_pomodorini', qta: 150, unita: 'g' }
-  ]);
-  const secondo = piatto('p9', 'secondo', [{ ingredienteId: 'ing_pollo', qta: 150, unita: 'g' }]);
-  uguale([], M.macroMancanti([primo, secondo], ING));
-  uguale(true, M.giornoCompleto([primo, secondo], ING));
-  uguale(['proteina'], M.macroMancanti([primo], ING));
-  uguale(false, M.giornoCompleto([primo], ING));
-});
-prova('ingrediente sconosciuto: ignorato, non esplode', () => {
-  const p = piatto('p10', 'primo', [
-    { ingredienteId: 'ing_inesistente', qta: 100, unita: 'g' },
-    { ingredienteId: 'ing_pasta', qta: 100, unita: 'g' }
-  ]);
-  uguale(['carboidrato'], M.macroCoperti(p, ING));
-});
-
 /* -------------------------------------------- proteina principale ------- */
 
 prova('la proteina principale è quella con più peso relativo', () => {
@@ -208,54 +156,6 @@ prova('piatto con ingrediente sconosciuto: bocciato', () => {
   const p = piatto('p18', 'primo', [{ ingredienteId: 'ing_fantasma', qta: 100, unita: 'g' }]);
   uguale(false, M.validaPiatto(p, ING).ok);
 });
-prova('voto: stelle 1-5 e data nel formato giusto', () => {
-  uguale(true, M.validaVoto({ piattoId: 'p1', stelle: 4, motivo: 'buono', data: '2026-09-14' }).ok);
-  uguale(false, M.validaVoto({ piattoId: 'p1', stelle: 9, data: '2026-09-14' }).ok);
-  uguale(false, M.validaVoto({ piattoId: 'p1', stelle: 3, data: '14/09/2026' }).ok);
-  uguale(false, M.validaVoto({ piattoId: 'p1', stelle: 3, motivo: 'boh', data: '2026-09-14' }).ok);
-});
-
-/* ------------------------------------------------- pranzo e cena (2.0) --- */
-
-prova('un menù della 1.x si legge come un giorno col solo pranzo', () => {
-  const vecchio = { id: 'm', giorni: [
-    { giorno: 'lun', data: '2026-09-14', modalita: 'unico', piatti: ['p_uno'], bloccato: true }
-  ] };
-  const nuovo = M.normalizzaMenu(vecchio);
-  uguale(2, nuovo.formato);
-  uguale(['pranzo'], M.pastiDi(nuovo.giorni[0]).map(([nome]) => nome));
-  uguale(['p_uno'], nuovo.giorni[0].pasti.pranzo.piatti);
-  uguale(true, nuovo.giorni[0].pasti.pranzo.bloccato);
-  uguale('2026-09-14', nuovo.giorni[0].data);
-});
-prova('normalizzare due volte non cambia niente', () => {
-  const vecchio = { id: 'm', giorni: [{ giorno: 'lun', modalita: 'unico', piatti: ['p_uno'] }] };
-  const una = M.normalizzaMenu(vecchio);
-  const due = M.normalizzaMenu(una);
-  uguale(JSON.stringify(una), JSON.stringify(due));
-});
-prova('i pasti escono nell\'ordine in cui si mangiano', () => {
-  const giorno = { giorno: 'lun', pasti: { cena: { piatti: ['b'] }, pranzo: { piatti: ['a'] } } };
-  uguale(['pranzo', 'cena'], M.pastiDi(giorno).map(([nome]) => nome));
-  uguale(['a', 'b'], M.piattiDelGiorno(giorno));
-});
-prova('la forma di un pasto fatto da un piatto solo', () => {
-  uguale('unico', M.formaDelTipo('unico'));
-  uguale('primoSecondo', M.formaDelTipo('primo'));
-  uguale('secondoContorno', M.formaDelTipo('secondo'));
-  uguale('secondoContorno', M.formaDelTipo('contorno'));
-});
-prova('la giornata dice cosa coprono i due pasti messi insieme', () => {
-  const soloProteina = { id: 'x', ingredienti: [{ ingredienteId: 'ing_pollo', qta: 150, unita: 'g' }] };
-  const soloFibra = { id: 'y', ingredienti: [{ ingredienteId: 'ing_asparagi', qta: 200, unita: 'g' }] };
-  const giorno = { giorno: 'lun', pasti: {
-    pranzo: { piatti: ['x'] }, cena: { piatti: ['y'] }
-  } };
-  const dati = M.macroDellaGiornata(giorno, M.indicizza([soloProteina, soloFibra]), ING);
-  uguale(['proteina', 'fibra'], dati.coperti);
-  uguale(['carboidrato'], dati.mancanti);
-});
-
 /* --------------------------------------------------- formattazione ------ */
 
 prova('quantità formattate all\'italiana', () => {
@@ -266,7 +166,7 @@ prova('quantità formattate all\'italiana', () => {
 prova('tempi leggibili', () => {
   uguale('35 min', M.formattaTempo(35));
   uguale('1 h', M.formattaTempo(60));
-  uguale('1 h 15 min', M.formattaTempo(75));
+  uguale('1 h 15', M.formattaTempo(75));
 });
 
 export function esegui() { return risultati; }
@@ -316,7 +216,7 @@ function unico(id, proteina, fibra, tempo = 20) {
       { ingredienteId: fibra, qta: 150, unita: 'g' }
     ] };
 }
-const CATALOGO = [
+const CATALOGO_BASE = [
   unico('u_pollo_zucchine', 'i_pollo', 'i_zucchine'),
   unico('u_pollo_spinaci', 'i_pollo', 'i_spinaci'),
   unico('u_tonno_pomodorini', 'i_tonno', 'i_pomodorini'),
@@ -340,257 +240,25 @@ const CATALOGO = [
     ingredienti: [{ ingredienteId: 'i_broccoli', qta: 200, unita: 'g' }] }
 ];
 
+const CATALOGO = CATALOGO_BASE.concat([
+  { id: 'pr_riso_zucchine', nome: 'primo riso', tipo: 'primo', tempoMin: 25, difficolta: 1, stagioni: [],
+    passi: ['x'], origine: 'base', tags: [], attivo: true,
+    ingredienti: [{ ingredienteId: 'i_riso', qta: 90, unita: 'g' },
+                  { ingredienteId: 'i_zucchine', qta: 150, unita: 'g' }] },
+  { id: 'se_tonno', nome: 'secondo tonno', tipo: 'secondo', tempoMin: 50, difficolta: 1, stagioni: [],
+    passi: ['x'], origine: 'base', tags: [], attivo: true,
+    ingredienti: [{ ingredienteId: 'i_tonno', qta: 150, unita: 'g' }] },
+  { id: 'co_spinaci', nome: 'contorno spinaci', tipo: 'contorno', tempoMin: 10, difficolta: 1, stagioni: [],
+    passi: ['x'], origine: 'base', tags: [], attivo: true,
+    ingredienti: [{ ingredienteId: 'i_spinaci', qta: 200, unita: 'g' }] }
+]);
+
 function ctxProva(extra = {}) {
   return Object.assign({
     piatti: CATALOGO, indiceIngredienti: ING2, preferenze: M.preferenzePredefinite(),
     voti: {}, ultimaVolta: new Map(), dispensa: new Set(), mese: 6, oggi: new Date('2026-06-15')
   }, extra);
 }
-
-/* Dalla 2.0 il motore restituisce solo gli id: gli oggetti si ripescano qui. */
-const IDX_CAT = M.indicizza(CATALOGO);
-function oggetti(ids, indice = IDX_CAT) {
-  return (ids || []).map((id) => indice.get(id)).filter(Boolean);
-}
-/** Tutti i pasti generati, in fila: [{giorno, nome, pasto, piatti}]. */
-function inFila(esito, indice = IDX_CAT) {
-  const fila = [];
-  for (const g of esito.giorni) {
-    for (const [nome, pasto] of M.pastiDi(g)) {
-      fila.push({ giorno: g.giorno, nome, pasto, piatti: oggetti(pasto.piatti, indice) });
-    }
-  }
-  return fila;
-}
-
-prova('la settimana ha cinque giorni, ognuno con pranzo e cena', () => {
-  const e = P.generaSettimana(ctxProva());
-  uguale(5, e.giorni.length);
-  for (const g of e.giorni) {
-    uguale(['pranzo', 'cena'], M.pastiDi(g).map(([nome]) => nome), g.giorno);
-    for (const [nome, pasto] of M.pastiDi(g)) {
-      if (!(pasto.piatti || []).length) throw new Error(`${g.giorno}: ${nome} vuoto`);
-    }
-  }
-});
-prova('un solo pasto se le preferenze dicono così', () => {
-  const pref = Object.assign(M.preferenzePredefinite(), { pasti: ['pranzo'] });
-  const e = P.generaSettimana(ctxProva({ preferenze: pref }));
-  for (const g of e.giorni) uguale(['pranzo'], M.pastiDi(g).map(([nome]) => nome), g.giorno);
-});
-prova('nessun piatto ripetuto nella settimana, a parte gli avanzi', () => {
-  const usati = [];
-  for (const x of inFila(P.generaSettimana(ctxProva()))) {
-    if (x.pasto.avanziDa) continue;          // gli avanzi sono lo stesso piatto, apposta
-    usati.push(...x.pasto.piatti);
-  }
-  uguale(usati.length, new Set(usati).size);
-});
-prova('mai la stessa proteina in due pasti consecutivi', () => {
-  for (let giro = 0; giro < 20; giro++) {
-    let precedente = null;
-    for (const x of inFila(P.generaSettimana(ctxProva()))) {
-      const fam = x.piatti.map((p) => M.famigliaProteinaPrincipale(p, ING2)).filter(Boolean)[0];
-      if (fam && fam === precedente && !x.pasto.avanziDa) {
-        throw new Error(`proteina ${fam} ripetuta: ${x.giorno} ${x.nome}`);
-      }
-      precedente = fam;
-    }
-  }
-});
-prova('un pasto che non copre tutte le macro è ammesso: non è più un obbligo', () => {
-  // un catalogo dove la fibra non c'è proprio: nella 1.x non usciva niente
-  const senzaFibra = ['i_pollo', 'i_uova', 'i_tonno', 'i_ceci'].map((proteina, i) => ({
-    id: 'sf_' + i, nome: 'senza fibra ' + i, tipo: 'unico', tempoMin: 15, difficolta: 1,
-    stagioni: [], passi: ['x'], origine: 'base', tags: [], attivo: true,
-    ingredienti: [
-      { ingredienteId: 'i_pasta', qta: 100, unita: 'g' },
-      { ingredienteId: proteina, qta: proteina === 'i_uova' ? 3 : 150,
-        unita: proteina === 'i_uova' ? 'pz' : 'g' }
-    ]
-  }));
-  const pref = Object.assign(M.preferenzePredefinite(), { giorni: ['lun', 'mar'], quotaNovita: 0 });
-  const e = P.generaSettimana(ctxProva({ piatti: senzaFibra, preferenze: pref }));
-  uguale(2, e.giorni.length);
-  for (const x of inFila(e, M.indicizza(senzaFibra))) {
-    uguale(['fibra'], M.macroMancanti(x.piatti, ING2), x.giorno + ' ' + x.nome);
-  }
-});
-prova('le macro mancanti restano un punteggio, non un divieto', () => {
-  const soloProteina = CATALOGO.find((p) => p.id === 'se_pollo');
-  const con = P.punteggio(soloProteina, ctxProva(), { senzaCaso: true, macroMancanti: ['proteina'] });
-  const senza = P.punteggio(soloProteina, ctxProva(), { senzaCaso: true, macroMancanti: [] });
-  if (!(con.totale > senza.totale)) throw new Error('portare una macro mancante deve valere di più');
-});
-prova('almeno tre proteine e tre fibre diverse nella settimana', () => {
-  for (let giro = 0; giro < 20; giro++) {
-    const prot = new Set(), fib = new Set();
-    for (const x of inFila(P.generaSettimana(ctxProva()))) for (const p of x.piatti) {
-      const f = M.famigliaProteinaPrincipale(p, ING2); if (f) prot.add(f);
-      for (const y of M.fibrePrincipali(p, ING2)) fib.add(y);
-    }
-    if (prot.size < 3) throw new Error('solo ' + prot.size + ' proteine');
-    if (fib.size < 3) throw new Error('solo ' + fib.size + ' fibre');
-  }
-});
-prova('un ingrediente escluso non entra mai, e la blacklist non si rilassa', () => {
-  const pref = Object.assign(M.preferenzePredefinite(), { escludiIngredienti: ['i_pollo', 'i_tonno'] });
-  for (let giro = 0; giro < 10; giro++) {
-    for (const x of inFila(P.generaSettimana(ctxProva({ preferenze: pref })))) {
-      for (const p of x.piatti) for (const v of p.ingredienti) {
-        if (v.ingredienteId === 'i_pollo' || v.ingredienteId === 'i_tonno') {
-          throw new Error(`${p.id} contiene un ingrediente escluso`);
-        }
-      }
-    }
-  }
-});
-prova('i pasti bloccati non vengono toccati', () => {
-  const fisso = {
-    modalita: 'unico', piatti: ['u_ceci_spinaci'],
-    piattiOggetti: [CATALOGO.find((p) => p.id === 'u_ceci_spinaci')]
-  };
-  const e = P.generaSettimana(ctxProva(), { giorniFissi: { mer: { pranzo: fisso } } });
-  const mercoledi = e.giorni.find((g) => g.giorno === 'mer');
-  uguale(['u_ceci_spinaci'], mercoledi.pasti.pranzo.piatti);
-  uguale(true, mercoledi.pasti.pranzo.bloccato);
-  uguale(false, mercoledi.pasti.cena.bloccato);
-});
-prova('giorno con poco tempo: il pranzo è un piatto unico, come da §4.1', () => {
-  const pref = Object.assign(M.preferenzePredefinite(), { tempoMaxPerGiorno: { mer: 20 } });
-  const e = P.generaSettimana(ctxProva({ preferenze: pref }));
-  uguale('unico', e.giorni.find((g) => g.giorno === 'mer').pasti.pranzo.modalita);
-});
-prova('il tempo massimo è del pasto intero, e non si sfora', () => {
-  // un giorno solo: il catalogo di prova è piccolo, e con la settimana
-  // intera il motore finirebbe per rilassare proprio il tempo
-  const pref = Object.assign(M.preferenzePredefinite(),
-                             { giorni: ['lun'], tempoMaxMin: 30, tempoMaxCena: 20, quotaNovita: 0 });
-  for (let giro = 0; giro < 10; giro++) {
-    for (const x of inFila(P.generaSettimana(ctxProva({ preferenze: pref })))) {
-      if (x.pasto.avanziDa) continue;       // gli avanzi si scaldano, non si cucinano
-      const minuti = x.piatti.reduce((n, p) => n + p.tempoMin, 0);
-      const tetto = x.nome === 'cena' ? 20 : 30;
-      if (minuti > tetto) throw new Error(`${x.giorno} ${x.nome}: ${minuti} min su ${tetto}`);
-    }
-  }
-});
-prova('se nel tempo non ci sta niente, sfora ma lo dichiara', () => {
-  // dieci minuti: nel catalogo di prova non c'è niente di così veloce
-  const pref = Object.assign(M.preferenzePredefinite(),
-                             { giorni: ['lun'], pasti: ['pranzo'], tempoMaxMin: 10, quotaNovita: 0 });
-  const e = P.generaSettimana(ctxProva({ preferenze: pref }));
-  uguale(1, e.giorni.length);
-  if (!e.rilassamenti.some((r) => /tempo massimo/.test(r))) {
-    throw new Error('doveva dire che ha sforato: ' + JSON.stringify(e.rilassamenti));
-  }
-});
-prova('il tempo massimo: il pranzo ce l\'ha, la cena no', () => {
-  const pref = Object.assign(M.preferenzePredefinite(), { tempoMaxPerGiorno: { mer: 20 } });
-  uguale(20, P.tempoMassimo('pranzo', 'mer', pref));
-  uguale(40, P.tempoMassimo('pranzo', 'gio', pref));
-  uguale(0, P.tempoMassimo('cena', 'mer', pref));
-  uguale(30, P.tempoMassimo('cena', 'mer', Object.assign({}, pref, { tempoMaxCena: 30 })));
-});
-prova('tetto ai pranzi con primo + secondo', () => {
-  const pref = Object.assign(M.preferenzePredefinite(), { maxGiorniPrimoSecondo: 1 });
-  for (let giro = 0; giro < 15; giro++) {
-    const e = P.generaSettimana(ctxProva({ preferenze: pref }));
-    const quanti = e.giorni.filter((g) => (g.pasti.pranzo || {}).modalita === 'primoSecondo').length;
-    if (quanti > 1) throw new Error('pranzi primo+secondo: ' + quanti);
-  }
-});
-prova('avanzi: la cena ripete il pranzo dello stesso giorno', () => {
-  const pref = Object.assign(M.preferenzePredefinite(), { avanziASettimana: 5, quotaNovita: 0 });
-  let trovati = 0;
-  for (let giro = 0; giro < 20 && !trovati; giro++) {
-    for (const g of P.generaSettimana(ctxProva({ preferenze: pref })).giorni) {
-      const cena = g.pasti.cena;
-      if (!cena || !cena.avanziDa) continue;
-      trovati++;
-      uguale('pranzo', cena.avanziDa);
-      uguale(g.pasti.pranzo.piatti, cena.piatti, g.giorno);
-    }
-  }
-  if (!trovati) throw new Error('con avanziASettimana a 5 doveva uscirne almeno uno');
-});
-prova('senza avanzi richiesti nessuna cena è di avanzi', () => {
-  const pref = Object.assign(M.preferenzePredefinite(), { avanziASettimana: 0 });
-  for (let giro = 0; giro < 10; giro++) {
-    for (const x of inFila(P.generaSettimana(ctxProva({ preferenze: pref })))) {
-      if (x.pasto.avanziDa) throw new Error('avanzi non richiesti');
-    }
-  }
-});
-prova('rigenera un pasto solo: cambia quello e lascia stare gli altri', () => {
-  // due giorni soli: il catalogo di prova è piccolo e deve restare qualcosa
-  // da mettere al posto del pasto che si rifà
-  const pref = Object.assign(M.preferenzePredefinite(), { giorni: ['lun', 'mar'], avanziASettimana: 0 });
-  const ctx = ctxProva({ preferenze: pref });
-  const menu = P.generaSettimana(ctx);
-  const conOggetti = Object.assign({}, menu, {
-    giorni: menu.giorni.map((g) => {
-      const pasti = {};
-      for (const [nome, pasto] of M.pastiDi(g)) {
-        pasti[nome] = Object.assign({}, pasto, { piattiOggetti: oggetti(pasto.piatti) });
-      }
-      return Object.assign({}, g, { pasti });
-    })
-  });
-  const primaPranzo = menu.giorni[0].pasti.pranzo.piatti.slice();
-  const esito = P.rigeneraPasto(ctx, conOggetti, menu.giorni[0].giorno, 'cena');
-  if (!esito) throw new Error('doveva rigenerare');
-  uguale(primaPranzo, menu.giorni[0].pasti.pranzo.piatti);
-  uguale(null, esito.pasto.avanziDa);
-});
-prova('vincoli impossibili: nessun giorno e un avviso, non un silenzio', () => {
-  const pref = Object.assign(M.preferenzePredefinite(), {
-    escludiIngredienti: ['i_pollo', 'i_tonno', 'i_ceci', 'i_uova']   // via tutte le proteine
-  });
-  const e = P.generaSettimana(ctxProva({ preferenze: pref }));
-  uguale(0, e.giorni.length);
-  if (!e.avvisi.length) throw new Error('doveva avvisare');
-});
-prova('catalogo appena sufficiente: rilassa e lo dichiara', () => {
-  // pochi piatti per dieci pasti: il cooldown va rilassato
-  const pochi = CATALOGO.filter((p) => ['u_pollo_zucchine', 'u_ceci_spinaci', 'u_uova_broccoli',
-    'pr_pasta_pomodorini', 'se_pollo', 'se_uova', 'co_broccoli'].includes(p.id));
-  const ultima = new Map([['u_pollo_zucchine', '2026-06-08'], ['u_ceci_spinaci', '2026-06-08']]);
-  const e = P.generaSettimana(ctxProva({ piatti: pochi, ultimaVolta: ultima }));
-  if (e.giorni.length && !e.rilassamenti.length && !e.avvisi.length) {
-    throw new Error('ha riempito la settimana senza dichiarare nulla');
-  }
-});
-prova('media dei voti pesata sui più recenti', () => {
-  // pesi 0.7^n: (5*1 + 1*0.7)/1.7 = 3.35, sopra la media semplice 3
-  const salito = P.votoMedio([{ stelle: 5, data: '2026-09-01' }, { stelle: 1, data: '2026-08-01' }]);
-  const scesa = P.votoMedio([{ stelle: 1, data: '2026-09-01' }, { stelle: 5, data: '2026-08-01' }]);
-  if (!(salito > 3)) throw new Error('un 5 recente deve alzare la media: ' + salito);
-  if (!(scesa < 3)) throw new Error('un 1 recente deve abbassarla: ' + scesa);
-  if (!(salito > scesa)) throw new Error('l ordine dei voti deve contare');
-  uguale(4, Math.round(P.votoMedio([{ stelle: 4, data: '2026-09-01' }])));
-});
-prova('punteggio: i componenti spiegano il totale', () => {
-  const p = CATALOGO[0];
-  const pref = Object.assign(M.preferenzePredefinite(), { amoPiatti: [p.id] });
-  const r = P.punteggio(p, ctxProva({ preferenze: pref }), { senzaCaso: true, slotNovitaLibero: true });
-  const somma = r.componenti.reduce((a, c) => a + c.valore, 0);
-  uguale(r.totale, somma);
-  if (!r.componenti.some((c) => c.etichetta === 'piatto che ami')) throw new Error('manca il bonus');
-});
-prova('id e date della settimana', () => {
-  const lunedi = P.lunediDi(new Date('2026-09-16T12:00:00'));   // mercoledì
-  uguale('2026-09-14', P.iso(lunedi));
-  uguale('men_2026_w38', P.idMenu(lunedi));
-  const giorni = P.conDate([{ giorno: 'lun' }, { giorno: 'ven' }], lunedi);
-  uguale('2026-09-14', giorni[0].data);
-  uguale('2026-09-18', giorni[1].data);
-});
-
-/* ==========================================================================
-   PROVE DELLA LISTA SPESA (M3)
-   L'aggregazione in unità canonica è il punto dove è più facile sbagliare.
-   ========================================================================== */
 
 import * as S from '../shopping.js';
 
@@ -646,32 +314,13 @@ function ctxSpesa(extra = {}) {
 prova('un menù con pranzo e cena: la spesa somma tutti e due i pasti', () => {
   const due = { id: 'men_due', dataInizio: '2026-09-14', stato: 'attivo', formato: 2, giorni: [
     { giorno: 'lun', data: '2026-09-14', pasti: {
-      pranzo: M.pastoPulito({ modalita: 'unico', piatti: ['p_uno'] }),
-      cena: M.pastoPulito({ modalita: 'unico', piatti: ['p_due'] })
+      pranzo: { piatto: 'p_uno' },
+      cena: { piatto: 'p_due' }
     } }
   ] };
   const lista = S.generaLista(due, ctxSpesa());
   const tonno = lista.voci.find((v) => v.ingredienteId === 'i_tonno');
   uguale(200, tonno.qtaRichiesta);          // le stesse quantità del menù su due giorni
-});
-prova('avanzi: il piatto conta doppio, perché va cucinato doppio', () => {
-  const conAvanzi = { id: 'men_av', dataInizio: '2026-09-14', stato: 'attivo', formato: 2, giorni: [
-    { giorno: 'lun', data: '2026-09-14', pasti: {
-      pranzo: M.pastoPulito({ modalita: 'unico', piatti: ['p_uno'] }),
-      cena: M.pastoPulito({ modalita: 'unico', piatti: ['p_uno'], avanziDa: 'pranzo' })
-    } }
-  ] };
-  const solo = { id: 'men_solo', dataInizio: '2026-09-14', stato: 'attivo', formato: 2, giorni: [
-    { giorno: 'lun', data: '2026-09-14', pasti: {
-      pranzo: M.pastoPulito({ modalita: 'unico', piatti: ['p_uno'] })
-    } }
-  ] };
-  const q = (menu, id) => (S.generaLista(menu, ctxSpesa()).voci
-    .find((v) => v.ingredienteId === id) || {}).qtaRichiesta;
-  uguale(q(solo, 'i_pasta') * 2, q(conAvanzi, 'i_pasta'));
-  // e il piatto compare una volta sola nell'elenco di dove serve
-  const voce = S.generaLista(conAvanzi, ctxSpesa()).voci.find((v) => v.ingredienteId === 'i_pasta');
-  uguale(['Pasta col tonno'], voce.usatoIn);
 });
 prova('somma in unità canonica: 1 + 1,5 scatolette = 200 g di tonno', () => {
   const lista = S.generaLista(MENU_PROVA, ctxSpesa());
@@ -723,21 +372,6 @@ prova('pezzi: 2 uova diventano una confezione da 6', () => {
   uguale(6, uova.qtaDaComprare);
   uguale('pz', uova.unita);
 });
-prova('la dispensa si sottrae prima di arrotondare', () => {
-  const conScorta = S.generaLista(MENU_PROVA, ctxSpesa({ dispensa: new Map([['i_pasta', 100]]) }));
-  const pasta = conScorta.voci.find((v) => v.ingredienteId === 'i_pasta');
-  uguale(100, pasta.qtaRichiesta);
-  uguale(100, pasta.qtaInDispensa);
-  uguale(0, pasta.qtaDaComprare);              // ne serviva 100 e ce n'è 100
-  uguale('', pasta.notaArrotondamento);
-});
-prova('dispensa parziale: si compra solo il resto, arrotondato', () => {
-  const lista = S.generaLista(MENU_PROVA, ctxSpesa({ dispensa: new Map([['i_tonno', 100]]) }));
-  const tonno = lista.voci.find((v) => v.ingredienteId === 'i_tonno');
-  uguale(100, tonno.qtaInDispensa);
-  uguale(160, tonno.qtaDaComprare);            // servono 100 g -> 1 confezione
-  uguale(1, tonno.pacchi);
-});
 prova('le voci sono ordinate secondo il giro al supermercato', () => {
   const ordine = ['latticini', 'ortofrutta', 'dispensa', 'macelleria', 'pescheria', 'panetteria', 'surgelati', 'altro'];
   const lista = S.generaLista(MENU_PROVA, ctxSpesa({ ordineReparti: ordine }));
@@ -756,13 +390,6 @@ prova('le spunte sopravvivono al ricalcolo', () => {
   uguale(true, dopo.voci.find((v) => v.ingredienteId === 'i_pomodorini').giaInCasa);
   uguale(1, dopo.libere.length);
   uguale('detersivo', dopo.libere[0].nome);
-});
-prova('"ce l\'ho già" restituisce la quantità da mettere in dispensa', () => {
-  const lista = S.generaLista(MENU_PROVA, ctxSpesa());
-  const agg = S.segnaInCasa(lista, 'i_pomodorini', true);
-  uguale('i_pomodorini', agg.ingredienteId);
-  uguale(250, agg.qta);                        // 150 + 100 dai due piatti
-  uguale(true, lista.voci.find((v) => v.ingredienteId === 'i_pomodorini').giaInCasa);
 });
 prova('togliendo "ce l\'ho già" la voce torna da comprare', () => {
   const lista = S.generaLista(MENU_PROVA, ctxSpesa());
@@ -798,287 +425,6 @@ prova('unità non convertibile: la lista lo segnala e va avanti', () => {
   if (!lista.problemi.length) throw new Error('doveva segnalare il problema');
   uguale(1, lista.voci.length);                // i pomodorini ci sono comunque
 });
-prova('proposta di scarico dalla dispensa: solo ciò che c\'è', () => {
-  const righe = S.propostaScarico(P1, {
-    indiceIngredienti: ING3,
-    dispensa: new Map([['i_pasta', 500], ['i_olio', 900]]),
-    porzioni: 1
-  });
-  uguale(2, righe.length);
-  const pasta = righe.find((r) => r.ingredienteId === 'i_pasta');
-  uguale(100, pasta.usata);
-  uguale(400, pasta.restante);
-  const olio = righe.find((r) => r.ingredienteId === 'i_olio');
-  uguale(10, olio.usata);                      // 1 cucchiaio = 10 ml
-  uguale(890, olio.restante);
-});
-prova('scarico: non va sotto zero', () => {
-  const righe = S.propostaScarico(P1, {
-    indiceIngredienti: ING3, dispensa: new Map([['i_pasta', 40]]), porzioni: 1
-  });
-  uguale(0, righe[0].restante);
-});
-
-/* ==========================================================================
-   PROVE DEI GUSTI (M4)
-   Apprendimento sugli ingredienti, suggerimenti da confermare e l'effetto
-   di un voto basso sul menù. Le liste dei gusti non devono mai cambiare
-   da sole: qui si verifica anche questo.
-   ========================================================================== */
-
-import * as G from '../tastes.js';
-
-const voto = (piattoId, stelle, data, motivo = 'buono') => ({
-  id: `v_${piattoId}_${data}`, piattoId, stelle, data, motivo, note: ''
-});
-
-function ctxGusti(voti, extra = {}) {
-  return Object.assign(ctxProva({ voti }), extra);
-}
-
-prova('un voto "troppo lungo" non parla di gusto', () => {
-  const voti = [voto('u_pollo_zucchine', 2, '2026-06-01', 'troppoLungo'),
-                voto('u_pollo_zucchine', 4, '2026-06-02', 'buono')];
-  uguale(1, G.votiDiGusto(voti).length);
-  uguale('buono', G.votiDiGusto(voti)[0].motivo);
-});
-
-prova('tempo percepito: ogni "troppo lungo" fa pesare un quarto in più', () => {
-  const piatto = { tempoMin: 40 };
-  uguale(40, G.tempoPercepito(piatto, []));
-  uguale(50, G.tempoPercepito(piatto, [voto('x', 3, '2026-06-01', 'troppoLungo')]));
-  uguale(60, G.tempoPercepito(piatto, [voto('x', 3, '2026-06-01', 'troppoLungo'),
-                                       voto('x', 3, '2026-06-02', 'troppoLungo')]));
-  // il tetto è tre volte: oltre non ha senso gonfiare
-  const molti = [1, 2, 3, 4, 5].map((n) => voto('x', 3, '2026-06-0' + n, 'troppoLungo'));
-  uguale(70, G.tempoPercepito(piatto, molti));
-});
-
-prova('punteggio implicito dell\'ingrediente: vale solo da tre piatti', () => {
-  const due = G.punteggiIngredienti(ctxGusti({
-    u_tonno_broccoli: [voto('u_tonno_broccoli', 1, '2026-06-01')],
-    u_uova_broccoli: [voto('u_uova_broccoli', 2, '2026-06-02')]
-  }));
-  uguale(2, due.get('i_broccoli').quantiPiatti);
-  uguale(false, due.get('i_broccoli').valido);
-
-  const tre = G.punteggiIngredienti(ctxGusti({
-    u_tonno_broccoli: [voto('u_tonno_broccoli', 1, '2026-06-01')],
-    u_uova_broccoli: [voto('u_uova_broccoli', 2, '2026-06-02')],
-    co_broccoli: [voto('co_broccoli', 1, '2026-06-03')]
-  }));
-  const b = tre.get('i_broccoli');
-  uguale(3, b.quantiPiatti);
-  uguale(true, b.valido);
-  uguale(1.33, Math.round(b.media * 100) / 100);      // (1 + 2 + 1) / 3
-});
-
-prova('sale, olio e spezie non entrano nell\'apprendimento', () => {
-  const idx = M.indicizza([
-    { id: 'i_sale', nome: 'Sale', macro: 'condimento', unita: 'g', reparto: 'dispensa',
-      formatoAcquisto: { qta: 1000, label: 'conf' }, conversioni: [], stagioni: [], dispensaBase: true },
-    { id: 'i_riso', nome: 'Riso', macro: 'carboidrato', unita: 'g', reparto: 'dispensa',
-      formatoAcquisto: { qta: 1000, label: 'conf' }, conversioni: [], stagioni: [] }
-  ]);
-  const piatti = ['a', 'b', 'c'].map((n) => ({
-    id: 'p_' + n, nome: n, tipo: 'unico', tempoMin: 10, difficolta: 1, passi: ['x'],
-    ingredienti: [{ ingredienteId: 'i_sale', qta: 3, unita: 'g' },
-                  { ingredienteId: 'i_riso', qta: 100, unita: 'g' }]
-  }));
-  const voti = {};
-  for (const p of piatti) voti[p.id] = [voto(p.id, 1, '2026-06-01')];
-  const punteggi = G.punteggiIngredienti({ piatti, indiceIngredienti: idx, voti });
-  uguale(undefined, punteggi.get('i_sale'));
-  uguale(true, punteggi.get('i_riso').valido);
-});
-
-prova('sotto 2,2 su tre piatti l\'app propone di escludere l\'ingrediente', () => {
-  const ctx = ctxGusti({
-    u_tonno_broccoli: [voto('u_tonno_broccoli', 1, '2026-06-01')],
-    u_uova_broccoli: [voto('u_uova_broccoli', 2, '2026-06-02')],
-    co_broccoli: [voto('co_broccoli', 1, '2026-06-03')]
-  });
-  const proposte = G.suggerimentiDaVoti(ctx).filter((s) => s.ingredienteId === 'i_broccoli');
-  uguale(1, proposte.length);
-  uguale('escludi', proposte[0].tipo);
-  uguale('escludiIngredienti', proposte[0].lista);
-  uguale('pendente', proposte[0].stato);
-  uguale(3, proposte[0].quantiPiatti);
-  if (!/broccoli/i.test(proposte[0].testo)) throw new Error('il testo non nomina l\'ingrediente');
-});
-
-prova('sopra 4,3 su tre piatti propone il preferito', () => {
-  const ctx = ctxGusti({
-    u_tonno_broccoli: [voto('u_tonno_broccoli', 5, '2026-06-01')],
-    u_uova_broccoli: [voto('u_uova_broccoli', 5, '2026-06-02')],
-    co_broccoli: [voto('co_broccoli', 5, '2026-06-03')]
-  });
-  const proposte = G.suggerimentiDaVoti(ctx).filter((s) => s.ingredienteId === 'i_broccoli');
-  uguale('amo', proposte[0].tipo);
-  uguale('amoIngredienti', proposte[0].lista);
-});
-
-prova('due soli piatti votati: nessuna proposta', () => {
-  const ctx = ctxGusti({
-    u_tonno_broccoli: [voto('u_tonno_broccoli', 1, '2026-06-01')],
-    co_broccoli: [voto('co_broccoli', 1, '2026-06-03')]
-  });
-  uguale(0, G.suggerimentiDaVoti(ctx).filter((s) => s.ingredienteId === 'i_broccoli').length);
-});
-
-prova('tre volte "troppo lungo" non fa proporre di escludere l\'ingrediente', () => {
-  const ctx = ctxGusti({
-    u_tonno_broccoli: [voto('u_tonno_broccoli', 1, '2026-06-01', 'troppoLungo')],
-    u_uova_broccoli: [voto('u_uova_broccoli', 1, '2026-06-02', 'troppoLungo')],
-    co_broccoli: [voto('co_broccoli', 1, '2026-06-03', 'troppoLungo')]
-  });
-  uguale(0, G.suggerimentiDaVoti(ctx).length);
-});
-
-prova('un suggerimento scartato non torna a chiedere', () => {
-  const ctx = ctxGusti({
-    u_tonno_broccoli: [voto('u_tonno_broccoli', 1, '2026-06-01')],
-    u_uova_broccoli: [voto('u_uova_broccoli', 2, '2026-06-02')],
-    co_broccoli: [voto('co_broccoli', 1, '2026-06-03')]
-  });
-  const primo = G.suggerimentiDaVoti(ctx)[0];
-  const dopo = G.suggerimentiDaVoti(ctx, [Object.assign({}, primo, { stato: 'scartato' })]);
-  uguale(0, dopo.filter((s) => s.id === primo.id).length);
-});
-
-prova('niente proposte per ciò che è già nella lista giusta', () => {
-  const pref = Object.assign(M.preferenzePredefinite(), { escludiIngredienti: ['i_broccoli'] });
-  const ctx = ctxGusti({
-    u_tonno_broccoli: [voto('u_tonno_broccoli', 1, '2026-06-01')],
-    u_uova_broccoli: [voto('u_uova_broccoli', 2, '2026-06-02')],
-    co_broccoli: [voto('co_broccoli', 1, '2026-06-03')]
-  }, { preferenze: pref });
-  uguale(0, G.suggerimentiDaVoti(ctx).filter((s) => s.ingredienteId === 'i_broccoli').length);
-});
-
-prova('le liste non si mordono: amare toglie da escludere', () => {
-  const pref = Object.assign(M.preferenzePredefinite(), { escludiIngredienti: ['i_broccoli'] });
-  const dopo = G.aggiungiAllaLista(pref, 'amoIngredienti', 'i_broccoli');
-  uguale(['i_broccoli'], dopo.amoIngredienti);
-  uguale([], dopo.escludiIngredienti);
-  uguale(['i_broccoli'], pref.escludiIngredienti);      // l'originale non si tocca
-});
-
-prova('togliere dalla lista non tocca le altre', () => {
-  let pref = M.preferenzePredefinite();
-  pref = G.aggiungiAllaLista(pref, 'amoPiatti', 'u_pollo_zucchine');
-  pref = G.aggiungiAllaLista(pref, 'escludiPiatti', 'u_tonno_broccoli');
-  pref = G.togliDallaLista(pref, 'amoPiatti', 'u_pollo_zucchine');
-  uguale([], pref.amoPiatti);
-  uguale(['u_tonno_broccoli'], pref.escludiPiatti);
-});
-
-prova('confermare un suggerimento è l\'unico modo di cambiare la lista', () => {
-  const ctx = ctxGusti({
-    u_tonno_broccoli: [voto('u_tonno_broccoli', 1, '2026-06-01')],
-    u_uova_broccoli: [voto('u_uova_broccoli', 2, '2026-06-02')],
-    co_broccoli: [voto('co_broccoli', 1, '2026-06-03')]
-  });
-  const sugg = G.suggerimentiDaVoti(ctx)[0];
-  uguale([], ctx.preferenze.escludiIngredienti);        // il calcolo non ha cambiato nulla
-  const dopo = G.applicaSuggerimento(ctx.preferenze, sugg);
-  uguale(['i_broccoli'], dopo.escludiIngredienti);
-});
-
-prova('voto valido o niente', () => {
-  const buono = G.nuovoVoto({ piattoId: 'u_pollo_zucchine', stelle: 4, motivo: 'buono' });
-  uguale(4, buono.stelle);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(buono.data)) throw new Error('data non impostata');
-  lancia(() => G.nuovoVoto({ piattoId: 'x', stelle: 9 }), 'stelle fuori scala');
-  lancia(() => G.nuovoVoto({ piattoId: 'x', stelle: 3, motivo: 'perché' }), 'motivo inventato');
-  lancia(() => G.nuovoVoto({ stelle: 3 }), 'senza piatto');
-});
-
-prova('un voto basso abbassa il punteggio del piatto', () => {
-  const senza = P.punteggio(CATALOGO[0], ctxProva(), { senzaCaso: true }).totale;
-  const basso = P.punteggio(CATALOGO[0], ctxGusti({
-    u_pollo_zucchine: [voto('u_pollo_zucchine', 1, '2026-06-01')]
-  }), { senzaCaso: true }).totale;
-  const alto = P.punteggio(CATALOGO[0], ctxGusti({
-    u_pollo_zucchine: [voto('u_pollo_zucchine', 5, '2026-06-01')]
-  }), { senzaCaso: true }).totale;
-  uguale(senza - 24, basso);                            // (1 - 3) * 12
-  uguale(senza + 24, alto);
-});
-
-prova('"troppo lungo" penalizza il tempo anche se la ricetta è corta', () => {
-  const pref = Object.assign(M.preferenzePredefinite(), { tempoMaxMin: 25 });
-  const piatto = CATALOGO[0];                           // tempoMin 20, sotto la soglia
-  const prima = P.punteggio(piatto, ctxProva({ preferenze: pref }), { senzaCaso: true });
-  const dopo = P.punteggio(piatto, ctxGusti({
-    u_pollo_zucchine: [voto('u_pollo_zucchine', 3, '2026-06-01', 'troppoLungo'),
-                       voto('u_pollo_zucchine', 3, '2026-06-02', 'troppoLungo')]
-  }, { preferenze: pref }), { senzaCaso: true });
-  uguale(0, prima.componenti.filter((c) => c.valore === -15).length);
-  uguale(1, dopo.componenti.filter((c) => c.valore === -15).length);
-});
-
-prova('un piatto amato che manca da due settimane ha la spinta in più', () => {
-  const pref = Object.assign(M.preferenzePredefinite(), { amoPiatti: ['u_pollo_zucchine'] });
-  const recente = P.punteggio(CATALOGO[0], ctxProva({
-    preferenze: pref, ultimaVolta: new Map([['u_pollo_zucchine', '2026-06-12']])
-  }), { senzaCaso: true }).componenti.map((c) => c.etichetta);
-  const vecchio = P.punteggio(CATALOGO[0], ctxProva({
-    preferenze: pref, ultimaVolta: new Map([['u_pollo_zucchine', '2026-05-01']])
-  }), { senzaCaso: true }).componenti.map((c) => c.etichetta);
-  uguale(false, recente.includes('lo ami e manca da 2 settimane'));
-  uguale(true, vecchio.includes('lo ami e manca da 2 settimane'));
-});
-
-prova('escludere un ingrediente svuota il menù di tutti i piatti che lo usano', () => {
-  const pref = Object.assign(M.preferenzePredefinite(), { escludiIngredienti: ['i_broccoli'] });
-  const esito = P.generaSettimana(ctxProva({ preferenze: pref }));
-  uguale(5, esito.giorni.length);
-  for (const x of inFila(esito)) {
-    for (const p of x.piatti) {
-      if ((p.ingredienti || []).some((v) => v.ingredienteId === 'i_broccoli')) {
-        throw new Error(`${p.id} contiene un ingrediente escluso`);
-      }
-    }
-  }
-});
-
-prova('un voto basso cambia il menù: il piatto bocciato perde il posto', () => {
-  // due soli piatti unici possibili, uno bocciato: vince l'altro
-  const soli = CATALOGO.filter((p) => p.id === 'u_pollo_zucchine' || p.id === 'u_ceci_spinaci');
-  const pref = Object.assign(M.preferenzePredefinite(),
-                             { giorni: ['lun'], pasti: ['pranzo'], quotaNovita: 0 });
-  const ctx = ctxProva({
-    piatti: soli, preferenze: pref,
-    voti: { u_pollo_zucchine: [voto('u_pollo_zucchine', 1, '2026-06-01')] }
-  });
-  let bocciato = 0;
-  for (let i = 0; i < 40; i++) {
-    const esito = P.generaSettimana(ctx);
-    if (M.piattiDelGiorno(esito.giorni[0]).includes('u_pollo_zucchine')) bocciato++;
-  }
-  // con -24 contro +0 l'estrazione pesata lo sceglie molto di rado
-  if (bocciato > 15) throw new Error(`scelto ${bocciato} volte su 40 nonostante il voto 1`);
-});
-
-prova('quando ultima volta, in italiano', () => {
-  const oggi = new Date('2026-06-15T12:00:00');
-  uguale('mai cucinato', G.quandoUltimaVolta(null, oggi));
-  uguale('oggi', G.quandoUltimaVolta('2026-06-15', oggi));
-  uguale('ieri', G.quandoUltimaVolta('2026-06-14', oggi));
-  uguale('3 giorni fa', G.quandoUltimaVolta('2026-06-12', oggi));
-  uguale('una settimana fa', G.quandoUltimaVolta('2026-06-08', oggi));
-  uguale('3 settimane fa', G.quandoUltimaVolta('2026-05-25', oggi));
-});
-
-prova('stelle e date brevi', () => {
-  uguale('★★★★☆', G.stelle(4));
-  uguale('★★★☆☆', G.stelle(3.4));
-  uguale('☆☆☆☆☆', G.stelle(0));
-  uguale('14 set', G.dataBreve('2026-09-14'));
-  uguale('1 gen', G.dataBreve('2026-01-01'));
-});
-
 /* ==========================================================================
    PROVE DELL'IMPORTAZIONE DA AI (M5)
    Le AI gratuite rispondono in modo sciatto: blocchi markdown, saluti,
@@ -1270,15 +616,6 @@ prova('piatto già in catalogo: si riconosce dal nome', () => {
   uguale(false, e.accettabile);
 });
 
-prova('un piatto unico che non copre tutto: avviso, non divieto', () => {
-  const e = IA.esamina({
-    nome: 'Riso in bianco', tipo: 'unico', tempoMin: 15, passi: ['x'],
-    ingredienti: [{ nome: 'riso', qta: 90, unita: 'g' }]
-  }, ctxIA());
-  uguale(true, e.accettabile);
-  if (!e.avvisi.some((x) => /non copre/.test(x))) throw new Error('doveva avvisare sui macro');
-});
-
 prova('quello che manca davvero blocca il piatto', () => {
   uguale(false, IA.esamina({ tipo: 'unico' }, ctxIA()).accettabile);
   const senzaPassi = IA.esamina(Object.assign({}, PIATTO_AI, { passi: [] }), ctxIA());
@@ -1304,28 +641,17 @@ prova('l\'AI che ripete lo stesso piatto lo dice una volta sola', () => {
 
 prova('il prompt dice i gusti, la stagione e il formato', () => {
   const pref = Object.assign(M.preferenzePredefinite(), {
-    escludiIngredienti: ['i_broccoli'], amoIngredienti: ['i_pollo'], tempoMaxMin: 30
+    escludiIngredienti: ['i_broccoli'], amoPiatti: ['u_pollo_zucchine'], tempoMaxMin: 30
   });
   const testo = IA.creaPrompt(ctxIA({ preferenze: pref, mese: 7, voti: {} }), { quanti: 3 });
   if (!/3 idee/.test(testo)) throw new Error('non chiede il numero giusto');
   if (!/NON usare, per nessun motivo: Broccoli/.test(testo)) throw new Error('non passa la blacklist');
-  if (!/mi piacciono molto: Pollo/.test(testo)) throw new Error('non passa i preferiti');
+  if (!/piatti che mi piacciono: u_pollo_zucchine/.test(testo)) throw new Error('non passa i piatti col cuore');
   if (!/mese 7/.test(testo)) throw new Error('non dice la stagione');
   if (!/30 minuti/.test(testo)) throw new Error('non dice il tempo');
   if (!/"ingredienti"/.test(testo)) throw new Error('non mostra lo schema');
   // corto: si incolla anche in una chat gratuita
   if (testo.length > 2000) throw new Error('prompt troppo lungo: ' + testo.length);
-});
-
-prova('il prompt riporta i voti come esempio di gusto', () => {
-  const testo = IA.creaPrompt(ctxIA({
-    voti: {
-      u_pollo_zucchine: [{ stelle: 5, data: '2026-06-01', motivo: 'buono' }],
-      u_ceci_spinaci: [{ stelle: 1, data: '2026-06-02', motivo: 'nonMiPiace' }]
-    }
-  }), {});
-  if (!/ho apprezzato: u_pollo_zucchine/.test(testo)) throw new Error('manca il piatto piaciuto');
-  if (!/non mi sono piaciuti: u_ceci_spinaci/.test(testo)) throw new Error('manca il piatto bocciato');
 });
 
 prova('la richiesta libera finisce nel prompt', () => {
@@ -1469,15 +795,6 @@ prova('un piatto solo: il prompt lo chiede al singolare', () => {
   if (!/3 idee per pranzo o per cena/.test(tre)) throw new Error('e plurale con più di uno');
 });
 
-prova('l\'ultimo voto è l\'ultimo anche a pari giornata', () => {
-  const ctx = { voti: { p1: [
-    { id: 'vot_a_0', piattoId: 'p1', stelle: 5, data: '2026-09-10', motivo: 'buono' },
-    { id: 'vot_b_0', piattoId: 'p1', stelle: 1, data: '2026-09-10', motivo: 'nonMiPiace' }
-  ] } };
-  uguale('vot_b_0', G.riepilogoPiatto('p1', ctx).ultimo.id);
-  uguale(2, G.riepilogoPiatto('p1', ctx).quanti);
-});
-
 /* ==========================================================================
    PROVE DELLE FOTO
    Il punto delicato è il peso: una foto del telefono deve entrare in
@@ -1561,4 +878,254 @@ provaAsync('quello che non è una foto viene rifiutato', async () => {
 provaAsync('senza file non si inventa niente', async () => {
   try { await FOTO.preparaFoto(null); } catch (e) { return; }
   throw new Error('doveva lanciare');
+});
+
+/* ==========================================================================
+   PROVE DELLA 3.0
+   Calorie, leggeri e sostanziosi, la forma nuova del menù (un piatto per
+   pasto, il contorno col secondo) e le regole del planner semplificato.
+   ========================================================================== */
+
+const ING_K = M.indicizza([
+  { id: 'k_pasta', nome: 'Pasta', macro: 'carboidrato', unita: 'g', reparto: 'dispensa', kcal: 350,
+    formatoAcquisto: { qta: 500 }, conversioni: [], stagioni: [] },
+  { id: 'k_olio', nome: 'Olio', macro: 'grasso', unita: 'ml', reparto: 'dispensa', kcal: 900,
+    formatoAcquisto: { qta: 1000 }, conversioni: [{ label: 'cucchiaio', fattore: 10 }], stagioni: [] },
+  { id: 'k_uova', nome: 'Uova', macro: 'proteina', unita: 'pz', reparto: 'latticini', kcal: 75,
+    formatoAcquisto: { qta: 6 }, conversioni: [], stagioni: [], famiglia: 'uova' },
+  { id: 'k_zucca', nome: 'Zucca', macro: 'fibra', unita: 'g', reparto: 'ortofrutta', kcal: 20,
+    formatoAcquisto: { qta: 1000 }, conversioni: [], stagioni: [9, 10, 11, 12] },
+  { id: 'k_misterioso', nome: 'Senza calorie', macro: 'condimento', unita: 'g', reparto: 'dispensa',
+    formatoAcquisto: { qta: 100 }, conversioni: [], stagioni: [] }
+]);
+const piattoK = (id, tipo, voci) => ({ id, nome: id, tipo, tempoMin: 20, difficolta: 1, stagioni: [],
+  passi: ['x'], origine: 'base', tags: [], attivo: true, ingredienti: voci });
+
+prova('calorie: grammi, millilitri con conversione e pezzi', () => {
+  const p = piattoK('k1', 'primo', [
+    { ingredienteId: 'k_pasta', qta: 100, unita: 'g' },          // 350
+    { ingredienteId: 'k_olio', qta: 1, unita: 'cucchiaio' },     // 10 ml = 90
+    { ingredienteId: 'k_uova', qta: 2, unita: 'pz' }             // 150
+  ]);
+  uguale(590, M.kcalPiatto(p, ING_K));
+});
+
+prova('calorie: un ingrediente senza dato non conta e non esplode', () => {
+  const p = piattoK('k2', 'primo', [
+    { ingredienteId: 'k_pasta', qta: 80, unita: 'g' },
+    { ingredienteId: 'k_misterioso', qta: 50, unita: 'g' },
+    { ingredienteId: 'sconosciuto', qta: 50, unita: 'g' }
+  ]);
+  uguale(280, M.kcalPiatto(p, ING_K));
+});
+
+prova('calorie del pasto e del giorno: piatto più contorno', () => {
+  const ip = M.indicizza([
+    piattoK('a', 'secondo', [{ ingredienteId: 'k_uova', qta: 2, unita: 'pz' }]),
+    piattoK('b', 'contorno', [{ ingredienteId: 'k_zucca', qta: 200, unita: 'g' }]),
+    piattoK('c', 'primo', [{ ingredienteId: 'k_pasta', qta: 100, unita: 'g' }])
+  ]);
+  const giorno = { giorno: 'lun', pasti: { pranzo: { piatto: 'c' }, cena: { piatto: 'a', contorno: 'b' } } };
+  uguale(190, M.kcalPasto(giorno.pasti.cena, ip, ING_K));
+  uguale(540, M.kcalGiorno(giorno, ip, ING_K));
+});
+
+prova('leggeri e sostanziosi: si confronta con la mediana del suo tipo', () => {
+  const piatti = [40, 60, 80].map((g, i) => piattoK('p' + i, 'primo', [{ ingredienteId: 'k_pasta', qta: g, unita: 'g' }]));
+  const mediane = M.medianeKcal(piatti, ING_K);
+  uguale(210, mediane.get('primo'));
+  uguale(true, M.passaPeso(piatti[0], 'leggeri', mediane, ING_K));
+  uguale(false, M.passaPeso(piatti[2], 'leggeri', mediane, ING_K));
+  uguale(true, M.passaPeso(piatti[2], 'sostanziosi', mediane, ING_K));
+  uguale(true, M.passaPeso(piatti[2], 'tutti', mediane, ING_K));
+});
+
+prova('le verdure del mese: solo ortofrutta con una stagione vera', () => {
+  uguale(['k_zucca'], M.verdureDiStagione([...ING_K.values()], 11).map((i) => i.id));
+  uguale([], M.verdureDiStagione([...ING_K.values()], 6).map((i) => i.id));
+});
+
+prova('chili e litri dal mille in su', () => {
+  uguale('1 kg', M.formattaQta(1000, 'g'));
+  uguale('1,2 kg', M.formattaQta(1200, 'g'));
+  uguale('1,5 l', M.formattaQta(1500, 'ml'));
+  uguale('999 g', M.formattaQta(999, 'g'));
+});
+
+prova('un menù della 2.x: il primo non contorno è il piatto, il contorno resta', () => {
+  const vecchio = { id: 'v', giorni: [{ giorno: 'lun', pasti: {
+    pranzo: { modalita: 'primoSecondo', piatti: ['co_broccoli', 'pr_pasta_pomodorini', 'se_pollo'], bloccato: true },
+    cena: { modalita: 'unico', piatti: ['u_ceci_spinaci'], avanziDa: 'pranzo' }
+  } }] };
+  const g = M.normalizzaMenu(vecchio, M.indicizza(CATALOGO)).giorni[0];
+  uguale({ piatto: 'pr_pasta_pomodorini', contorno: 'co_broccoli', tempoMax: null, scelto: true }, g.pasti.pranzo);
+  uguale(undefined, g.pasti.cena, 'la cena di avanzi');
+});
+
+prova('un menù della 1.x si legge come un giorno col solo pranzo', () => {
+  const vecchio = { id: 'v', giorni: [{ giorno: 'mar', modalita: 'unico', piatti: ['u_uova_broccoli'] }] };
+  const g = M.normalizzaMenu(vecchio, M.indicizza(CATALOGO)).giorni[0];
+  uguale('u_uova_broccoli', g.pasti.pranzo.piatto);
+  uguale(['pranzo'], Object.keys(g.pasti));
+});
+
+prova('normalizzare due volte non cambia niente', () => {
+  const m = { id: 'v', giorni: [{ giorno: 'lun', pasti: { cena: { piatto: 'se_pollo', contorno: 'co_broccoli', tempoMax: 30 } } }] };
+  const una = M.normalizzaMenu(m);
+  uguale(JSON.stringify(una), JSON.stringify(M.normalizzaMenu(una)));
+});
+
+/* ---------------------------------------------------------- planner 3.0 -- */
+
+const IDX_CAT = M.indicizza(CATALOGO);
+function tutti(esito) {
+  return esito.giorni.flatMap((g) => M.pastiDi(g).map(([nome, p]) => ({ giorno: g.giorno, nome, p })));
+}
+
+prova('ogni giorno pranzo e cena, coi tipi giusti', () => {
+  const esito = P.generaSettimana(ctxProva(), { giorni: ['lun', 'mar', 'mer'] });
+  uguale(3, esito.giorni.length);
+  for (const x of tutti(esito)) {
+    const tipo = IDX_CAT.get(x.p.piatto).tipo;
+    if (!M.TIPI_PASTO[x.nome].includes(tipo)) throw new Error(`${x.nome} di ${x.giorno}: ${tipo}`);
+  }
+  uguale(6, tutti(esito).length);
+});
+
+prova('il secondo si porta dietro un contorno, il resto no', () => {
+  for (let i = 0; i < 20; i++) {
+    for (const x of tutti(P.generaSettimana(ctxProva(), {}))) {
+      const tipo = IDX_CAT.get(x.p.piatto).tipo;
+      if (tipo === 'secondo' && !x.p.contorno) throw new Error('secondo senza contorno');
+      if (tipo !== 'secondo' && x.p.contorno) throw new Error(`${tipo} con contorno`);
+      if (x.p.contorno && IDX_CAT.get(x.p.contorno).tipo !== 'contorno') throw new Error('contorno sbagliato');
+    }
+  }
+});
+
+prova('solo cena: nessun pranzo', () => {
+  const pref = Object.assign(M.preferenzePredefinite(), { pasti: ['cena'] });
+  const esito = P.generaSettimana(ctxProva({ preferenze: pref }), {});
+  uguale(true, tutti(esito).every((x) => x.nome === 'cena'));
+});
+
+prova('nessun piatto ripetuto nella settimana finché ce ne sono', () => {
+  for (let i = 0; i < 10; i++) {
+    const ids = tutti(P.generaSettimana(ctxProva(), { giorni: ['lun', 'mar', 'mer', 'gio'] })).map((x) => x.p.piatto);
+    uguale(ids.length, new Set(ids).size, 'piatti diversi');
+  }
+});
+
+prova('mai la stessa proteina in due pasti di fila, quando si può', () => {
+  for (let i = 0; i < 10; i++) {
+    const fila = tutti(P.generaSettimana(ctxProva(), { giorni: ['lun', 'mar', 'mer'] }));
+    for (let k = 1; k < fila.length; k++) {
+      const a = M.famigliaProteinaPrincipale(IDX_CAT.get(fila[k - 1].p.piatto), ING2);
+      const b = M.famigliaProteinaPrincipale(IDX_CAT.get(fila[k].p.piatto), ING2);
+      if (a && a === b) throw new Error(`${a} due volte di fila`);
+    }
+  }
+});
+
+prova('gli esclusi non entrano mai, nemmeno quando il catalogo finisce', () => {
+  const pref = Object.assign(M.preferenzePredefinite(), {
+    escludiPiatti: ['u_pollo_zucchine', 'se_uova'], escludiIngredienti: ['i_tonno']
+  });
+  for (let i = 0; i < 10; i++) {
+    const esito = P.generaSettimana(ctxProva({ preferenze: pref }), {});
+    for (const x of tutti(esito)) {
+      const p = IDX_CAT.get(x.p.piatto);
+      if (pref.escludiPiatti.includes(p.id)) throw new Error('piatto escluso: ' + p.id);
+      if (p.ingredienti.some((v) => v.ingredienteId === 'i_tonno')) throw new Error('tonno escluso: ' + p.id);
+    }
+  }
+});
+
+prova('il tempo: dentro se si può, e se si sfora lo dice', () => {
+  const esito = P.componiPasto(ctxProva(), { pasto: 'cena', tempoMax: 15, giaUsati: [] });
+  uguale('se_uova', esito.pasto.piatto);
+  const stretto = P.componiPasto(ctxProva(), { pasto: 'pranzo', tempoMax: 5, giaUsati: [] });
+  uguale('più lungo del tempo che hai', stretto.nota);
+});
+
+prova('rifare la settimana tiene i piatti scelti a mano', () => {
+  const fissi = { mar: { cena: { piatto: 'se_pollo', contorno: 'co_spinaci', scelto: true } } };
+  for (let i = 0; i < 5; i++) {
+    const esito = P.generaSettimana(ctxProva(), { giorni: ['lun', 'mar', 'mer'], fissi });
+    const mar = esito.giorni.find((g) => g.giorno === 'mar');
+    uguale('se_pollo', mar.pasti.cena.piatto);
+    uguale(true, mar.pasti.cena.scelto);
+    const altri = tutti(esito).filter((x) => !(x.giorno === 'mar' && x.nome === 'cena')).map((x) => x.p.piatto);
+    uguale(false, altri.includes('se_pollo'), 'il piatto scelto non si ripete');
+  }
+});
+
+prova('cambiare un pasto dà davvero un altro piatto e tiene il tempo scelto', () => {
+  const esito = P.generaSettimana(ctxProva(), { giorni: ['lun', 'mar'] });
+  const menu = { id: 'm', giorni: esito.giorni };
+  const prima = menu.giorni[0].pasti.pranzo.piatto;
+  for (let i = 0; i < 10; i++) {
+    const nuovo = P.rigeneraPasto(ctxProva(), menu, 'lun', 'pranzo', { tempoMax: 30 });
+    if (nuovo.pasto.piatto === prima) throw new Error('stesso piatto di prima');
+    uguale(30, nuovo.pasto.tempoMax);
+  }
+});
+
+prova('cambiare il contorno lascia il secondo', () => {
+  const menu = { id: 'm', giorni: [{ giorno: 'lun', pasti: { cena: { piatto: 'se_pollo', contorno: 'co_broccoli' } } }] };
+  const nuovo = P.rigeneraContorno(ctxProva(), menu, 'lun', 'cena');
+  uguale('se_pollo', nuovo.piatto);
+  uguale('co_spinaci', nuovo.contorno);
+});
+
+prova('un piatto col cuore vale di più', () => {
+  const pref = Object.assign(M.preferenzePredefinite(), { amoPiatti: ['u_ceci_spinaci'] });
+  const conCuore = P.punteggio(IDX_CAT.get('u_ceci_spinaci'), ctxProva({ preferenze: pref }), { senzaCaso: true });
+  const senza = P.punteggio(IDX_CAT.get('u_ceci_spinaci'), ctxProva(), { senzaCaso: true });
+  uguale(25, conCuore - senza);
+});
+
+prova('mangiato da poco: pesa meno', () => {
+  const ultima = new Map([['u_ceci_spinaci', '2026-06-08']]);
+  const recente = P.punteggio(IDX_CAT.get('u_ceci_spinaci'), ctxProva({ ultimaVolta: ultima }), { senzaCaso: true });
+  const mai = P.punteggio(IDX_CAT.get('u_ceci_spinaci'), ctxProva(), { senzaCaso: true });
+  if (!(recente < mai)) throw new Error(`${recente} non è meno di ${mai}`);
+});
+
+prova('id e date della settimana', () => {
+  const lunedi = P.lunediDi(new Date(2026, 8, 17));        // giovedì 17 settembre 2026
+  uguale('2026-09-14', P.iso(lunedi));
+  uguale('men_2026_w38', P.idMenu(lunedi));
+  uguale('gio', P.chiaveGiorno(new Date(2026, 8, 17)));
+  uguale('2026-09-16', P.conDate([{ giorno: 'mer', pasti: {} }], lunedi)[0].data);
+});
+
+/* ---------------------------------------------------------- spesa 3.0 ---- */
+
+prova('la spesa conta anche i contorni', () => {
+  const contorno = { id: 'p_cont', nome: 'Pomodorini', tipo: 'contorno', tempoMin: 5, difficolta: 1,
+    stagioni: [], passi: ['x'], origine: 'base', tags: [], attivo: true,
+    ingredienti: [{ ingredienteId: 'i_pomodorini', qta: 100, unita: 'g' }] };
+  const menu = { id: 'm', giorni: [{ giorno: 'lun', pasti: { cena: { piatto: 'p_due', contorno: 'p_cont' } } }] };
+  const lista = S.generaLista(menu, ctxSpesa({ indicePiatti: M.indicizza([P1, P2, contorno]) }));
+  uguale(200, lista.voci.find((v) => v.ingredienteId === 'i_pomodorini').qtaRichiesta);
+});
+
+prova('sale, olio e spezie partono come "ce l\'ho già"', () => {
+  const ing = new Map(ING3);
+  ing.set('i_olio', Object.assign({}, ING3.get('i_olio'), { dispensaBase: true }));
+  const lista = S.generaLista(MENU_PROVA, ctxSpesa({ indiceIngredienti: ing }));
+  uguale(true, lista.voci.find((v) => v.ingredienteId === 'i_olio').giaInCasa);
+  uguale(false, lista.voci.find((v) => v.ingredienteId === 'i_tonno').giaInCasa);
+});
+
+prova('la lista da copiare: solo quello che manca, per reparto', () => {
+  const lista = S.generaLista(MENU_PROVA, ctxSpesa());
+  S.segnaComprato(lista, 'i_pasta');
+  S.segnaInCasa(lista, 'i_olio');
+  S.aggiungiVoceLibera(lista, 'caffè');
+  const testo = S.testoDaCopiare(lista, M.REPARTI, M.NOME_REPARTO);
+  if (/Pasta|Olio/.test(testo)) throw new Error('ci sono voci già prese: ' + testo);
+  if (!/FRUTTA E VERDURA\n- Pomodorini, 500 g/.test(testo)) throw new Error('reparto o quantità sbagliati: ' + testo);
+  if (!/- caffè/.test(testo)) throw new Error('manca la voce libera');
 });
