@@ -127,7 +127,9 @@ export function occhiello(parti) {
 export function datiPiatto(piatto, stato) {
   if (!piatto) return [];
   const kcal = M.kcalPiatto(piatto, stato.indiceIngredienti);
-  return [M.formattaTempo(piatto.tempoMin), kcal ? `${kcal} kcal` : null];
+  // corto, perché l'occhiello stia su una riga anche col carattere grande
+  const tempo = piatto.tempoMin < 60 ? `${piatto.tempoMin}'` : M.formattaTempo(piatto.tempoMin);
+  return [tempo, kcal ? `${kcal} kcal` : null];
 }
 
 /** Il nome di un piatto dato l'id, o un trattino se è sparito. */
