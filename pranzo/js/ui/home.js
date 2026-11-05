@@ -124,8 +124,12 @@ function schedaOggi(giorno, stato) {
   const scheda = el('section', { class: 'oggi', 'aria-label': 'Oggi' });
   const kcal = M.kcalGiorno(giorno, stato.indicePiatti, stato.indiceIngredienti);
   scheda.appendChild(el('div', { class: 'oggiTesta' }, [
-    el('span', {}, `Oggi · ${M.NOME_GIORNO[giorno.giorno]}`),
-    kcal ? el('span', {}, `${kcal} kcal`) : null
+    el('span', { class: 'quandoOggi' }, [
+      el('span', { class: 'bollinoOggi' }, 'Oggi'),
+      el('span', { class: 'giornoOggi' }, cap(M.NOME_GIORNO[giorno.giorno]) +
+        (giorno.data ? ' ' + Number(giorno.data.slice(8, 10)) : ''))
+    ]),
+    kcal ? el('span', { class: 'kcalOggi' }, `${kcal} kcal`) : null
   ]));
   for (const [nome, pasto] of M.pastiDi(giorno)) {
     scheda.appendChild(rigaPastoOggi(giorno, nome, pasto, stato));

@@ -249,6 +249,14 @@ span.chip { cursor: default; }
   display: flex; justify-content: space-between; padding: 12px 14px 8px;
   font-size: 14.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--tenue);
 }
+.oggiTesta { align-items: center; padding: 12px 14px 10px; text-transform: none; letter-spacing: 0; }
+.quandoOggi { display: flex; align-items: center; gap: 10px; }
+.bollinoOggi {
+  padding: 4px 12px; border-radius: 99px; background: var(--giallo); color: var(--suGiallo);
+  font-size: 14px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+}
+.giornoOggi { font: 800 22px/1.1 var(--display); color: var(--inchiostro); letter-spacing: -.01em; }
+.kcalOggi { font-size: 15px; font-weight: 700; color: var(--arancioTesto); }
 .rigaOggi { display: flex; align-items: center; gap: 8px; padding-right: 12px; border-top: 1px solid var(--linea); }
 .pastoOggi { flex: 1; min-width: 0; display: flex; align-items: stretch; padding: 0; border: 0; background: none; text-align: left; }
 
