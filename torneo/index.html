@@ -157,7 +157,8 @@
   .partita.conbye{background:#e5e3dc}
   .partita.conbye .n{background:var(--muted)}
   .partita.conbye .n b{color:var(--paper)}
-  .chi .g.bye{color:var(--muted);font-size:clamp(22px,4vw,36px)}
+  .chi .g.bye{color:var(--muted)}
+  .chi .g small{font:600 .52em/1 var(--font-sans);letter-spacing:.04em;color:var(--muted);white-space:nowrap}
   .passa{
     grid-column:2;font:600 clamp(14px,1.8vw,17px) var(--font-sans);color:var(--muted);
     margin-top:6px;padding-top:10px;border-top:1px solid #d5d2ca;
@@ -494,7 +495,8 @@
       var chi = document.createElement('span');
       chi.className = 'chi';
       var nome = document.createElement('span');
-      nome.className = 'g'; nome.textContent = esito.riposa.bye ? 'BYE' : esito.riposa.nome;
+      nome.className = 'g' + (esito.riposa.bye ? ' bye' : '');
+      nome.textContent = esito.riposa.nome + (esito.riposa.bye ? ' (bye)' : '');
       var nota = document.createElement('span');
       nota.className = 'vs'; nota.textContent = 'resta fuori da questo turno';
       chi.appendChild(nome); chi.appendChild(nota);
@@ -520,7 +522,14 @@
   function nomeGrande(g){
     var s = document.createElement('span');
     s.className = 'g' + (g.bye ? ' bye' : '');
-    s.textContent = g.bye ? 'BYE' : g.nome;
+    s.textContent = g.nome;
+    if(g.bye){
+      // si scrive da chi arriva il bye: chi chiama sa sempre di che casella parla
+      var tag = document.createElement('small');
+      tag.textContent = '(bye)';
+      s.appendChild(document.createTextNode(' '));
+      s.appendChild(tag);
+    }
     return s;
   }
 
