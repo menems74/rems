@@ -76,6 +76,9 @@
   .c-cleo{background:#7a5cff;color:#fff}
   .c-cleo .ic{background:rgba(255,255,255,.18);color:#ffd76a}
   .c-cleo .go{background:rgba(255,255,255,.18)}
+  .c-torneo{background:var(--ink);color:var(--paper)}
+  .c-torneo .ic{background:var(--lime);color:var(--ink)}
+  .c-torneo .go{background:rgba(255,255,255,.16);color:var(--paper)}
   .c-frame{background:#fff;color:var(--ink)}
   .c-frame .ic{background:var(--ink);color:#fff}
   .c-frame .strip{position:absolute;left:0;right:0;bottom:0;height:14px;background:repeating-linear-gradient(90deg,var(--ink) 0 18px,transparent 18px 26px);opacity:.12}
@@ -85,7 +88,7 @@
   .soon .ic{background:rgba(17,17,17,.06)}
   .badge{position:absolute;right:18px;top:18px;font:600 11px var(--font-sans);letter-spacing:.08em;text-transform:uppercase;padding:6px 10px;border-radius:999px;background:var(--ink);color:var(--lime)}
 
-  .note{grid-column:span 4;min-height:0;flex-direction:row;align-items:center;flex-wrap:wrap;gap:12px;background:var(--lime);padding:18px 22px}
+  .note{grid-column:span 3;min-height:0;flex-direction:row;align-items:center;flex-wrap:wrap;gap:12px;background:var(--lime);padding:18px 22px}
   .note span{font:500 15px var(--font-sans)}
   .note a{font:600 14px var(--font-sans);display:inline-flex;gap:8px;align-items:center}
   .note a:hover{text-decoration:underline}
@@ -158,25 +161,31 @@
       <span class="ic" aria-hidden="true"><i class="fa-solid fa-sitemap"></i></span>
       <div><h3>Albero genealogico</h3><p>Generazioni, rami e parentele</p></div>
     </a>
-    <a class="cell c-pranzo" data-t="live" style="--d:.30s" href="pranzo/">
+    <a class="cell c-pranzo" data-t="live" style="--d:.3s" href="pranzo/">
       <span class="go" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
       <span class="ic" aria-hidden="true"><i class="fa-solid fa-utensils"></i></span>
       <div><h3>Pranzo 2.0</h3><p>Menù della settimana e lista della spesa</p></div>
     </a>
 
-    <div class="cell soon" data-t="soon" style="--d:.36s">
+      <a class="cell c-torneo" data-t="live" style="--d:.36s" href="torneo/">
+        <span class="go" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
+        <span class="ic" aria-hidden="true"><i class="fa-solid fa-trophy"></i></span>
+        <div><h3>Estrazione Torneo</h3><p>Sorteggio delle coppie del primo turno</p></div>
+      </a>
+
+    <div class="cell soon" data-t="soon" style="--d:.42s">
       <span class="badge">Presto</span>
       <span class="ic" aria-hidden="true"><i class="fa-solid fa-id-card"></i></span>
       <div><h3>Curriculum</h3><p>Riservato, dopo l'accesso</p></div>
     </div>
 
-    <div class="cell soon" data-t="soon" style="--d:.42s">
+    <div class="cell soon" data-t="soon" style="--d:.48s">
       <span class="badge">Presto</span>
       <span class="ic" aria-hidden="true"><i class="fa-solid fa-plus"></i></span>
       <div><h3>Prossima app</h3><p>Slot libero, da definire</p></div>
     </div>
 
-    <div class="cell note" style="--d:.48s">
+    <div class="cell note" style="--d:.54s">
       <span>L'elenco cresce man mano che le app vengono pubblicate.</span>
       <a href="https://www.instagram.com/rems_2.0_/" rel="noopener">Seguimi per le novità <i class="fa-brands fa-instagram" aria-hidden="true"></i></a>
     </div>

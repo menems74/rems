@@ -118,35 +118,59 @@
   @keyframes battito{from{transform:scale(.72);opacity:.2}to{transform:scale(1);opacity:1}}
   @media (prefers-reduced-motion:reduce){.sipario .numero.battito{animation:none}.avvia{transition:none}}
 
-  /* --- il tabellone --- */
-  .coppie{display:grid;gap:10px}
-  .coppia{
-    display:grid;grid-template-columns:58px 1fr auto 1fr;align-items:center;gap:14px;
-    background:var(--paper);border-radius:20px;padding:16px 18px;
+  /* --- il tabellone: una scheda per partita, fatta per essere chiamata
+         a voce da chi organizza. Numero grande a sinistra, i due nomi uno
+         sotto l'altro, e un tocco per spuntare quella gia' chiamata. --- */
+  .comeSiUsa{
+    font:600 clamp(15px,2vw,18px) var(--font-sans);color:var(--muted);
+    margin:0 4px var(--gap);display:flex;align-items:center;gap:10px;
   }
-  .coppia .n{
-    width:46px;height:46px;border-radius:50%;background:var(--ink);color:var(--lime);
-    display:grid;place-items:center;font:800 20px var(--font-display);
+  .coppie{display:grid;gap:12px}
+  .partita{
+    display:grid;grid-template-columns:auto 1fr;align-items:center;gap:18px;
+    width:100%;text-align:left;background:var(--paper);border:0;border-radius:22px;
+    padding:18px 20px;transition:background .15s,opacity .15s;
   }
-  .coppia .g{font:800 clamp(22px,3.6vw,40px)/1.05 var(--font-display);letter-spacing:-.025em;min-width:0;overflow-wrap:anywhere}
-  .coppia .g.destra{text-align:right}
-  .coppia .vs{font:600 14px var(--font-sans);color:var(--muted);letter-spacing:.14em;text-transform:uppercase}
-  .coppia.conbye{background:#e4e2db}
-  .coppia .g.bye{color:var(--muted)}
+  .partita .n{
+    align-self:stretch;min-width:72px;padding:10px 8px;border-radius:16px;
+    background:var(--ink);color:var(--lime);display:grid;place-items:center;gap:2px;
+  }
+  .partita .n b{font:800 clamp(30px,5vw,44px)/1 var(--font-display);font-variant-numeric:tabular-nums}
+  .partita .n span{font:600 10px var(--font-sans);letter-spacing:.12em;text-transform:uppercase;color:var(--paper);opacity:.75}
+  .chi{min-width:0;display:flex;flex-direction:column;gap:2px}
+  .chi .g{
+    font:800 clamp(27px,5.2vw,46px)/1.08 var(--font-display);letter-spacing:-.025em;
+    overflow-wrap:anywhere;
+  }
+  .chi .vs{
+    font:600 clamp(12px,1.6vw,14px) var(--font-sans);letter-spacing:.16em;
+    text-transform:uppercase;color:var(--muted);padding:2px 0;
+  }
+  .partita.conbye{background:#e5e3dc}
+  .partita.conbye .n{background:var(--muted)}
+  .partita.conbye .n b{color:var(--paper)}
+  .chi .g.bye{color:var(--muted);font-size:clamp(22px,4vw,36px)}
   .passa{
-    grid-column:1 / -1;font:600 14px var(--font-sans);color:var(--muted);
-    border-top:1px solid #d5d2ca;padding-top:10px;margin-top:4px;
+    grid-column:2;font:600 clamp(14px,1.8vw,17px) var(--font-sans);color:var(--muted);
+    margin-top:6px;padding-top:10px;border-top:1px solid #d5d2ca;
   }
+  /* spuntata: resta leggibile ma si vede che e' fatta */
+  .partita.fatta{background:#e2e0d8;opacity:.55}
+  .partita.fatta .chi .g{text-decoration:line-through;text-decoration-thickness:3px}
+  .partita .fatto{
+    grid-column:2;display:none;font:600 14px var(--font-sans);color:var(--muted);
+    letter-spacing:.1em;text-transform:uppercase;margin-top:4px;
+  }
+  .partita.fatta .fatto{display:block}
+
   @media (max-width:420px){
     .stato button{padding:0 11px;font-size:13px}
     .num{width:34px;height:34px;font-size:15px}
   }
   @media (max-width:620px){
     .elenco{grid-template-columns:minmax(0,1fr)}
-    .coppia{grid-template-columns:46px 1fr;row-gap:6px}
-    .coppia .n{grid-row:span 2}
-    .coppia .vs{grid-column:2;justify-self:start}
-    .coppia .g.destra{text-align:left}
+    .partita{gap:14px;padding:16px}
+    .partita .n{min-width:58px}
   }
 </style>
 </head>
@@ -377,39 +401,54 @@
     dove.innerHTML = '';
 
     coppie.forEach(function(c, i){
-      var riga = document.createElement('div');
-      riga.className = 'coppia' + ((c.uno.bye || c.due.bye) ? ' conbye' : '');
+      var conBye = c.uno.bye || c.due.bye;
+
+      // e' un bottone: si tocca per spuntare la partita appena chiamata
+      var scheda = document.createElement('button');
+      scheda.type = 'button';
+      scheda.className = 'partita' + (conBye ? ' conbye' : '');
+      scheda.setAttribute('aria-pressed', 'false');
 
       var n = document.createElement('span');
-      n.className = 'n'; n.textContent = String(i + 1);
+      n.className = 'n';
+      n.innerHTML = '<span>Partita</span><b>' + (i + 1) + '</b>';
 
-      var a = document.createElement('span');
-      a.className = 'g' + (c.uno.bye ? ' bye' : '');
-      a.textContent = c.uno.bye ? 'BYE' : c.uno.nome;
-
+      var chi = document.createElement('span');
+      chi.className = 'chi';
+      chi.appendChild(nomeGrande(c.uno));
       var vs = document.createElement('span');
       vs.className = 'vs'; vs.textContent = 'contro';
+      chi.appendChild(vs);
+      chi.appendChild(nomeGrande(c.due));
 
-      var b = document.createElement('span');
-      b.className = 'g destra' + (c.due.bye ? ' bye' : '');
-      b.textContent = c.due.bye ? 'BYE' : c.due.nome;
+      scheda.appendChild(n);
+      scheda.appendChild(chi);
 
-      riga.appendChild(n); riga.appendChild(a); riga.appendChild(vs); riga.appendChild(b);
-
-      if(c.uno.bye || c.due.bye){
-        var chi = c.uno.bye ? c.due.nome : c.uno.nome;
+      if(conBye){
+        var chiPassa = c.uno.bye ? c.due.nome : c.uno.nome;
         var p = document.createElement('span');
         p.className = 'passa';
-        p.textContent = chi + ' passa il turno';
-        riga.appendChild(p);
+        p.textContent = chiPassa + ' passa il turno';
+        scheda.appendChild(p);
       }
-      dove.appendChild(riga);
+
+      var fatto = document.createElement('span');
+      fatto.className = 'fatto';
+      fatto.textContent = 'chiamata';
+      scheda.appendChild(fatto);
+
+      scheda.addEventListener('click', function(){
+        var ora = scheda.classList.toggle('fatta');
+        scheda.setAttribute('aria-pressed', ora ? 'true' : 'false');
+      });
+
+      dove.appendChild(scheda);
     });
 
     var b2 = quantiBye();
     document.getElementById('riassunto').textContent =
       coppie.length + ' partite' + (b2 ? ', di cui ' + b2 + ' con un bye' : '') +
-      '. Sorteggio fatto adesso, ordine dei campi compreso.';
+      '. Chiamale una alla volta: tocca la partita quando l\'hai chiamata.';
 
     document.getElementById('vistaElenco').hidden = true;
     document.getElementById('vistaCoppie').hidden = false;
@@ -419,6 +458,13 @@
     var avvia = document.getElementById('avvia');
     avvia.textContent = 'Rifai l\'estrazione';
     mettiTornaIndietro();
+  }
+
+  function nomeGrande(g){
+    var s = document.createElement('span');
+    s.className = 'g' + (g.bye ? ' bye' : '');
+    s.textContent = g.bye ? 'BYE' : g.nome;
+    return s;
   }
 
   function mettiTornaIndietro(){
