@@ -16,6 +16,19 @@
   :root{
     --bg:#eceae4; --ink:#111; --paper:#f3f1ea; --muted:#6b6860; --muted-dark:#a8a59c;
     --lime:#d7ff3a; --green-live:#b8f35a; --rosso:#d4341f;
+    /* superfici e dettagli: tutto da qui, così si cambia palette in un colpo */
+    /* i ruoli: chi cambia palette tocca solo questi */
+    --blocco:#111;              /* i blocchi pieni: testata, pill, numeri */
+    --su-blocco:#f3f1ea;        /* il testo sopra i blocchi */
+    --evidenza:#d7ff3a;         /* il numero che salta all'occhio */
+    --azione:#d7ff3a;           /* il pulsantone */
+    --su-azione:#111;
+    --carta-spenta:#e5e3dc;     /* le schede di chi è bye */
+    --carta-fatta:#e2e0d8;      /* la partita già chiamata */
+    --scanalatura:#dedbd3;      /* la culla dei tasti presente/bye */
+    --filo:#d5d2ca;             /* i filetti sottili */
+    --ombra-tasto:#a8c82a;      /* lo spessore sotto il pulsantone */
+    --tasto-spento:#d8d5cd;
     --radius:28px; --gap:14px;
     --font-display:"Bricolage Grotesque","Inter",sans-serif;
     --font-sans:"Inter","Segoe UI",system-ui,sans-serif;
@@ -38,8 +51,8 @@
   /* --- barra in alto, come nelle altre pagine --- */
   .top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0}
   .back{display:inline-flex;align-items:center;gap:10px;padding:10px 18px 10px 12px;border-radius:999px;
-    background:var(--ink);color:var(--paper);font:600 14px var(--font-sans);min-height:44px}
-  .back .dot{width:28px;height:28px;border-radius:50%;background:var(--lime);color:var(--ink);
+    background:var(--blocco);color:var(--su-blocco);font:600 14px var(--font-sans);min-height:44px}
+  .back .dot{width:28px;height:28px;border-radius:50%;background:var(--evidenza);color:var(--blocco);
     display:grid;place-items:center;font-size:15px;line-height:1}
   .conta{font:600 14px var(--font-sans);color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}
   .conta b{color:var(--ink)}
@@ -47,20 +60,20 @@
   .pallino.bye{background:var(--muted-dark)}
 
   /* --- testata --- */
-  .testata{background:var(--ink);color:var(--paper);border-radius:var(--radius);padding:26px 24px;margin-bottom:var(--gap)}
+  .testata{background:var(--blocco);color:var(--su-blocco);border-radius:var(--radius);padding:26px 24px;margin-bottom:var(--gap)}
   .testata h1{font-size:clamp(38px,8vw,72px);font-weight:800;line-height:.95;letter-spacing:-.03em}
   .testata p{font:400 16px/1.45 var(--font-sans);color:var(--muted-dark);margin-top:10px;max-width:46ch}
 
   /* --- i sedici --- */
   .strumenti{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 var(--gap)}
-  .quanti{display:flex;align-items:center;gap:6px;background:var(--ink);color:var(--paper);
+  .quanti{display:flex;align-items:center;gap:6px;background:var(--blocco);color:var(--su-blocco);
     border-radius:999px;padding:4px 6px 4px 18px}
   .quanti .etichetta{font:600 14px var(--font-sans);margin-right:4px}
-  .quanti button{width:48px;min-height:48px;border:0;border-radius:50%;background:rgba(255,255,255,.14);
-    color:var(--paper);font:800 24px/1 var(--font-display)}
-  .quanti button:active{background:var(--lime);color:var(--ink)}
+  .quanti button{width:48px;min-height:48px;border:0;border-radius:50%;background:rgba(127,127,127,.26);
+    color:var(--su-blocco);font:800 24px/1 var(--font-display)}
+  .quanti button:active{background:var(--evidenza);color:var(--blocco)}
   .quanti output{min-width:56px;text-align:center;font:800 26px var(--font-display);
-    color:var(--lime);font-variant-numeric:tabular-nums}
+    color:var(--evidenza);font-variant-numeric:tabular-nums}
   .strumenti button{background:transparent;border:2px solid var(--ink);border-radius:999px;
     padding:0 18px;min-height:44px;font:600 14px var(--font-sans)}
   .strumenti button:active{background:var(--ink);color:var(--paper)}
@@ -70,12 +83,12 @@
     display:flex;align-items:center;gap:12px;background:var(--paper);
     border-radius:18px;padding:10px 12px;min-height:68px;min-width:0;
   }
-  .giocatore.assente{background:#e4e2db}
+  .giocatore.assente{background:var(--carta-spenta)}
   .num{
-    flex:none;width:38px;height:38px;border-radius:50%;background:var(--ink);color:var(--paper);
+    flex:none;width:38px;height:38px;border-radius:50%;background:var(--blocco);color:var(--su-blocco);
     display:grid;place-items:center;font:800 16px var(--font-display);
   }
-  .giocatore.assente .num{background:var(--muted-dark);color:var(--ink)}
+  .giocatore.assente .num{background:var(--muted-dark);color:var(--blocco)}
   .nome{
     flex:1 1 auto;min-width:0;width:100%;background:transparent;border:0;outline:0;padding:4px 2px;
     font:800 clamp(19px,2.4vw,26px)/1.15 var(--font-display);color:var(--ink);letter-spacing:-.02em;
@@ -83,13 +96,13 @@
   }
   .nome:focus{border-bottom-color:var(--ink)}
   .giocatore.assente .nome{color:var(--muted)}
-  .stato{flex:none;display:flex;background:#dedbd3;border-radius:999px;padding:3px}
+  .stato{flex:none;display:flex;background:var(--scanalatura);border-radius:999px;padding:3px}
   .stato button{
     border:0;background:transparent;border-radius:999px;min-height:40px;padding:0 14px;
     font:600 14px var(--font-sans);color:var(--muted);
   }
-  .stato button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
-  .stato button.bye[aria-pressed="true"]{background:var(--muted);color:var(--paper)}
+  .stato button[aria-pressed="true"]{background:var(--blocco);color:var(--su-blocco)}
+  .stato button.bye[aria-pressed="true"]{background:var(--muted);color:var(--su-blocco)}
 
   /* --- la barra con il pulsantone, sempre a portata di pollice --- */
   body.conCoppie .pagina{padding-bottom:210px}
@@ -100,12 +113,12 @@
   .barra .dentro{max-width:1100px;margin:0 auto}
   .avvia{
     display:flex;align-items:center;justify-content:center;gap:14px;width:100%;
-    min-height:84px;border:0;border-radius:var(--radius);background:var(--lime);color:var(--ink);
+    min-height:84px;border:0;border-radius:var(--radius);background:var(--azione);color:var(--su-azione);
     font:800 clamp(24px,4.4vw,34px) var(--font-display);letter-spacing:-.02em;
-    box-shadow:0 10px 0 #a8c82a;transition:transform .12s,box-shadow .12s;
+    box-shadow:0 10px 0 var(--ombra-tasto);transition:transform .12s,box-shadow .12s;
   }
-  .avvia:active{transform:translateY(6px);box-shadow:0 4px 0 #a8c82a}
-  .avvia[disabled]{background:#d8d5cd;color:var(--muted);box-shadow:none;cursor:not-allowed}
+  .avvia:active{transform:translateY(6px);box-shadow:0 4px 0 var(--ombra-tasto)}
+  .avvia[disabled]{background:var(--tasto-spento);color:var(--muted);box-shadow:none;cursor:not-allowed}
   .avviso{
     margin-top:10px;text-align:center;font:600 15px var(--font-sans);color:var(--rosso);
   }
@@ -113,11 +126,11 @@
 
   /* --- il conto alla rovescia --- */
   .sipario{
-    position:fixed;inset:0;z-index:20;background:var(--ink);color:var(--paper);
+    position:fixed;inset:0;z-index:20;background:var(--blocco);color:var(--su-blocco);
     display:grid;place-items:center;text-align:center;padding:24px;
   }
   .sipario[hidden]{display:none!important}
-  .sipario .scritta{font:600 clamp(18px,4vw,28px) var(--font-sans);letter-spacing:.14em;text-transform:uppercase;color:var(--lime)}
+  .sipario .scritta{font:600 clamp(18px,4vw,28px) var(--font-sans);letter-spacing:.14em;text-transform:uppercase;color:var(--evidenza)}
   .sipario .numero{
     font:800 clamp(140px,44vw,320px)/1 var(--font-display);letter-spacing:-.04em;
     font-variant-numeric:tabular-nums;
@@ -141,10 +154,10 @@
   }
   .partita .n{
     align-self:stretch;min-width:72px;padding:10px 8px;border-radius:16px;
-    background:var(--ink);color:var(--lime);display:grid;place-items:center;gap:2px;
+    background:var(--blocco);color:var(--evidenza);display:grid;place-items:center;gap:2px;
   }
   .partita .n b{font:800 clamp(30px,5vw,44px)/1 var(--font-display);font-variant-numeric:tabular-nums}
-  .partita .n span{font:600 10px var(--font-sans);letter-spacing:.12em;text-transform:uppercase;color:var(--paper);opacity:.75}
+  .partita .n span{font:600 10px var(--font-sans);letter-spacing:.12em;text-transform:uppercase;color:var(--su-blocco);opacity:.75}
   .chi{min-width:0;display:flex;flex-direction:column;gap:2px}
   .chi .g{
     font:800 clamp(27px,5.2vw,46px)/1.08 var(--font-display);letter-spacing:-.025em;
@@ -154,26 +167,26 @@
     font:600 clamp(12px,1.6vw,14px) var(--font-sans);letter-spacing:.16em;
     text-transform:uppercase;color:var(--muted);padding:2px 0;
   }
-  .partita.conbye{background:#e5e3dc}
+  .partita.conbye{background:var(--carta-spenta)}
   .partita.conbye .n{background:var(--muted)}
-  .partita.conbye .n b{color:var(--paper)}
+  .partita.conbye .n b{color:var(--su-blocco)}
   .chi .g.bye{color:var(--muted)}
   .chi .g small{font:600 .52em/1 var(--font-sans);letter-spacing:.04em;color:var(--muted);white-space:nowrap}
   .passa{
     grid-column:2;font:600 clamp(14px,1.8vw,17px) var(--font-sans);color:var(--muted);
-    margin-top:6px;padding-top:10px;border-top:1px solid #d5d2ca;
+    margin-top:6px;padding-top:10px;border-top:1px solid var(--filo);
   }
   /* spuntata: resta leggibile ma si vede che e' fatta */
-  .partita.fatta{background:#e2e0d8;opacity:.55}
+  .partita.fatta{background:var(--carta-fatta);opacity:.55}
   .partita.fatta .chi .g{text-decoration:line-through;text-decoration-thickness:3px}
   .partita .fatto{
     grid-column:2;display:none;font:600 14px var(--font-sans);color:var(--muted);
     letter-spacing:.1em;text-transform:uppercase;margin-top:4px;
   }
   .partita.fatta .fatto{display:block}
-  .partita.riposa{background:#e5e3dc;cursor:default}
+  .partita.riposa{background:var(--carta-spenta);cursor:default}
   .partita.riposa .n{background:var(--muted)}
-  .partita.riposa .n b{color:var(--paper);font-size:22px}
+  .partita.riposa .n b{color:var(--su-blocco);font-size:22px}
 
   @media (max-width:420px){
     .stato button{padding:0 11px;font-size:13px}
@@ -198,8 +211,9 @@
   <section id="vistaElenco">
     <div class="testata">
       <h1>Estrazione Torneo</h1>
-      <p>Segna chi c'è e chi è Bye, poi avvia. Il sorteggio accoppia i sedici a caso
-         per il primo turno, e non fa mai incontrare due Bye.</p>
+      <p>Segna chi c'è e chi è Bye, poi avvia. Il sorteggio accoppia tutti a caso
+         per il primo turno ed evita, finché i numeri lo permettono, che due Bye
+         si incontrino.</p>
     </div>
 
     <div class="strumenti">
