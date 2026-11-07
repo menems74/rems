@@ -52,7 +52,15 @@
   .testata p{font:400 16px/1.45 var(--font-sans);color:var(--muted-dark);margin-top:10px;max-width:46ch}
 
   /* --- i sedici --- */
-  .strumenti{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 var(--gap)}
+  .strumenti{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 var(--gap)}
+  .quanti{display:flex;align-items:center;gap:6px;background:var(--ink);color:var(--paper);
+    border-radius:999px;padding:4px 6px 4px 18px}
+  .quanti .etichetta{font:600 14px var(--font-sans);margin-right:4px}
+  .quanti button{width:48px;min-height:48px;border:0;border-radius:50%;background:rgba(255,255,255,.14);
+    color:var(--paper);font:800 24px/1 var(--font-display)}
+  .quanti button:active{background:var(--lime);color:var(--ink)}
+  .quanti output{min-width:56px;text-align:center;font:800 26px var(--font-display);
+    color:var(--lime);font-variant-numeric:tabular-nums}
   .strumenti button{background:transparent;border:2px solid var(--ink);border-radius:999px;
     padding:0 18px;min-height:44px;font:600 14px var(--font-sans)}
   .strumenti button:active{background:var(--ink);color:var(--paper)}
@@ -162,6 +170,9 @@
     letter-spacing:.1em;text-transform:uppercase;margin-top:4px;
   }
   .partita.fatta .fatto{display:block}
+  .partita.riposa{background:#e5e3dc;cursor:default}
+  .partita.riposa .n{background:var(--muted)}
+  .partita.riposa .n b{color:var(--paper);font-size:22px}
 
   @media (max-width:420px){
     .stato button{padding:0 11px;font-size:13px}
@@ -191,6 +202,12 @@
     </div>
 
     <div class="strumenti">
+      <div class="quanti">
+        <span class="etichetta" id="etichettaQuanti">Giocatori</span>
+        <button type="button" id="meno" aria-label="Un giocatore in meno">&#8722;</button>
+        <output id="numeroGiocatori" aria-labelledby="etichettaQuanti">16</output>
+        <button type="button" id="piu" aria-label="Un giocatore in piu">+</button>
+      </div>
       <button type="button" id="tuttiPresenti">Tutti presenti</button>
       <button type="button" id="nomiDaCapo">Rimetti i nomi</button>
     </div>
@@ -226,25 +243,35 @@
 (function(){
   'use strict';
 
-  var QUANTI = 16;
+  var PREDEFINITI = 16;        // il numero che si trova gia' scritto
+  var MINIMO = 2, MASSIMO = 64;
   var CHIAVE = 'rems:torneo:giocatori';
 
   /* --------------------------------------------------------- i giocatori - */
   var giocatori = carica();
 
-  function vuoti(){
+  function vuoti(n){
     var a = [];
-    for(var i = 0; i < QUANTI; i++) a.push({ nome: '', bye: false });
+    for(var i = 0; i < n; i++) a.push({ nome: '', bye: false });
     return a;
   }
   function carica(){
     try{
       var g = JSON.parse(localStorage.getItem(CHIAVE));
-      if(Array.isArray(g) && g.length === QUANTI){
+      if(Array.isArray(g) && g.length >= MINIMO && g.length <= MASSIMO){
         return g.map(function(x){ return { nome: String(x.nome || ''), bye: !!x.bye }; });
       }
     }catch(e){ /* niente memoria: si riparte puliti */ }
-    return vuoti();
+    return vuoti(PREDEFINITI);
+  }
+
+  /* Cambiare il numero non cancella i nomi gia' scritti: si aggiungono
+     caselle vuote in fondo, o si tolgono le ultime. */
+  function quantiGiocatori(n){
+    n = Math.max(MINIMO, Math.min(MASSIMO, n));
+    while(giocatori.length < n) giocatori.push({ nome: '', bye: false });
+    if(giocatori.length > n) giocatori.length = n;
+    salva(); disegnaElenco();
   }
   function salva(){
     try{ localStorage.setItem(CHIAVE, JSON.stringify(giocatori)); }catch(e){}
@@ -275,29 +302,40 @@
   }
 
   /* ---------------------------------------------------------- l'estrazione -
-     I Bye prima: ognuno prende un presente a caso, cosi' due Bye non si
-     incontrano mai. I presenti che restano si accoppiano fra loro. Alla
-     fine si mescola anche l'ordine dei campi, se no i Bye finiscono
-     sempre in cima.                                                       */
+     Il bye e' un giocatore come gli altri: entra nel sorteggio e ha il suo
+     abbinamento. L'unica regola e' che due bye non si incontrino, e si
+     rispetta finche' i numeri lo permettono: prima ogni bye prende un
+     presente, poi chi avanza si accoppia fra sé. Se i bye sono piu' dei
+     presenti, i bye in eccesso finiscono per forza uno contro l'altro.
+     Con un numero dispari di giocatori, l'ultimo estratto riposa.        */
   function estrai(){
     var presenti = [], bye = [];
-    for(var i = 0; i < QUANTI; i++){
-      (giocatori[i].bye ? bye : presenti).push({ indice: i, nome: nomeDi(i), bye: giocatori[i].bye });
+    for(var i = 0; i < giocatori.length; i++){
+      var g = { indice: i, nome: nomeDi(i), bye: giocatori[i].bye };
+      (g.bye ? bye : presenti).push(g);
     }
-    if(bye.length > presenti.length) return null;
-
     mescola(presenti); mescola(bye);
 
     var coppie = [];
-    for(var b = 0; b < bye.length; b++){
-      coppie.push({ uno: presenti.pop(), due: bye[b] });
+    while(bye.length && presenti.length){
+      coppie.push({ uno: presenti.pop(), due: bye.pop() });   // il presente a sinistra
     }
-    while(presenti.length >= 2){
-      var x = presenti.pop(), y = presenti.pop();
-      if(sorte(2)) { var s = x; x = y; y = s; }     // anche il lato e' a caso
+
+    var resto = mescola(presenti.concat(bye));                // o tutti presenti, o tutti bye
+    while(resto.length >= 2){
+      var x = resto.pop(), y = resto.pop();
+      if(sorte(2)){ var t = x; x = y; y = t; }
       coppie.push({ uno: x, due: y });
     }
-    return mescola(coppie);
+
+    mescola(coppie);
+    return { coppie: coppie, riposa: resto.length ? resto[0] : null };
+  }
+
+  /* Quante partite saranno per forza bye contro bye, con questi numeri. */
+  function scontriBye(){
+    var b = quantiBye(), p = giocatori.length - b;
+    return b > p ? Math.floor((b - p) / 2) : 0;
   }
 
   /* ------------------------------------------------------ la prima lista - */
@@ -354,17 +392,19 @@
   }
 
   function aggiornaConta(){
-    var b = quantiBye(), p = QUANTI - b;
+    var b = quantiBye(), p = giocatori.length - b;
     document.getElementById('conta').innerHTML =
       '<span><span class="pallino"></span><b>' + p + '</b> presenti</span>' +
       '<span><span class="pallino bye"></span><b>' + b + '</b> bye</span>';
+    document.getElementById('numeroGiocatori').textContent = String(giocatori.length);
 
-    var troppi = b > QUANTI / 2;
-    var avvia = document.getElementById('avvia');
-    avvia.disabled = troppi;
-    document.getElementById('avviso').textContent = troppi
-      ? 'Troppi Bye: al massimo 8, se no due Bye finirebbero per forza uno contro l\'altro.'
-      : '';
+    // non si blocca niente: si dice solo cosa succedera'
+    var s = scontriBye(), avvisi = [];
+    if(s) avvisi.push(s === 1
+      ? 'I bye sono piu\' dei presenti: una partita sara\' bye contro bye.'
+      : 'I bye sono piu\' dei presenti: ' + s + ' partite saranno bye contro bye.');
+    if(giocatori.length % 2) avvisi.push('Giocatori dispari: uno riposa.');
+    document.getElementById('avviso').textContent = avvisi.join(' ');
   }
 
   /* -------------------------------------------------- conto alla rovescia - */
@@ -396,7 +436,8 @@
   }
 
   /* ----------------------------------------------------- il tabellone ---- */
-  function mostraCoppie(coppie){
+  function mostraCoppie(esito){
+    var coppie = esito.coppie;
     var dove = document.getElementById('coppie');
     dove.innerHTML = '';
 
@@ -425,10 +466,11 @@
       scheda.appendChild(chi);
 
       if(conBye){
-        var chiPassa = c.uno.bye ? c.due.nome : c.uno.nome;
         var p = document.createElement('span');
         p.className = 'passa';
-        p.textContent = chiPassa + ' passa il turno';
+        p.textContent = (c.uno.bye && c.due.bye)
+          ? 'Due bye: qui non gioca nessuno'
+          : (c.uno.bye ? c.due.nome : c.uno.nome) + ' passa il turno';
         scheda.appendChild(p);
       }
 
@@ -445,9 +487,24 @@
       dove.appendChild(scheda);
     });
 
-    var b2 = quantiBye();
+    if(esito.riposa){
+      var solo = document.createElement('div');
+      solo.className = 'partita riposa';
+      solo.innerHTML = '<span class="n"><span>Riposa</span><b>&#9679;</b></span>';
+      var chi = document.createElement('span');
+      chi.className = 'chi';
+      var nome = document.createElement('span');
+      nome.className = 'g'; nome.textContent = esito.riposa.bye ? 'BYE' : esito.riposa.nome;
+      var nota = document.createElement('span');
+      nota.className = 'vs'; nota.textContent = 'resta fuori da questo turno';
+      chi.appendChild(nome); chi.appendChild(nota);
+      solo.appendChild(chi);
+      dove.appendChild(solo);
+    }
+
+    var conBye2 = coppie.filter(function(c){ return c.uno.bye || c.due.bye; }).length;
     document.getElementById('riassunto').textContent =
-      coppie.length + ' partite' + (b2 ? ', di cui ' + b2 + ' con un bye' : '') +
+      coppie.length + ' partite' + (conBye2 ? ', di cui ' + conBye2 + ' con un bye' : '') +
       '. Chiamale una alla volta: tocca la partita quando l\'hai chiamata.';
 
     document.getElementById('vistaElenco').hidden = true;
@@ -488,9 +545,15 @@
 
   /* ------------------------------------------------------------ il via --- */
   document.getElementById('avvia').addEventListener('click', function(){
-    var coppie = estrai();
-    if(!coppie){ aggiornaConta(); return; }
-    contoAllaRovescia(function(){ mostraCoppie(coppie); });
+    var esito = estrai();
+    contoAllaRovescia(function(){ mostraCoppie(esito); });
+  });
+
+  document.getElementById('meno').addEventListener('click', function(){
+    quantiGiocatori(giocatori.length - 1);
+  });
+  document.getElementById('piu').addEventListener('click', function(){
+    quantiGiocatori(giocatori.length + 1);
   });
 
   document.getElementById('tuttiPresenti').addEventListener('click', function(){
@@ -499,7 +562,7 @@
   });
 
   document.getElementById('nomiDaCapo').addEventListener('click', function(){
-    giocatori = vuoti(); salva(); disegnaElenco();
+    giocatori = vuoti(giocatori.length); salva(); disegnaElenco();
   });
 
   disegnaElenco();
