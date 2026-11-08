@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<title>skill.AI</title>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--line:#334155;--txt:#f1f5f9;--mut:#94a3b8;--acc:#38bdf8;
+--s-todo:#38bdf8;--s-tried:#fbbf24;--s-inst:#4ade80;--s-drop:#f87171}
+@media (prefers-color-scheme:light){:root{--bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--txt:#0f172a;--mut:#64748b}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.4 system-ui,sans-serif;padding-bottom:90px}
+header{position:sticky;top:0;background:var(--bg);padding:12px 14px 8px;z-index:5;border-bottom:1px solid var(--line)}
+h1{margin:0 0 8px;font-size:20px}
+#q{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--txt);font-size:16px}
+.filters{display:flex;gap:6px;overflow-x:auto;margin-top:8px;padding-bottom:2px}
+.filters button{flex:none;border:1px solid var(--line);background:var(--card);color:var(--txt);border-radius:999px;padding:6px 12px;font-size:14px}
+.filters button.on{background:var(--acc);color:#0f172a;border-color:var(--acc);font-weight:600}
+main{padding:12px 14px;display:grid;gap:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.top{display:flex;gap:8px;align-items:flex-start;justify-content:space-between}
+.title{font-weight:600;word-break:break-word;flex:1}
+.dom{color:var(--mut);font-size:13px;margin-top:2px}
+.desc{color:var(--mut);font-size:14px;margin-top:6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.card.open .desc{-webkit-line-clamp:unset}
+.chip{flex:none;border:0;border-radius:999px;padding:6px 10px;font-size:13px;font-weight:600;color:#0f172a}
+.chip[data-s=todo]{background:var(--s-todo)}.chip[data-s=tried]{background:var(--s-tried)}
+.chip[data-s=inst]{background:var(--s-inst)}.chip[data-s=drop]{background:var(--s-drop)}
+.more{display:none;margin-top:10px;gap:8px;flex-direction:column}
+.card.open .more{display:flex}
+textarea,input.f{width:100%;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font:inherit}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--txt);border-radius:10px;padding:9px 14px;font-size:15px;text-decoration:none}
+.btn.p{background:var(--acc);color:#0f172a;border-color:var(--acc);font-weight:600}
+.btn.d{color:var(--s-drop)}
+#fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));width:58px;height:58px;border-radius:50%;border:0;background:var(--acc);color:#0f172a;font-size:32px;box-shadow:0 4px 14px #0006}
+#sheet{position:fixed;inset:0;background:#000a;display:none;align-items:flex-end;z-index:20}
+#sheet.show{display:flex}
+#sheet .in{background:var(--card);width:100%;border-radius:18px 18px 0 0;padding:16px;display:grid;gap:10px}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#111c;color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:30}
+#toast.show{opacity:1}
+.empty{text-align:center;color:var(--mut);padding:40px 10px}
+</style>
+</head>
+<body>
+<header>
+  <h1>📌 skill.AI</h1>
+  <input id="q" type="search" placeholder="Cerca…">
+  <div class="filters" id="filters"></div>
+</header>
+<main id="list"></main>
+<button id="fab" aria-label="Aggiungi">+</button>
+
+<div id="sheet"><div class="in">
+  <strong>Nuovo link</strong>
+  <input class="f" id="nUrl" type="url" placeholder="Incolla il link" inputmode="url">
+  <input class="f" id="nTitle" placeholder="Titolo (opzionale)">
+  <textarea id="nDesc" rows="3" placeholder="Descrizione (opzionale, se vuota la cerco io)"></textarea>
+  <div class="row"><button class="btn p" id="nSave">Salva</button><button class="btn" id="nCancel">Annulla</button></div>
+</div></div>
+<div id="toast"></div>
+
+<script type="module">
+/* ====== CONFIG ====== */
+// Imposta qui l'URL del Worker Cloudflare (vedi README). Se vuoto: niente descrizione automatica.
+const WORKER_URL = "";
+const FIREBASE_CONFIG = null; // incolla qui l'oggetto di config Firebase; se null usa il salvataggio locale del telefono
+/* ==================== */
+
+const STATES = {todo:"📥 Da vedere", tried:"🧪 Provata", inst:"✅ Installata", drop:"❌ Scartata"};
+const ORDER = ["todo","tried","inst","drop"];
+const $ = s => document.querySelector(s);
+let items = [], filter = "todo", query = "";
+
+/* ---------- Store (Firebase oppure localStorage) ---------- */
+async function makeStore(){
+  if (FIREBASE_CONFIG){
+    const app = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+    const fs = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    const db = fs.getFirestore(app.initializeApp(FIREBASE_CONFIG));
+    const col = fs.collection(db, "skill-ai");
+    return {
+      subscribe: cb => fs.onSnapshot(fs.query(col, fs.orderBy("createdAt","desc")),
+        snap => cb(snap.docs.map(d => ({id:d.id, ...d.data()})))),
+      add: async o => (await fs.addDoc(col, o)).id,
+      update: (id,p) => fs.updateDoc(fs.doc(db,"skill-ai",id), p),
+      remove: id => fs.deleteDoc(fs.doc(db,"skill-ai",id))
+    };
+  }
+  const K = "skill-ai-v1", subs = [];
+  const load = () => { try { return JSON.parse(localStorage.getItem(K)) || []; } catch { return []; } };
+  const save = a => { localStorage.setItem(K, JSON.stringify(a)); subs.forEach(f => f(a.slice().sort((x,y)=>y.createdAt-x.createdAt))); };
+  return {
+    subscribe: cb => { subs.push(cb); cb(load().sort((x,y)=>y.createdAt-x.createdAt)); },
+    add: async o => { const a = load(), id = String(Date.now()); a.push({id,...o}); save(a); return id; },
+    update: async (id,p) => { const a = load(); const i = a.findIndex(x=>x.id===id); if(i>=0){Object.assign(a[i],p); save(a);} },
+    remove: async id => save(load().filter(x=>x.id!==id))
+  };
+}
+
+/* ---------- Utilità ---------- */
+const domain = u => { try { return new URL(u).hostname.replace(/^www\./,""); } catch { return u; } };
+const toast = m => { const t=$("#toast"); t.textContent=m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2200); };
+const extractUrl = s => (s||"").match(/https?:\/\/[^\s]+/)?.[0] || "";
+const esc = s => (s||"").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+async function fetchMeta(url){
+  if (!WORKER_URL) return null;
+  try {
+    const r = await fetch(WORKER_URL + "?url=" + encodeURIComponent(url));
+    if (!r.ok) return null;
+    return await r.json();
+  } catch { return null; }
+}
+
+const store = await makeStore();
+
+async function addLink(url, title="", description=""){
+  const clean = url.trim();
+  if (!/^https?:\/\//i.test(clean)) { toast("Link non valido"); return; }
+  if (items.some(i => i.url === clean)) { toast("Già salvato"); return; }
+  const id = await store.add({url:clean, title:title.trim(), description:description.trim(), status:"todo", notes:"", createdAt:Date.now()});
+  toast("Salvato ✔");
+  if (!title.trim() || !description.trim()){
+    const m = await fetchMeta(clean);
+    if (m){
+      const patch = {};
+      if (!title.trim() && m.title) patch.title = m.title;
+      if (!description.trim() && m.description) patch.description = m.description;
+      if (Object.keys(patch).length) store.update(id, patch);
+    }
+  }
+}
+
+/* ---------- Rendering ---------- */
+function render(){
+  const f = $("#filters");
+  f.innerHTML = ["todo","tried","inst","drop","all"].map(k => {
+    const n = k==="all" ? items.length : items.filter(i=>i.status===k).length;
+    return `<button data-f="${k}" class="${filter===k?"on":""}">${k==="all"?"Tutte":STATES[k]} ${n}</button>`;
+  }).join("");
+  const q = query.toLowerCase();
+  const list = items.filter(i => (filter==="all" || i.status===filter) &&
+    (!q || [i.title,i.description,i.notes,i.url].join(" ").toLowerCase().includes(q)));
+  $("#list").innerHTML = list.length ? list.map(i => `
+    <div class="card" data-id="${i.id}">
+      <div class="top">
+        <div class="title">${esc(i.title) || esc(domain(i.url))}</div>
+        <button class="chip" data-s="${i.status}" data-act="cycle">${STATES[i.status]}</button>
+      </div>
+      <div class="dom">${esc(domain(i.url))}</div>
+      ${i.description ? `<div class="desc">${esc(i.description)}</div>` : ""}
+      <div class="more">
+        <input class="f" data-k="title" placeholder="Titolo" value="${esc(i.title)}">
+        <textarea data-k="description" rows="2" placeholder="Descrizione">${esc(i.description)}</textarea>
+        <textarea data-k="notes" rows="3" placeholder="Le mie considerazioni…">${esc(i.notes)}</textarea>
+        <div class="row">
+          <a class="btn p" href="${esc(i.url)}" target="_blank" rel="noopener">Apri</a>
+          <button class="btn" data-act="save">Salva note</button>
+          <button class="btn d" data-act="del">Elimina</button>
+        </div>
+      </div>
+    </div>`).join("") : `<div class="empty">Niente qui. Condividi un link dal social verso "skill.AI".</div>`;
+}
+
+$("#filters").addEventListener("click", e => { const b=e.target.closest("button"); if(b){filter=b.dataset.f; render();} });
+$("#q").addEventListener("input", e => { query=e.target.value; render(); });
+
+$("#list").addEventListener("click", async e => {
+  const card = e.target.closest(".card"); if(!card) return;
+  const id = card.dataset.id, it = items.find(x=>x.id===id), act = e.target.closest("[data-act]")?.dataset.act;
+  if (act==="cycle"){ store.update(id,{status:ORDER[(ORDER.indexOf(it.status)+1)%ORDER.length]}); return; }
+  if (act==="save"){
+    const g = k => card.querySelector(`[data-k=${k}]`).value;
+    await store.update(id,{title:g("title"),description:g("description"),notes:g("notes")}); toast("Aggiornato"); return;
+  }
+  if (act==="del"){ if(confirm("Eliminare questo link?")) store.remove(id); return; }
+  if (e.target.closest("a,input,textarea")) return;
+  card.classList.toggle("open");
+});
+
+/* ---------- Form manuale ---------- */
+const sheet = $("#sheet");
+$("#fab").onclick = async () => {
+  sheet.classList.add("show");
+  try { const t = await navigator.clipboard.readText(); const u = extractUrl(t); if (u && !$("#nUrl").value) $("#nUrl").value = u; } catch {}
+};
+$("#nCancel").onclick = () => sheet.classList.remove("show");
+$("#nSave").onclick = async () => {
+  await addLink($("#nUrl").value, $("#nTitle").value, $("#nDesc").value);
+  ["#nUrl","#nTitle","#nDesc"].forEach(s=>$(s).value=""); sheet.classList.remove("show");
+};
+
+/* ---------- Share target ---------- */
+store.subscribe(a => { items = a; render(); });
+await new Promise(r => setTimeout(r, 400)); // lascia arrivare il primo snapshot per il controllo duplicati
+const p = new URLSearchParams(location.search);
+const shared = extractUrl(p.get("url")) || extractUrl(p.get("text"));
+if (shared){
+  history.replaceState(null, "", location.pathname);
+  const t = p.get("title") || "";
+  await addLink(shared, t.startsWith("http") ? "" : t);
+}
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
+</script>
+</body>
+</html>
