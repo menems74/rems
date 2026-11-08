@@ -12,8 +12,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
   :root{
-    --bg:#eceae4; --ink:#111; --paper:#f3f1ea; --muted:#6b6860; --muted-dark:#a8a59c;
-    --lime:#d7ff3a; --green-live:#b8f35a;
+    --bg:#eceae4; --ink:#111; --paper:#f3f1ea; --muted:#6b6860;
+    --lime:#d7ff3a;
     --radius:28px; --gap:14px;
     --font-display:"Bricolage Grotesque","Inter",sans-serif;
     --font-sans:"Inter","Segoe UI",system-ui,sans-serif;
@@ -25,15 +25,12 @@
 
   .page{max-width:1100px;margin:0 auto;padding:clamp(16px,3vw,36px)}
 
-  /* --- Barra in alto: ritorno alla home e filtro --- */
-  .top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:var(--gap)}
-  .back{display:inline-flex;align-items:center;gap:10px;padding:10px 18px 10px 12px;border-radius:999px;background:var(--ink);color:var(--paper);font:600 14px var(--font-sans);transition:transform .3s cubic-bezier(.2,1.4,.4,1)}
+  /* --- Ritorno a REMS: sta dentro alla scheda nera del titolo --- */
+  .back{align-self:flex-start;display:inline-flex;align-items:center;gap:10px;padding:8px 18px 8px 8px;border-radius:999px;background:rgba(255,255,255,.08);color:var(--paper);font:600 14px var(--font-sans);transition:transform .3s cubic-bezier(.2,1.4,.4,1),background .3s}
   .back .dot{width:28px;height:28px;border-radius:50%;background:var(--lime);color:var(--ink);display:grid;place-items:center;font-size:13px;transition:transform .3s}
-  .back:hover{transform:scale(1.04)}
+  .back:hover{transform:scale(1.04);background:rgba(255,255,255,.16)}
   .back:hover .dot{transform:translateX(-3px)}
-  .filters{display:flex;gap:6px;padding:5px;border-radius:999px;background:#fff}
-  .filters button{font:600 13px var(--font-sans);border:0;background:none;padding:8px 14px;border-radius:999px;cursor:pointer;color:var(--muted)}
-  .filters button.on{background:var(--ink);color:var(--paper)}
+  .hero :focus-visible{outline-color:var(--paper)}
 
   /* --- Griglia bento --- */
   .bento{display:grid;gap:var(--gap);grid-template-columns:repeat(4,1fr);grid-auto-rows:auto}
@@ -42,7 +39,6 @@
   a.cell:hover{transform:scale(1.025) rotate(-.5deg)}
   a.cell:active{transform:scale(.98)}
   @keyframes pop{to{opacity:1;transform:none}}
-  .cell.hidden{display:none}
 
   .k{font:600 12px var(--font-sans);letter-spacing:.08em;text-transform:uppercase;opacity:.75}
   .ic{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;font-size:24px;background:var(--ink);color:#fff}
@@ -55,12 +51,6 @@
   /* --- Titolo --- */
   .hero{grid-column:span 2;grid-row:span 2;background:var(--ink);color:var(--paper)}
   .hero h1{font-weight:800;font-size:clamp(84px,13vw,170px);line-height:.82;letter-spacing:-.05em}
-  .hero .lead{font:400 16px/1.5 var(--font-sans);color:var(--muted-dark);max-width:34ch;margin-top:12px}
-  .stats{display:flex;gap:10px;flex-wrap:wrap}
-  .stat{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.08);font:500 13px var(--font-sans)}
-  .stat b{font:800 18px var(--font-display)}
-  .stat.live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--green-live);animation:ping 1.8s infinite}
-  @keyframes ping{0%{box-shadow:0 0 0 0 var(--green-live)}70%{box-shadow:0 0 0 10px transparent}}
 
   /* --- App in evidenza (riquadro largo) ---
      Essendo larga il doppio, si mette di traverso: icona a sinistra e testo
@@ -94,7 +84,7 @@
   .soon h3{color:var(--ink);opacity:.55}
   .badge{position:absolute;right:18px;top:18px;font:600 11px var(--font-sans);letter-spacing:.08em;text-transform:uppercase;padding:6px 10px;border-radius:999px;background:var(--ink);color:var(--lime)}
 
-  .note{grid-column:span 3;min-height:0;flex-direction:row;align-items:center;flex-wrap:wrap;gap:12px;background:var(--lime);padding:18px 22px}
+  .note{grid-column:span 4;min-height:0;flex-direction:row;align-items:center;flex-wrap:wrap;gap:12px;background:var(--lime);padding:18px 22px}
   .note span{font:500 15px var(--font-sans)}
   .note a{font:600 14px var(--font-sans);display:inline-flex;gap:8px;align-items:center}
   .note a:hover{text-decoration:underline}
@@ -107,12 +97,10 @@
   /* Sul telefono due colonne, cosi' si vedono quasi tutte le app senza scorrere */
   @media (max-width:480px){
     .bento{grid-template-columns:repeat(2,1fr);gap:10px}
-    .hero{grid-column:span 2;grid-row:span 1;min-height:0;padding:18px}
+    .hero{grid-column:span 2;grid-row:span 1;min-height:0;padding:18px;gap:14px}
     .hero h1{font-size:58px;line-height:.85}
-    .hero .lead{font:400 13px/1.4 var(--font-sans);margin-top:8px;max-width:none}
-    .hero .stats{gap:6px}
-    .stat{padding:6px 11px;font-size:12px}
-    .stat b{font-size:15px}
+    .back{padding:6px 15px 6px 6px;font-size:13px}
+    .back .dot{width:24px;height:24px;font-size:12px}
     .feat,.note{grid-column:span 2}
     .cell{min-height:0;padding:14px;gap:10px;border-radius:20px}
     .feat{min-height:0}
@@ -136,111 +124,71 @@
 <body>
 <div class="page">
 
-  <div class="top">
-    <a class="back" href="index.html"><span class="dot" aria-hidden="true"><i class="fa-solid fa-arrow-left"></i></span>REMS</a>
-    <div class="filters" role="group" aria-label="Filtra le app">
-      <button class="on" data-f="all" aria-pressed="true">Tutte</button>
-      <button data-f="live" aria-pressed="false">Online</button>
-      <button data-f="soon" aria-pressed="false">In arrivo</button>
-    </div>
-  </div>
-
   <!--
     COME AGGIUNGERE UNA APP
-    App già online  -> copia un blocco <a class="cell ..." data-t="live"> con la freccia fa-arrow-right
+    App già online  -> copia un blocco <a class="cell ..."> con la freccia fa-arrow-right
     App su un altro sito -> stesso blocco, con l'indirizzo completo, la classe "ext" e la
     freccia obliqua (fa-arrow-up-right-from-square), che dice che si esce dal portale
-    App da costruire -> copia un blocco <div class="cell soon" data-t="soon">, con il badge "Presto" e senza link
+    App da costruire -> copia un blocco <div class="cell soon">, con il badge "Presto" e senza link
     Il colore si sceglie con una classe c-... (vedi "Colori delle singole app" nello stile).
     Ogni blocco usa style="--d:..." per comparire un po' dopo il precedente.
-    I contatori "online" e "in arrivo" si aggiornano da soli.
+    L'ordine in cui stanno scritti qui sotto è l'ordine in cui si vedono nella pagina.
   -->
   <main class="bento">
     <section class="cell hero" style="--d:0s">
-      <div class="stats">
-        <span class="stat live"><b id="n-live">0</b> online</span>
-        <span class="stat"><b id="n-soon">0</b> in arrivo</span>
-      </div>
-      <div>
-        <h1>App</h1>
-        <p class="lead">Le applicazioni del portale: quelle già online e quelle in costruzione.</p>
-      </div>
+      <a class="back" href="index.html"><span class="dot" aria-hidden="true"><i class="fa-solid fa-arrow-left"></i></span>REMS</a>
+      <h1>App</h1>
     </section>
 
-    <a class="cell feat c-cleo ext" data-t="live" style="--d:.06s" href="https://cleopatra.menems-700.workers.dev/" rel="noopener">
+    <a class="cell feat c-cleo ext" style="--d:.06s" href="https://cleopatra.menems-700.workers.dev/" rel="noopener">
       <span class="go" aria-hidden="true"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
       <span class="ic" aria-hidden="true"><i class="fa-solid fa-crown"></i></span>
       <div><span class="k">In evidenza</span><h3>Cleopatra</h3><p>Apre su un altro sito</p></div>
     </a>
-    <a class="cell c-dart ext" data-t="live" style="--d:.12s" href="https://menems74.github.io/fanta-dart/" rel="noopener">
+
+    <a class="cell c-dart ext" style="--d:.12s" href="https://menems74.github.io/fanta-dart/" rel="noopener">
       <span class="board" aria-hidden="true"></span>
       <span class="go" aria-hidden="true"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
       <span class="ic" aria-hidden="true"><i class="fa-solid fa-bullseye"></i></span>
       <div><h3>Fanta Dart</h3><p>Campionato, pagelle e allenamento</p></div>
     </a>
-    <a class="cell c-frame" data-t="live" style="--d:.18s" href="frame/">
+
+    <a class="cell c-frame" style="--d:.18s" href="frame/">
       <span class="strip" aria-hidden="true"></span>
       <span class="go" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
       <span class="ic" aria-hidden="true"><i class="fa-solid fa-film"></i></span>
       <div><h3>Frame</h3><p>Analisi video frame per frame</p></div>
     </a>
-    <a class="cell c-albero" data-t="live" style="--d:.24s" href="albero.html">
-      <span class="go" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
-      <span class="ic" aria-hidden="true"><i class="fa-solid fa-sitemap"></i></span>
-      <div><h3>Albero genealogico</h3><p>Generazioni, rami e parentele</p></div>
-    </a>
-    <a class="cell c-pranzo" data-t="live" style="--d:.3s" href="pranzo/">
-      <span class="go" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
-      <span class="ic" aria-hidden="true"><i class="fa-solid fa-utensils"></i></span>
-      <div><h3>Pranzo 2.0</h3><p>Menù della settimana e lista della spesa</p></div>
+
+    <a class="cell c-torneo ext" style="--d:.24s" href="https://menems74.github.io/estrazioni_torneo/" rel="noopener">
+      <span class="go" aria-hidden="true"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+      <span class="ic" aria-hidden="true"><i class="fa-solid fa-trophy"></i></span>
+      <div><h3>Gestione tornei</h3><p>Sorteggio, tabellone e classifiche</p></div>
     </a>
 
-      <a class="cell c-torneo ext" data-t="live" style="--d:.36s" href="https://menems74.github.io/estrazioni_torneo/" rel="noopener">
-        <span class="go" aria-hidden="true"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
-        <span class="ic" aria-hidden="true"><i class="fa-solid fa-trophy"></i></span>
-        <div><h3>Gestione tornei</h3><p>Sorteggio, tabellone e classifiche</p></div>
-      </a>
-
-    <a class="cell c-skillai" data-t="live" style="--d:.42s" href="skill-ai/">
+    <a class="cell c-skillai" style="--d:.3s" href="skill-ai/">
       <span class="go" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
       <span class="ic" aria-hidden="true"><i class="fa-solid fa-bookmark"></i></span>
       <div><h3>skill.AI</h3><p>Repo, skill e guide salvate dai social</p></div>
     </a>
 
-    <div class="cell soon" data-t="soon" style="--d:.48s">
-      <span class="badge">Presto</span>
-      <span class="ic" aria-hidden="true"><i class="fa-solid fa-id-card"></i></span>
-      <div><h3>Curriculum</h3><p>Riservato, dopo l'accesso</p></div>
-    </div>
+    <a class="cell c-albero" style="--d:.36s" href="albero.html">
+      <span class="go" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
+      <span class="ic" aria-hidden="true"><i class="fa-solid fa-sitemap"></i></span>
+      <div><h3>Albero genealogico</h3><p>Generazioni, rami e parentele</p></div>
+    </a>
 
-    <div class="cell soon" data-t="soon" style="--d:.54s">
-      <span class="badge">Presto</span>
-      <span class="ic" aria-hidden="true"><i class="fa-solid fa-plus"></i></span>
-      <div><h3>Prossima app</h3><p>Slot libero, da definire</p></div>
-    </div>
+    <a class="cell c-pranzo" style="--d:.42s" href="pranzo/">
+      <span class="go" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
+      <span class="ic" aria-hidden="true"><i class="fa-solid fa-utensils"></i></span>
+      <div><h3>Pranzo 2.0</h3><p>Menù della settimana e lista della spesa</p></div>
+    </a>
 
-    <div class="cell note" style="--d:.6s">
+    <div class="cell note" style="--d:.48s">
       <span>L'elenco cresce man mano che le app vengono pubblicate.</span>
       <a href="https://www.instagram.com/rems_2.0_/" rel="noopener">Seguimi per le novità <i class="fa-brands fa-instagram" aria-hidden="true"></i></a>
     </div>
   </main>
 </div>
-
-<script>
-(function(){
-  var cells = document.querySelectorAll('.cell[data-t]');
-  function count(t){ return document.querySelectorAll('.cell[data-t="' + t + '"]').length; }
-  document.getElementById('n-live').textContent = count('live');
-  document.getElementById('n-soon').textContent = count('soon');
-
-  var buttons = document.querySelectorAll('.filters button');
-  buttons.forEach(function(b){
-    b.addEventListener('click', function(){
-      buttons.forEach(function(x){ x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); });
-      cells.forEach(function(c){ c.classList.toggle('hidden', b.dataset.f !== 'all' && c.dataset.t !== b.dataset.f); });
-    });
-  });
-})();
-</script>
 </body>
 </html>
