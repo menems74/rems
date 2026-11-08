@@ -1,7 +1,7 @@
 // Cloudflare Worker: legge titolo e descrizione di un link.
 // Deploy: dashboard Cloudflare > Workers > Create > incolla questo codice.
 // Facoltativo: sostituisci "*" con l'URL del tuo sito per limitare l'uso.
-const ALLOW_ORIGIN = "*";
+const ALLOW_ORIGIN = "https://menems74.github.io";
 
 const cors = { "Access-Control-Allow-Origin": ALLOW_ORIGIN, "Content-Type": "application/json; charset=utf-8" };
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: cors });
