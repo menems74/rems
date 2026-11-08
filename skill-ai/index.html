@@ -78,6 +78,7 @@ header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px so
 #dCorpo p{margin:0}
 .d-desc{color:var(--mut);font-size:16px;line-height:1.5}
 .d-nota{border-left:3px solid var(--nota);padding:2px 0 2px 12px;color:var(--nota);font-size:16px;line-height:1.5}
+.d-avviso{color:var(--mut);font-size:15px;line-height:1.45;margin:0}
 .d-eti{font-size:13.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
 .stati{display:flex;gap:6px;flex-wrap:wrap}
 .stati button{flex:1 1 30%;min-width:112px;height:48px;border:1px solid var(--line);background:var(--bg);
@@ -298,21 +299,33 @@ function cleanMeta(m){
 
 const store = await makeStore();
 
-async function addLink(url, title="", description=""){
+async function addLink(url, title="", description="", zitto=false){
   const clean = url.trim();
-  if (!/^https?:\/\//i.test(clean)) { toast("Link non valido"); return; }
-  if (items.some(i => i.url === clean)) { toast("Già salvato"); return; }
+  if (!/^https?:\/\//i.test(clean)) { toast("Link non valido"); return null; }
+  const gia = items.find(i => i.url === clean);
+  if (gia) { if (!zitto) toast("Già salvato"); return gia.id; }   // restituisce quello vecchio, così si può annotare
   const id = await store.add({url:clean, title:title.trim(), description:description.trim(), status:"todo", notes:"", createdAt:Date.now()});
-  toast("Salvato ✔");
-  if (!title.trim() || !description.trim()){
-    const m = await fetchMeta(clean);
-    if (m){
-      const patch = {};
-      if (!title.trim() && m.title) patch.title = m.title;
-      if (!description.trim() && m.description) patch.description = m.description;
-      if (Object.keys(patch).length) store.update(id, patch);
-    }
-  }
+  if (!zitto) toast("Salvato ✔");
+  // titolo e descrizione arrivano dopo, senza far aspettare nessuno
+  if (!title.trim() || !description.trim()) completaDalWeb(id, clean, title, description);
+  return id;
+}
+
+async function completaDalWeb(id, url, title, description){
+  const m = await fetchMeta(url);
+  if (!m) return;
+  const patch = {};
+  if (!title.trim() && m.title) patch.title = m.title;
+  if (!description.trim() && m.description) patch.description = m.description;
+  if (Object.keys(patch).length) store.update(id, patch);
+}
+
+// aspetta che il link appena salvato arrivi nell'elenco (Firestore risponde con un attimo di ritardo)
+async function attendiNellElenco(id, msMax = 5000){
+  const t0 = Date.now();
+  while (!items.some(i => i.id === id) && Date.now() - t0 < msMax)
+    await new Promise(r => setTimeout(r, 80));
+  return items.some(i => i.id === id);
 }
 
 /* ---------- Fogli: il tasto indietro del telefono li chiude ---------- */
@@ -333,7 +346,7 @@ const chiudiTornando = () => { if (document.querySelector(".foglio.show")) histo
 window.addEventListener("popstate", () => {
   // dalla modifica il tasto indietro riporta alla lettura, non chiude tutto
   if (inModifica && document.querySelector("#dettaglio.show")){
-    inModifica = false; disegnaDettaglio();
+    inModifica = false; appenaCondiviso = ""; disegnaDettaglio();
     history.pushState({foglio:"dettaglio"}, "");  // rimette il gradino: il foglio resta aperto
     return;
   }
@@ -392,7 +405,7 @@ function render(){
 }
 
 /* ---------- Scheda del link: si legge, e solo se vuoi si modifica ---------- */
-let apertoId = null, inModifica = false;
+let apertoId = null, inModifica = false, toccati = new Set(), appenaCondiviso = "";  // "" | "nuovo" | "gia"
 
 function disegnaDettaglio(){
   const i = items.find(x => x.id === apertoId);
@@ -402,17 +415,23 @@ function disegnaDettaglio(){
   if (inModifica){
     $("#dCorpo").innerHTML = `
       <div class="maniglia"></div>
-      <span class="d-eti">Modifica</span>
+      <span class="d-eti">${appenaCondiviso === "nuovo" ? "Salvato · scrivi la tua nota"
+                            : appenaCondiviso === "gia" ? "Già salvato · aggiungi una nota" : "Modifica"}</span>
+      ${appenaCondiviso && (!i.title || !i.description)
+        ? `<p class="d-avviso">Titolo e descrizione li cerco io: compaiono qui sotto fra un attimo.</p>` : ""}
+      <textarea class="f" data-k="notes" rows="4" placeholder="Le mie considerazioni…">${esc(i.notes)}</textarea>
+      <span class="d-eti">Titolo e descrizione</span>
       <input class="f" data-k="title" placeholder="Titolo" value="${esc(decodeHtml(i.title))}">
       <textarea class="f" data-k="description" rows="4" placeholder="Descrizione">${esc(decodeHtml(i.description))}</textarea>
-      <textarea class="f" data-k="notes" rows="4" placeholder="Le mie considerazioni…">${esc(i.notes)}</textarea>
       <div class="coppia">
         <button class="btn p" data-act="salva">Salva</button>
         <button class="btn" data-act="annulla">Annulla</button>
       </div>`;
+    // tiene conto di quali caselle hai toccato, per non scriverci sopra
+    $("#dCorpo").querySelectorAll("[data-k]").forEach(el =>
+      el.addEventListener("input", () => toccati.add(el.dataset.k)));
     return;
   }
-
   $("#dCorpo").innerHTML = `
     <div class="maniglia"></div>
     <div class="d-alto">
@@ -434,10 +453,32 @@ function disegnaDettaglio(){
     </div>`;
 }
 
+/* Mentre scrivi, il titolo e la descrizione trovati dal Worker possono arrivare:
+   si infilano solo nelle caselle che non hai toccato e che non hai sotto il dito. */
+function aggiornaCaselle(){
+  const i = items.find(x => x.id === apertoId); if (!i) return;
+  for (const k of ["title","description","notes"]){
+    const el = $(`#dCorpo [data-k=${k}]`);
+    if (!el || toccati.has(k) || el === document.activeElement) continue;
+    const valore = k === "notes" ? (i.notes || "") : decodeHtml(i[k] || "");
+    if (el.value !== valore) el.value = valore;
+  }
+  const avviso = $("#dCorpo .d-avviso");
+  if (avviso && i.title && i.description) avviso.remove();
+}
+
 function apriDettaglio(id){
-  apertoId = id; inModifica = false;
+  apertoId = id; inModifica = false; appenaCondiviso = ""; toccati = new Set();
   disegnaDettaglio();
   apriFoglio($("#dettaglio"));
+}
+
+// dopo una condivisione dal social: la scheda si apre già pronta per la nota
+function apriPerLaNota(id, come){
+  apertoId = id; inModifica = true; appenaCondiviso = come; toccati = new Set();
+  disegnaDettaglio();
+  apriFoglio($("#dettaglio"));
+  const n = $("#dCorpo [data-k=notes]"); if (n) n.focus();
 }
 
 $("#dCorpo").addEventListener("click", async e => {
@@ -449,12 +490,18 @@ $("#dCorpo").addEventListener("click", async e => {
     chiudiTornando(); return;
   }
   const act = b.dataset.act;
-  if (act === "modifica"){ inModifica = true; disegnaDettaglio(); return; }
-  if (act === "annulla"){ inModifica = false; disegnaDettaglio(); return; }
+  if (act === "modifica"){ inModifica = true; appenaCondiviso = ""; toccati = new Set(); disegnaDettaglio(); return; }
+  if (act === "annulla"){ inModifica = false; appenaCondiviso = ""; disegnaDettaglio(); return; }
   if (act === "salva"){
-    const g = k => $(`#dCorpo [data-k=${k}]`).value;
-    await store.update(apertoId, {title:g("title"), description:g("description"), notes:g("notes")});
-    inModifica = false; toast("Aggiornato"); chiudiTornando(); return;
+    const patch = {};
+    for (const k of ["title","description","notes"]){
+      const el = $(`#dCorpo [data-k=${k}]`); if (!el) continue;
+      const vecchio = k === "notes" ? (i.notes || "") : decodeHtml(i[k] || "");
+      if (el.value !== vecchio) patch[k] = el.value;   // così non si sovrascrive quello che non hai toccato
+    }
+    inModifica = false;
+    if (Object.keys(patch).length){ await store.update(apertoId, patch); toast("Aggiornato"); }
+    chiudiTornando(); return;
   }
   if (act === "elimina"){
     if (!confirm("Eliminare questo link?")) return;
@@ -497,7 +544,10 @@ $("#nSave").onclick = async () => {
 store.subscribe(a => {
   items = a;
   render();
-  if (apertoId && document.querySelector("#dettaglio.show")) disegnaDettaglio();
+  if (apertoId && document.querySelector("#dettaglio.show")){
+    if (inModifica) aggiornaCaselle();   // non ridisegna: scriveresti sopra alla mia nota
+    else disegnaDettaglio();
+  }
 });
 await new Promise(r => setTimeout(r, 400)); // lascia arrivare il primo elenco, per il controllo dei doppioni
 const p = new URLSearchParams(location.search);
@@ -505,7 +555,10 @@ const shared = extractUrl(p.get("url")) || extractUrl(p.get("text"));
 if (shared){
   history.replaceState(null, "", location.pathname);
   const t = p.get("title") || "";
-  await addLink(shared, t.startsWith("http") ? "" : t);
+  const nuovo = !items.some(i => i.url === shared);
+  const id = await addLink(shared, t.startsWith("http") ? "" : t, "", true);
+  if (id && await attendiNellElenco(id)) apriPerLaNota(id, nuovo ? "nuovo" : "gia");
+  else if (id) toast("Salvato ✔");   // se la scheda non fa in tempo ad aprirsi, almeno lo dico
 }
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");

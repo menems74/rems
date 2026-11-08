@@ -11,6 +11,13 @@ PWA per salvare al volo link a repo, skill e guide visti sui social.
 1. Cloudflare > Workers & Pages > Create Worker > incolla `worker.js` > Deploy.
 2. Copia l'URL del worker in `WORKER_URL` dentro `index.html`.
 
+## Condivisione dai social
+Condividi il link verso skill.AI: viene salvato subito e si apre la scheda gia' pronta
+per la nota, col cursore nella casella delle considerazioni. Titolo e descrizione
+arrivano dal Worker qualche istante dopo e si infilano da soli nelle caselle, senza
+toccare quello che stai scrivendo. Condividendo un link gia' salvato non si crea un
+doppione: si riapre quello di prima, per aggiungere una nota.
+
 ## Come e' fatto l'elenco
 I link sono raccolti per quando li hai salvati (Questa settimana / Questo mese / Prima).
 Ogni riga mostra titolo, stato, dominio, quanto tempo fa e la tua nota, se c'e'.
