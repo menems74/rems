@@ -21,9 +21,17 @@ doppione: si riapre quello di prima, per aggiungere una nota.
 ## Come e' fatto l'elenco
 I link sono raccolti per quando li hai salvati (Questa settimana / Questo mese / Prima).
 Ogni riga mostra titolo, stato, dominio, quanto tempo fa e la tua nota, se c'e'.
-Gli stati sono tre: Da vedere, Provata, Installata. Si scelgono toccando la riga.
-"Scartata" non si puo' piu' scegliere: resta solo sui link scartati prima del novembre 2026,
-cosi' si vedono ancora nell'elenco e si possono eliminare a mano.
+Ogni link ha un livello di interesse, che si sceglie toccando la riga:
+Subito (arancio), Appena ho tempo (azzurro, e' quello di partenza), Un giorno (grigio),
+Fatto (verde, per quello che hai gia' provato o installato).
+Nell'elenco la parola compare solo quando dice qualcosa: "Appena ho tempo" e' il livello
+normale e resta muto, lo riconosci dal filetto azzurro.
+Nella fila dei filtri compaiono solo i livelli che hanno almeno un link.
+
+I link salvati prima avevano altri nomi: Da vedere diventa Appena ho tempo, Provata e
+Installata diventano Fatto, Scartata resta ma non si puo' piu' scegliere. E' solo una
+traduzione a schermo: nel database il valore vecchio resta scritto (vedi VECCHI in
+index.html), quindi si puo' tornare indietro in qualsiasi momento.
 
 ## Dati e accesso
 I link sono su Firebase (progetto `albero-ceni`, lo stesso dell'Albero) in `utenti/{uid}/skill-ai`.

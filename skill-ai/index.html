@@ -9,7 +9,7 @@
 <title>skill.AI</title>
 <style>
 :root{--bg:#0f172a;--card:#1e293b;--line:#334155;--txt:#f1f5f9;--mut:#94a3b8;--acc:#38bdf8;
-  --s-todo:#38bdf8;--s-tried:#fbbf24;--s-inst:#4ade80;--s-drop:#64748b;
+  --s-subito:#f97316;--s-tempo:#38bdf8;--s-giorno:#94a3b8;--s-fatto:#4ade80;--s-drop:#475569;
   --nota:#a5b4fc;--pericolo:#f87171;--velo:#000a}
 @media (prefers-color-scheme:light){
   :root{--bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--txt:#0f172a;--mut:#64748b;
@@ -81,9 +81,9 @@ header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px so
 .d-avviso{color:var(--mut);font-size:15px;line-height:1.45;margin:0}
 .d-eti{font-size:13.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
 .stati{display:flex;gap:6px;flex-wrap:wrap}
-.stati button{flex:1 1 30%;min-width:112px;height:48px;border:1px solid var(--line);background:var(--bg);
+.stati button{flex:1 1 46%;min-width:0;height:48px;padding:0 10px;border:1px solid var(--line);background:var(--bg);
   color:var(--txt);border-radius:12px;font-size:15px;display:inline-flex;align-items:center;justify-content:center;gap:7px}
-.stati button.on{border-color:var(--acc);background:var(--acc);color:#0f172a;font-weight:700}
+.stati button.on{border-color:var(--c);background:var(--c);color:#0f172a;font-weight:700}
 .stati button.on .pallino{display:none}
 
 .btn{min-height:48px;border:1px solid var(--line);background:var(--bg);color:var(--txt);border-radius:12px;
@@ -175,11 +175,17 @@ const SDK = "https://www.gstatic.com/firebasejs/10.12.5/";
 /* Gli stati che si possono scegliere sono tre.
    "drop" (Scartata) non si sceglie più: resta solo per i link scartati prima,
    così si vedono ancora nell'elenco e si possono eliminare a mano. */
-const STATI  = {todo:"Da vedere", tried:"Provata",  inst:"Installata"};
-const PLUR   = {todo:"Da vedere", tried:"Provate",  inst:"Installate"};
-const SCELTE = ["todo","tried","inst"];
+const STATI  = {subito:"Subito", tempo:"Appena ho tempo", giorno:"Un giorno", fatto:"Fatto"};
+const SCELTE = ["subito","tempo","giorno","fatto"];
+const NORMALE = "tempo";   // il livello di chi ha solo messo da parte il link
+
+/* I link salvati prima avevano altri nomi. Il valore vecchio resta scritto nel
+   database: qui si traduce soltanto per mostrarlo, così si può sempre tornare indietro.
+   "drop" (Scartata) non si sceglie più, ma resta riconosciuto per ritrovarle ed eliminarle. */
+const VECCHI = {todo:"tempo", tried:"fatto", inst:"fatto"};
+const liv = s => STATI[s] ? s : (VECCHI[s] || (s === "drop" ? "drop" : NORMALE));
 const etichetta = s => STATI[s] || "Scartata";
-const plurale   = s => PLUR[s]  || "Scartate";
+const perIlFiltro = s => s === "drop" ? "Scartate" : STATI[s];
 
 const $ = s => document.querySelector(s);
 let items = [], filtro = "all", query = "";
@@ -304,7 +310,7 @@ async function addLink(url, title="", description="", zitto=false){
   if (!/^https?:\/\//i.test(clean)) { toast("Link non valido"); return null; }
   const gia = items.find(i => i.url === clean);
   if (gia) { if (!zitto) toast("Già salvato"); return gia.id; }   // restituisce quello vecchio, così si può annotare
-  const id = await store.add({url:clean, title:title.trim(), description:description.trim(), status:"todo", notes:"", createdAt:Date.now()});
+  const id = await store.add({url:clean, title:title.trim(), description:description.trim(), status:NORMALE, notes:"", createdAt:Date.now()});
   if (!zitto) toast("Salvato ✔");
   // titolo e descrizione arrivano dopo, senza far aspettare nessuno
   if (!title.trim() || !description.trim()) completaDalWeb(id, clean, title, description);
@@ -361,11 +367,11 @@ const FASCE = [["Questa settimana", 7], ["Questo mese", 30], ["Prima", Infinity]
 
 function rigaHtml(i){
   return `<button class="riga" data-id="${i.id}">
-    <span class="filo" style="background:var(--s-${i.status||"todo"})"></span>
+    <span class="filo" style="background:var(--s-${liv(i.status)})"></span>
     <span class="tipo" aria-hidden="true">${SEGNI[tipo(i.url)]}</span>
     <span class="corpo">
       <span class="tit">${esc(decodeHtml(i.title)) || esc(dominio(i.url))}</span>
-      <span class="meta"><span class="stato">${etichetta(i.status)}</span><span>·</span>${esc(dominio(i.url))}<span>·</span>${quando(i.createdAt)}</span>
+      <span class="meta">${liv(i.status) === NORMALE ? "" : `<span class="stato">${etichetta(liv(i.status))}</span><span>·</span>`}${esc(dominio(i.url))}<span>·</span>${quando(i.createdAt)}</span>
       ${i.notes ? `<span class="nota">${esc(i.notes)}</span>` : ""}
     </span>
   </button>`;
@@ -373,16 +379,19 @@ function rigaHtml(i){
 
 function render(){
   // filtri: "Tutte" più i tre stati, e "Scartate" solo se ne è rimasta qualcuna da prima
-  const presenti = SCELTE.concat(items.some(i => !STATI[i.status]) ? ["drop"] : []);
+  // si mostrano solo i livelli che hanno almeno un link: la fila resta corta
+  // e i livelli nuovi compaiono man mano che li usi
+  const quanti = s => items.filter(i => liv(i.status) === s).length;
+  const presenti = SCELTE.concat("drop").filter(s => quanti(s) > 0);
   $("#filtri").innerHTML =
     `<button data-f="all" class="${filtro==="all"?"on":""}">Tutte <b>${items.length}</b></button>` +
     presenti.map(s => `<button data-f="${s}" class="${filtro===s?"on":""}">
-        <span class="pallino" style="background:var(--s-${s})"></span>${plurale(s)} <b>${items.filter(i=>(i.status||"todo")===s).length}</b>
+        <span class="pallino" style="background:var(--s-${s})"></span>${perIlFiltro(s)} <b>${quanti(s)}</b>
       </button>`).join("");
 
   const q = query.toLowerCase();
   const visti = items.filter(i =>
-    (filtro === "all" || (i.status||"todo") === filtro) &&
+    (filtro === "all" || liv(i.status) === filtro) &&
     (!q || [i.title,i.description,i.notes,i.url].join(" ").toLowerCase().includes(q))
   ).sort((x,y) => y.createdAt - x.createdAt);
 
@@ -410,7 +419,7 @@ let apertoId = null, inModifica = false, toccati = new Set(), appenaCondiviso = 
 function disegnaDettaglio(){
   const i = items.find(x => x.id === apertoId);
   if (!i){ chiudiFoglio(); return; }
-  const st = i.status || "todo";
+  const st = liv(i.status);
 
   if (inModifica){
     $("#dCorpo").innerHTML = `
@@ -442,9 +451,9 @@ function disegnaDettaglio(){
     ${i.description ? `<p class="d-desc">${esc(decodeHtml(i.description))}</p>` : ""}
     ${i.notes ? `<p class="d-nota">${esc(i.notes)}</p>` : ""}
     <a class="btn p" href="${esc(i.url)}" target="_blank" rel="noopener">Apri il link</a>
-    <span class="d-eti">A che punto sono</span>
-    <div class="stati" role="group" aria-label="Stato del link">
-      ${SCELTE.map(s => `<button data-set="${s}" class="${st===s?"on":""}" aria-pressed="${st===s}">
+    <span class="d-eti">Quanto mi interessa</span>
+    <div class="stati" role="group" aria-label="Quanto mi interessa">
+      ${SCELTE.map(s => `<button data-set="${s}" class="${st===s?"on":""}" aria-pressed="${st===s}" style="--c:var(--s-${s})">
         <span class="pallino" style="background:var(--s-${s})"></span>${STATI[s]}</button>`).join("")}
     </div>
     <div class="coppia">
@@ -486,7 +495,7 @@ $("#dCorpo").addEventListener("click", async e => {
   const i = items.find(x => x.id === apertoId); if (!i) return;
 
   if (b.dataset.set){                       // cambio di stato: un tocco, quello che scegli
-    if ((i.status||"todo") !== b.dataset.set) await store.update(apertoId, {status:b.dataset.set});
+    if (liv(i.status) !== b.dataset.set) await store.update(apertoId, {status:b.dataset.set});
     chiudiTornando(); return;
   }
   const act = b.dataset.act;
