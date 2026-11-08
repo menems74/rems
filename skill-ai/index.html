@@ -23,6 +23,8 @@ main{padding:12px 14px;display:grid;gap:10px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
 .top{display:flex;gap:8px;align-items:flex-start;justify-content:space-between}
 .title{font-weight:600;font-size:20px;word-break:break-word;flex:1}
+.title{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card.open .title{-webkit-line-clamp:unset}
 .dom{color:var(--mut);font-size:16px;margin-top:2px}
 .desc{color:var(--mut);font-size:17px;margin-top:6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .card.open .desc{-webkit-line-clamp:unset}
@@ -163,8 +165,28 @@ async function fetchMeta(url){
   try {
     const r = await fetch(WORKER_URL + "?url=" + encodeURIComponent(url));
     if (!r.ok) return null;
-    return await r.json();
+    return cleanMeta(await r.json());
   } catch { return null; }
+}
+
+/* Ripulisce titoli e descrizioni dei social (Instagram/TikTok mettono tutta la didascalia nel titolo) */
+const decodeHtml = s => { const t = document.createElement("textarea"); t.innerHTML = s || ""; return t.value; };
+const cut = (s, n) => s.length > n ? s.slice(0, n).replace(/\s+\S*$/, "") + "…" : s;
+const noTags = s => s.replace(/(^|\s)#[\p{L}\p{N}_]+/gu, " ").replace(/\s+/g, " ").trim();
+function cleanMeta(m){
+  let title = decodeHtml(m.title).trim(), description = decodeHtml(m.description).trim();
+  // "Autore su Instagram: "didascalia"" / "Autore on Instagram: "..."" / "... | TikTok"
+  const ig = title.match(/^(.*?)\s+(?:su|on)\s+(Instagram|TikTok|Threads|Facebook)\s*:\s*["“]?([\s\S]*?)["”]?\s*$/i);
+  let author = "", caption = "";
+  if (ig){ author = ig[1].trim(); caption = ig[3]; }
+  else if (/\|\s*TikTok\s*$/i.test(title)){ caption = title.replace(/\|\s*TikTok\s*$/i, ""); }
+  if (ig || caption){
+    caption = noTags(caption);
+    const first = (caption.split(/(?<=[.!?])\s|\n|\s(?=\p{Extended_Pictographic})/u)[0] || caption).trim();
+    title = (author ? author + " · " : "") + cut(first, 80);
+    if (!description || description.length < caption.length || /\d+\s*(likes|Mi piace)/i.test(description)) description = caption;
+  }
+  return { title: cut(title, 110), description: cut(noTags(description), 400) };
 }
 
 const store = await makeStore();
@@ -200,11 +222,11 @@ function render(){
   $("#list").innerHTML = list.length ? list.map(i => `
     <div class="card" data-id="${i.id}">
       <div class="top">
-        <div class="title">${esc(i.title) || esc(domain(i.url))}</div>
+        <div class="title">${esc(decodeHtml(i.title)) || esc(domain(i.url))}</div>
         <button class="chip" data-s="${i.status}" data-act="cycle">${STATES[i.status]}</button>
       </div>
       <div class="dom">${esc(domain(i.url))}</div>
-      ${i.description ? `<div class="desc">${esc(i.description)}</div>` : ""}
+      ${i.description ? `<div class="desc">${esc(decodeHtml(i.description))}</div>` : ""}
       <div class="more">
         <input class="f" data-k="title" placeholder="Titolo" value="${esc(i.title)}">
         <textarea data-k="description" rows="2" placeholder="Descrizione">${esc(i.description)}</textarea>
