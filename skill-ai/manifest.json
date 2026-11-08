@@ -1,18 +1,20 @@
 {
+  "id": "/rems/skill-ai/app",
   "name": "skill.AI",
   "short_name": "skill.AI",
-  "description": "Link a repo, skill e guide da provare",
-  "start_url": "./index.html",
-  "scope": "./",
+  "description": "Repo, skill e guide AI salvate dai social",
+  "start_url": "/rems/skill-ai/",
+  "scope": "/rems/skill-ai/",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "share_target": {
-    "action": "./index.html",
+    "action": "/rems/skill-ai/",
     "method": "GET",
     "params": { "title": "title", "text": "text", "url": "url" }
   }
