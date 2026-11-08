@@ -9,78 +9,156 @@
 <title>skill.AI</title>
 <style>
 :root{--bg:#0f172a;--card:#1e293b;--line:#334155;--txt:#f1f5f9;--mut:#94a3b8;--acc:#38bdf8;
---s-todo:#38bdf8;--s-tried:#fbbf24;--s-inst:#4ade80;--s-drop:#f87171}
-@media (prefers-color-scheme:light){:root{--bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--txt:#0f172a;--mut:#64748b}}
+  --s-todo:#38bdf8;--s-tried:#fbbf24;--s-inst:#4ade80;--s-drop:#64748b;
+  --nota:#a5b4fc;--pericolo:#f87171;--velo:#000a}
+@media (prefers-color-scheme:light){
+  :root{--bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--txt:#0f172a;--mut:#64748b;
+    --nota:#4f46e5;--pericolo:#dc2626;--velo:#0f172a66}
+}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--txt);font:19px/1.45 system-ui,sans-serif;padding-bottom:90px}
-header{position:sticky;top:0;background:var(--bg);padding:12px 14px 8px;z-index:5;border-bottom:1px solid var(--line)}
-h1{margin:0 0 10px;font-size:26px}
-#q{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--txt);font-size:19px}
-.filters{display:flex;gap:6px;overflow-x:auto;margin-top:8px;padding-bottom:2px}
-.filters button{flex:none;border:1px solid var(--line);background:var(--card);color:var(--txt);border-radius:999px;padding:8px 14px;font-size:17px}
-.filters button.on{background:var(--acc);color:#0f172a;border-color:var(--acc);font-weight:600}
-main{padding:12px 14px;display:grid;gap:10px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
-.top{display:flex;gap:8px;align-items:flex-start;justify-content:space-between}
-.title{font-weight:600;font-size:20px;word-break:break-word;flex:1}
-.title{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.card.open .title{-webkit-line-clamp:unset}
-.dom{color:var(--mut);font-size:16px;margin-top:2px}
-.desc{color:var(--mut);font-size:17px;margin-top:6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.card.open .desc{-webkit-line-clamp:unset}
-.chip{flex:none;border:0;border-radius:999px;padding:8px 12px;font-size:16px;font-weight:600;color:#0f172a}
-.chip[data-s=todo]{background:var(--s-todo)}.chip[data-s=tried]{background:var(--s-tried)}
-.chip[data-s=inst]{background:var(--s-inst)}.chip[data-s=drop]{background:var(--s-drop)}
-.more{display:none;margin-top:10px;gap:8px;flex-direction:column}
-.card.open .more{display:flex}
-textarea,input.f{width:100%;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font:inherit}
-.row{display:flex;gap:8px;flex-wrap:wrap}
-.btn{border:1px solid var(--line);background:var(--card);color:var(--txt);border-radius:10px;padding:11px 16px;font-size:18px;text-decoration:none}
-.btn.p{background:var(--acc);color:#0f172a;border-color:var(--acc);font-weight:600}
-.btn.d{color:var(--s-drop)}
-#fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));width:58px;height:58px;border-radius:50%;border:0;background:var(--acc);color:#0f172a;font-size:32px;box-shadow:0 4px 14px #0006}
-#sheet{position:fixed;inset:0;background:#000a;display:none;align-items:flex-end;z-index:20}
-#sheet.show{display:flex}
-#sheet .in{background:var(--card);width:100%;border-radius:18px 18px 0 0;padding:16px;display:grid;gap:10px}
-#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#111c;color:#fff;padding:10px 16px;border-radius:999px;font-size:17px;opacity:0;transition:.25s;pointer-events:none;z-index:30}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--txt);font:17px/1.4 system-ui,sans-serif;padding-bottom:100px}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px;border-radius:10px}
+
+/* ---------- Barra in alto: solo nome e lente, 61 px ---------- */
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.testa{display:flex;align-items:center;gap:6px;padding:8px 10px 8px 14px;min-height:60px}
+.marchio{font-size:20px;font-weight:700;letter-spacing:-.01em;flex:1}
+.tondo{width:44px;height:44px;flex:none;border:0;background:none;color:var(--mut);
+  display:grid;place-items:center;border-radius:12px}
+.tondo:active,.tondo.on{background:var(--card);color:var(--txt)}
+.cerca{padding:0 14px 10px}
+.cerca input{width:100%;height:46px;padding:0 14px;border-radius:12px;border:1px solid var(--line);
+  background:var(--card);color:var(--txt);font-size:17px}
+
+/* ---------- Filtri: vanno a capo, non si tagliano ---------- */
+.filtri{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px 2px}
+.filtri button{border:1px solid var(--line);background:var(--card);color:var(--txt);border-radius:999px;
+  padding:0 14px;height:46px;font-size:15px;display:inline-flex;align-items:center;gap:7px}
+.filtri button.on{background:var(--acc);color:#0f172a;border-color:var(--acc);font-weight:600}
+.filtri button b{font-weight:700}
+.pallino{width:9px;height:9px;border-radius:50%;flex:none}
+
+/* ---------- Titolo di gruppo ---------- */
+.gruppo{display:flex;align-items:center;gap:9px;margin:0;padding:20px 14px 7px;font-size:13.5px;
+  font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.gruppo b{margin-left:auto;font-weight:700;letter-spacing:0;text-transform:none;font-size:15px}
+
+/* ---------- La riga ---------- */
+.riga{display:flex;gap:11px;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);
+  padding:11px 14px 11px 0;background:var(--card);color:var(--txt);font:inherit;align-items:flex-start}
+.riga:first-of-type{border-top:1px solid var(--line)}
+.riga:active{background:var(--bg)}
+.filo{width:4px;flex:none;align-self:stretch;border-radius:0 4px 4px 0;margin-right:7px}
+.tipo{width:36px;height:36px;flex:none;border-radius:10px;display:grid;place-items:center;
+  background:rgba(148,163,184,.14);color:var(--mut);margin-top:1px}
+.tipo svg{width:20px;height:20px;display:block}
+.corpo{flex:1;min-width:0}
+.tit{font-size:18px;font-weight:600;line-height:1.3;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.meta{margin-top:4px;font-size:14.5px;color:var(--mut);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.meta .stato{color:var(--txt);font-weight:600}
+.nota{margin-top:5px;font-size:14.5px;color:var(--nota);
+  display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.vuoto{text-align:center;color:var(--mut);padding:52px 24px;font-size:16px;line-height:1.5}
+
+/* ---------- Bottone aggiungi ---------- */
+#fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));width:60px;height:60px;
+  border-radius:50%;border:0;background:var(--acc);color:#0f172a;font-size:32px;box-shadow:0 6px 18px #0007;z-index:6}
+
+/* ---------- Fogli che salgono dal basso ---------- */
+.foglio{position:fixed;inset:0;background:var(--velo);display:none;align-items:flex-end;z-index:20}
+.foglio.show{display:flex}
+.foglio .dentro{background:var(--card);width:100%;max-height:92vh;overflow:auto;
+  border-radius:20px 20px 0 0;padding:10px 16px calc(18px + env(safe-area-inset-bottom));display:grid;gap:12px}
+.maniglia{width:42px;height:5px;border-radius:3px;background:var(--line);margin:2px auto 4px}
+
+.d-alto{display:flex;align-items:center;gap:9px;color:var(--mut);font-size:14.5px}
+.d-tit{font-size:21px;font-weight:700;line-height:1.25;margin:0}
+#dCorpo p{margin:0}
+.d-desc{color:var(--mut);font-size:16px;line-height:1.5}
+.d-nota{border-left:3px solid var(--nota);padding:2px 0 2px 12px;color:var(--nota);font-size:16px;line-height:1.5}
+.d-eti{font-size:13.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.stati{display:flex;gap:6px;flex-wrap:wrap}
+.stati button{flex:1 1 30%;min-width:112px;height:48px;border:1px solid var(--line);background:var(--bg);
+  color:var(--txt);border-radius:12px;font-size:15px;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.stati button.on{border-color:var(--acc);background:var(--acc);color:#0f172a;font-weight:700}
+.stati button.on .pallino{display:none}
+
+.btn{min-height:48px;border:1px solid var(--line);background:var(--bg);color:var(--txt);border-radius:12px;
+  padding:0 18px;font-size:17px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:9px}
+.btn:active{background:var(--card)}
+.btn.p{background:var(--acc);color:#0f172a;border-color:var(--acc);font-weight:700}
+.btn.d{color:var(--pericolo);border-color:var(--pericolo)}
+.coppia{display:flex;gap:8px}
+.coppia .btn{flex:1}
+input.f,textarea.f{width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--line);
+  background:var(--bg);color:var(--txt);font:inherit}
+
+#toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:#111e;color:#fff;
+  padding:11px 18px;border-radius:999px;font-size:16px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:30}
 #toast.show{opacity:1}
-.empty{text-align:center;color:var(--mut);padding:40px 10px}
+#login{display:none;position:fixed;inset:0;background:var(--bg);z-index:40;align-items:center;justify-content:center;padding:20px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
+
 <header>
-  <h1 style="display:flex;justify-content:space-between;align-items:center">📌 skill.AI <button id="logout" class="btn" hidden style="font-size:16px;padding:7px 12px">Esci</button></h1>
-  <input id="q" type="search" placeholder="Cerca…">
-  <div class="filters" id="filters"></div>
+  <div class="testa">
+    <span class="marchio">skill.AI</span>
+    <button class="tondo" id="bCerca" aria-label="Cerca" aria-expanded="false">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+    </button>
+    <button class="tondo" id="logout" aria-label="Esci" hidden>
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3.5A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5H15"/><path d="M10 8l-4 4 4 4M6 12h9"/></svg>
+    </button>
+  </div>
+  <div class="cerca" id="cerca" hidden><input id="q" type="search" placeholder="Cerca fra i link salvati…"></div>
 </header>
-<main id="list"></main>
-<button id="fab" aria-label="Aggiungi">+</button>
 
-<div id="sheet"><div class="in">
-  <strong>Nuovo link</strong>
-  <input class="f" id="nUrl" type="url" placeholder="Incolla il link" inputmode="url">
-  <input class="f" id="nTitle" placeholder="Titolo (opzionale)">
-  <textarea id="nDesc" rows="3" placeholder="Descrizione (opzionale, se vuota la cerco io)"></textarea>
-  <div class="row"><button class="btn p" id="nSave">Salva</button><button class="btn" id="nCancel">Annulla</button></div>
-</div></div>
-<div id="toast"></div>
+<div class="filtri" id="filtri"></div>
+<main id="lista"></main>
+<button id="fab" aria-label="Aggiungi un link">+</button>
 
-<div id="login" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:40;align-items:center;justify-content:center;padding:20px">
+<!-- Scheda del singolo link: prima si legge, poi semmai si modifica -->
+<div class="foglio" id="dettaglio" role="dialog" aria-modal="true" aria-label="Link salvato">
+  <div class="dentro" id="dCorpo"></div>
+</div>
+
+<!-- Aggiunta a mano -->
+<div class="foglio" id="nuovo" role="dialog" aria-modal="true" aria-label="Nuovo link">
+  <div class="dentro">
+    <div class="maniglia"></div>
+    <strong>Nuovo link</strong>
+    <input class="f" id="nUrl" type="url" placeholder="Incolla il link" inputmode="url">
+    <input class="f" id="nTitle" placeholder="Titolo (se lo lasci vuoto lo cerco io)">
+    <textarea class="f" id="nDesc" rows="3" placeholder="Descrizione (se la lasci vuota la cerco io)"></textarea>
+    <div class="coppia">
+      <button class="btn p" id="nSave">Salva</button>
+      <button class="btn" id="nCancel">Annulla</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div id="login">
   <form id="loginForm" style="width:100%;max-width:360px;display:grid;gap:10px">
-    <h1 style="margin:0 0 6px">📌 skill.AI</h1>
-    <span style="color:var(--mut);font-size:14px">Accedi con l'account Firebase del sito (lo stesso dell'Albero). Resterai collegato su questo dispositivo.</span>
+    <h1 style="margin:0 0 6px;font-size:24px">skill.AI</h1>
+    <span style="color:var(--mut);font-size:15px;line-height:1.45">Accedi con l'account del sito (lo stesso dell'Albero). Resterai collegato su questo dispositivo.</span>
     <input class="f" id="lEmail" type="email" placeholder="Email" autocomplete="username" required>
     <input class="f" id="lPass" type="password" placeholder="Password" autocomplete="current-password" required>
     <button class="btn p" type="submit">Accedi</button>
-    <span id="lErr" style="color:var(--s-drop);font-size:14px"></span>
+    <span id="lErr" style="color:var(--pericolo);font-size:15px"></span>
   </form>
 </div>
 
 <script type="module">
 /* ====== CONFIG ====== */
-// Imposta qui l'URL del Worker Cloudflare (vedi README). Se vuoto: niente descrizione automatica.
+// URL del Worker Cloudflare che legge titolo e descrizione (vedi README). Se vuoto: niente descrizione automatica.
 const WORKER_URL = "https://skill-ai-meta.menems-700.workers.dev/";
-// Stesso progetto Firebase dell'Albero genealogico (albero.html). Se null: salvataggio solo locale.
+// Stesso progetto Firebase dell'Albero genealogico. Se null: salvataggio solo locale.
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyBXM0o09kuJfqt5ekSqazZoTzDFKCR2WxM",
   authDomain: "albero-ceni.firebaseapp.com",
@@ -93,17 +171,24 @@ const FIREBASE_CONFIG = {
 const SDK = "https://www.gstatic.com/firebasejs/10.12.5/";
 /* ==================== */
 
-const STATES = {todo:"📥 Da vedere", tried:"🧪 Provata", inst:"✅ Installata", drop:"❌ Scartata"};
-const ORDER = ["todo","tried","inst","drop"];
-const $ = s => document.querySelector(s);
-let items = [], filter = "all", query = "";
+/* Gli stati che si possono scegliere sono tre.
+   "drop" (Scartata) non si sceglie più: resta solo per i link scartati prima,
+   così si vedono ancora nell'elenco e si possono eliminare a mano. */
+const STATI  = {todo:"Da vedere", tried:"Provata",  inst:"Installata"};
+const PLUR   = {todo:"Da vedere", tried:"Provate",  inst:"Installate"};
+const SCELTE = ["todo","tried","inst"];
+const etichetta = s => STATI[s] || "Scartata";
+const plurale   = s => PLUR[s]  || "Scartate";
 
-/* ---------- Store (Firebase oppure localStorage) ---------- */
+const $ = s => document.querySelector(s);
+let items = [], filtro = "all", query = "";
+
+/* ---------- Archivio (Firebase oppure localStorage) ---------- */
 async function makeStore(){
   if (FIREBASE_CONFIG){
     const app = await import(SDK + "firebase-app.js");
-    const fs = await import(SDK + "firebase-firestore.js");
-    const au = await import(SDK + "firebase-auth.js");
+    const fs  = await import(SDK + "firebase-firestore.js");
+    const au  = await import(SDK + "firebase-auth.js");
     const fbApp = app.initializeApp(FIREBASE_CONFIG);
     const auth = au.getAuth(fbApp);
     const db = fs.getFirestore(fbApp);
@@ -155,10 +240,33 @@ async function makeStore(){
 }
 
 /* ---------- Utilità ---------- */
-const domain = u => { try { return new URL(u).hostname.replace(/^www\./,""); } catch { return u; } };
+const dominio = u => { try { return new URL(u).hostname.replace(/^www\./,""); } catch { return u; } };
 const toast = m => { const t=$("#toast"); t.textContent=m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2200); };
 const extractUrl = s => (s||"").match(/https?:\/\/[^\s]+/)?.[0] || "";
 const esc = s => (s||"").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* Dal dominio si capisce che roba è: un video da guardare, un repo o una guida da leggere */
+function tipo(u){
+  const d = dominio(u);
+  if (/instagram|tiktok|youtube|youtu\.be|facebook|threads|vimeo/.test(d)) return "video";
+  if (/github|gitlab|huggingface|npmjs|pypi/.test(d)) return "repo";
+  return "guida";
+}
+const SEGNI = {
+  video:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="3.5"/><path d="M10 9.3l5 2.7-5 2.7z" fill="currentColor" stroke="none"/></svg>',
+  repo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 8L5 12l3.5 4M15.5 8L19 12l-3.5 4"/></svg>',
+  guida:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 3.5h9l5 5v12h-14z"/><path d="M14 3.5v5h5M8.5 13h7M8.5 16.5h5"/></svg>'
+};
+const NOMETIPO = {video:"Video", repo:"Repo", guida:"Guida"};
+
+const quando = t => {
+  const d = Math.floor((Date.now() - t)/86400000);
+  if (d <= 0) return "oggi";
+  if (d === 1) return "ieri";
+  if (d < 7) return d + " giorni";
+  if (d < 30){ const n = Math.round(d/7); return n === 1 ? "1 settimana" : n + " settimane"; }
+  const m = Math.round(d/30); return m === 1 ? "1 mese" : m + " mesi";
+};
 
 async function fetchMeta(url){
   if (!WORKER_URL) return null;
@@ -175,7 +283,6 @@ const cut = (s, n) => s.length > n ? s.slice(0, n).replace(/\s+\S*$/, "") + "…
 const noTags = s => s.replace(/(^|\s)#[\p{L}\p{N}_]+/gu, " ").replace(/\s+/g, " ").trim();
 function cleanMeta(m){
   let title = decodeHtml(m.title).trim(), description = decodeHtml(m.description).trim();
-  // "Autore su Instagram: "didascalia"" / "Autore on Instagram: "..."" / "... | TikTok"
   const ig = title.match(/^(.*?)\s+(?:su|on)\s+(Instagram|TikTok|Threads|Facebook)\s*:\s*["“]?([\s\S]*?)["”]?\s*$/i);
   let author = "", caption = "";
   if (ig){ author = ig[1].trim(); caption = ig[3]; }
@@ -208,69 +315,191 @@ async function addLink(url, title="", description=""){
   }
 }
 
-/* ---------- Rendering ---------- */
-function render(){
-  const f = $("#filters");
-  f.innerHTML = ["all","todo","tried","inst","drop"].map(k => {
-    const n = k==="all" ? items.length : items.filter(i=>i.status===k).length;
-    return `<button data-f="${k}" class="${filter===k?"on":""}">${k==="all"?"Tutte":STATES[k]} ${n}</button>`;
-  }).join("");
-  const q = query.toLowerCase();
-  const list = items.filter(i => (filter==="all" || i.status===filter) &&
-    (!q || [i.title,i.description,i.notes,i.url].join(" ").toLowerCase().includes(q)))
-    .sort((x,y) => ORDER.indexOf(x.status) - ORDER.indexOf(y.status) || y.createdAt - x.createdAt);
-  $("#list").innerHTML = list.length ? list.map(i => `
-    <div class="card" data-id="${i.id}">
-      <div class="top">
-        <div class="title">${esc(decodeHtml(i.title)) || esc(domain(i.url))}</div>
-        <button class="chip" data-s="${i.status}" data-act="cycle">${STATES[i.status]}</button>
-      </div>
-      <div class="dom">${esc(domain(i.url))}</div>
-      ${i.description ? `<div class="desc">${esc(decodeHtml(i.description))}</div>` : ""}
-      <div class="more">
-        <input class="f" data-k="title" placeholder="Titolo" value="${esc(i.title)}">
-        <textarea data-k="description" rows="2" placeholder="Descrizione">${esc(i.description)}</textarea>
-        <textarea data-k="notes" rows="3" placeholder="Le mie considerazioni…">${esc(i.notes)}</textarea>
-        <div class="row">
-          <a class="btn p" href="${esc(i.url)}" target="_blank" rel="noopener">Apri</a>
-          <button class="btn" data-act="save">Salva note</button>
-          <button class="btn d" data-act="del">Elimina</button>
-        </div>
-      </div>
-    </div>`).join("") : `<div class="empty">Niente qui. Condividi un link dal social verso "skill.AI".</div>`;
+/* ---------- Fogli: il tasto indietro del telefono li chiude ---------- */
+function apriFoglio(el){
+  el.classList.add("show");
+  document.body.style.overflow = "hidden";
+  history.pushState({foglio:el.id}, "");
 }
-
-$("#filters").addEventListener("click", e => { const b=e.target.closest("button"); if(b){filter=b.dataset.f; render();} });
-$("#q").addEventListener("input", e => { query=e.target.value; render(); });
-
-$("#list").addEventListener("click", async e => {
-  const card = e.target.closest(".card"); if(!card) return;
-  const id = card.dataset.id, it = items.find(x=>x.id===id), act = e.target.closest("[data-act]")?.dataset.act;
-  if (act==="cycle"){ store.update(id,{status:ORDER[(ORDER.indexOf(it.status)+1)%ORDER.length]}); return; }
-  if (act==="save"){
-    const g = k => card.querySelector(`[data-k=${k}]`).value;
-    await store.update(id,{title:g("title"),description:g("description"),notes:g("notes")}); toast("Aggiornato"); return;
+function chiudiFoglio(){
+  const el = document.querySelector(".foglio.show");
+  if (!el) return;
+  el.classList.remove("show");
+  document.body.style.overflow = "";
+  if (el.id === "dettaglio"){ apertoId = null; inModifica = false; }
+}
+// chiusura voluta dall'utente: torna indietro, così la cronologia resta pulita
+const chiudiTornando = () => { if (document.querySelector(".foglio.show")) history.back(); };
+window.addEventListener("popstate", () => {
+  // dalla modifica il tasto indietro riporta alla lettura, non chiude tutto
+  if (inModifica && document.querySelector("#dettaglio.show")){
+    inModifica = false; disegnaDettaglio();
+    history.pushState({foglio:"dettaglio"}, "");  // rimette il gradino: il foglio resta aperto
+    return;
   }
-  if (act==="del"){ if(confirm("Eliminare questo link?")) store.remove(id); return; }
-  if (e.target.closest("a,input,textarea")) return;
-  card.classList.toggle("open");
+  chiudiFoglio();
+});
+document.querySelectorAll(".foglio").forEach(f => {
+  f.addEventListener("click", e => { if (e.target === f) chiudiTornando(); });
 });
 
-/* ---------- Form manuale ---------- */
-const sheet = $("#sheet");
+/* ---------- Elenco ---------- */
+const FASCE = [["Questa settimana", 7], ["Questo mese", 30], ["Prima", Infinity]];
+
+function rigaHtml(i){
+  return `<button class="riga" data-id="${i.id}">
+    <span class="filo" style="background:var(--s-${i.status||"todo"})"></span>
+    <span class="tipo" aria-hidden="true">${SEGNI[tipo(i.url)]}</span>
+    <span class="corpo">
+      <span class="tit">${esc(decodeHtml(i.title)) || esc(dominio(i.url))}</span>
+      <span class="meta"><span class="stato">${etichetta(i.status)}</span><span>·</span>${esc(dominio(i.url))}<span>·</span>${quando(i.createdAt)}</span>
+      ${i.notes ? `<span class="nota">${esc(i.notes)}</span>` : ""}
+    </span>
+  </button>`;
+}
+
+function render(){
+  // filtri: "Tutte" più i tre stati, e "Scartate" solo se ne è rimasta qualcuna da prima
+  const presenti = SCELTE.concat(items.some(i => !STATI[i.status]) ? ["drop"] : []);
+  $("#filtri").innerHTML =
+    `<button data-f="all" class="${filtro==="all"?"on":""}">Tutte <b>${items.length}</b></button>` +
+    presenti.map(s => `<button data-f="${s}" class="${filtro===s?"on":""}">
+        <span class="pallino" style="background:var(--s-${s})"></span>${plurale(s)} <b>${items.filter(i=>(i.status||"todo")===s).length}</b>
+      </button>`).join("");
+
+  const q = query.toLowerCase();
+  const visti = items.filter(i =>
+    (filtro === "all" || (i.status||"todo") === filtro) &&
+    (!q || [i.title,i.description,i.notes,i.url].join(" ").toLowerCase().includes(q))
+  ).sort((x,y) => y.createdAt - x.createdAt);
+
+  if (!visti.length){
+    $("#lista").innerHTML = `<p class="vuoto">${items.length
+      ? "Nessun link con questi filtri."
+      : "Non c'è ancora niente.<br>Dai social, Condividi → skill.AI."}</p>`;
+    return;
+  }
+
+  // raccolti per quando sono stati salvati
+  let html = "", usati = new Set();
+  for (const [nome, giorni] of FASCE){
+    const g = visti.filter(i => !usati.has(i) && (Date.now() - i.createdAt)/86400000 < giorni);
+    g.forEach(i => usati.add(i));
+    if (!g.length) continue;
+    html += `<h2 class="gruppo">${nome}<b>${g.length}</b></h2>` + g.map(rigaHtml).join("");
+  }
+  $("#lista").innerHTML = html;
+}
+
+/* ---------- Scheda del link: si legge, e solo se vuoi si modifica ---------- */
+let apertoId = null, inModifica = false;
+
+function disegnaDettaglio(){
+  const i = items.find(x => x.id === apertoId);
+  if (!i){ chiudiFoglio(); return; }
+  const st = i.status || "todo";
+
+  if (inModifica){
+    $("#dCorpo").innerHTML = `
+      <div class="maniglia"></div>
+      <span class="d-eti">Modifica</span>
+      <input class="f" data-k="title" placeholder="Titolo" value="${esc(decodeHtml(i.title))}">
+      <textarea class="f" data-k="description" rows="4" placeholder="Descrizione">${esc(decodeHtml(i.description))}</textarea>
+      <textarea class="f" data-k="notes" rows="4" placeholder="Le mie considerazioni…">${esc(i.notes)}</textarea>
+      <div class="coppia">
+        <button class="btn p" data-act="salva">Salva</button>
+        <button class="btn" data-act="annulla">Annulla</button>
+      </div>`;
+    return;
+  }
+
+  $("#dCorpo").innerHTML = `
+    <div class="maniglia"></div>
+    <div class="d-alto">
+      <span class="tipo" aria-hidden="true">${SEGNI[tipo(i.url)]}</span>
+      <span>${NOMETIPO[tipo(i.url)]} · ${esc(dominio(i.url))} · ${quando(i.createdAt)}</span>
+    </div>
+    <h2 class="d-tit">${esc(decodeHtml(i.title)) || esc(dominio(i.url))}</h2>
+    ${i.description ? `<p class="d-desc">${esc(decodeHtml(i.description))}</p>` : ""}
+    ${i.notes ? `<p class="d-nota">${esc(i.notes)}</p>` : ""}
+    <a class="btn p" href="${esc(i.url)}" target="_blank" rel="noopener">Apri il link</a>
+    <span class="d-eti">A che punto sono</span>
+    <div class="stati" role="group" aria-label="Stato del link">
+      ${SCELTE.map(s => `<button data-set="${s}" class="${st===s?"on":""}" aria-pressed="${st===s}">
+        <span class="pallino" style="background:var(--s-${s})"></span>${STATI[s]}</button>`).join("")}
+    </div>
+    <div class="coppia">
+      <button class="btn" data-act="modifica">Modifica</button>
+      <button class="btn d" data-act="elimina">Elimina</button>
+    </div>`;
+}
+
+function apriDettaglio(id){
+  apertoId = id; inModifica = false;
+  disegnaDettaglio();
+  apriFoglio($("#dettaglio"));
+}
+
+$("#dCorpo").addEventListener("click", async e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const i = items.find(x => x.id === apertoId); if (!i) return;
+
+  if (b.dataset.set){                       // cambio di stato: un tocco, quello che scegli
+    if ((i.status||"todo") !== b.dataset.set) await store.update(apertoId, {status:b.dataset.set});
+    chiudiTornando(); return;
+  }
+  const act = b.dataset.act;
+  if (act === "modifica"){ inModifica = true; disegnaDettaglio(); return; }
+  if (act === "annulla"){ inModifica = false; disegnaDettaglio(); return; }
+  if (act === "salva"){
+    const g = k => $(`#dCorpo [data-k=${k}]`).value;
+    await store.update(apertoId, {title:g("title"), description:g("description"), notes:g("notes")});
+    inModifica = false; toast("Aggiornato"); chiudiTornando(); return;
+  }
+  if (act === "elimina"){
+    if (!confirm("Eliminare questo link?")) return;
+    const id = apertoId; apertoId = null; chiudiTornando(); await store.remove(id); toast("Eliminato");
+  }
+});
+
+/* ---------- Ricerca e filtri ---------- */
+$("#bCerca").onclick = () => {
+  const c = $("#cerca"), apri = c.hidden;
+  c.hidden = !apri;
+  $("#bCerca").classList.toggle("on", apri);
+  $("#bCerca").setAttribute("aria-expanded", apri);
+  if (apri) $("#q").focus();
+  else if (query){ query = ""; $("#q").value = ""; render(); }
+};
+$("#q").addEventListener("input", e => { query = e.target.value; render(); });
+$("#filtri").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  filtro = b.dataset.f; render();
+});
+$("#lista").addEventListener("click", e => {
+  const r = e.target.closest(".riga"); if (r) apriDettaglio(r.dataset.id);
+});
+
+/* ---------- Aggiunta a mano ---------- */
 $("#fab").onclick = async () => {
-  sheet.classList.add("show");
+  apriFoglio($("#nuovo"));
   try { const t = await navigator.clipboard.readText(); const u = extractUrl(t); if (u && !$("#nUrl").value) $("#nUrl").value = u; } catch {}
 };
-$("#nCancel").onclick = () => sheet.classList.remove("show");
+$("#nCancel").onclick = chiudiTornando;
 $("#nSave").onclick = async () => {
-  await addLink($("#nUrl").value, $("#nTitle").value, $("#nDesc").value);
-  ["#nUrl","#nTitle","#nDesc"].forEach(s=>$(s).value=""); sheet.classList.remove("show");
+  const [u,t,d] = [$("#nUrl").value, $("#nTitle").value, $("#nDesc").value];
+  ["#nUrl","#nTitle","#nDesc"].forEach(s => $(s).value = "");
+  chiudiTornando();
+  await addLink(u, t, d);
 };
 
-/* ---------- Share target ---------- */
-store.subscribe(a => { items = a; render(); });
-await new Promise(r => setTimeout(r, 400)); // lascia arrivare il primo snapshot per il controllo duplicati
+/* ---------- Avvio e condivisione dai social ---------- */
+store.subscribe(a => {
+  items = a;
+  render();
+  if (apertoId && document.querySelector("#dettaglio.show")) disegnaDettaglio();
+});
+await new Promise(r => setTimeout(r, 400)); // lascia arrivare il primo elenco, per il controllo dei doppioni
 const p = new URLSearchParams(location.search);
 const shared = extractUrl(p.get("url")) || extractUrl(p.get("text"));
 if (shared){
