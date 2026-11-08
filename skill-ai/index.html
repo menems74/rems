@@ -47,7 +47,7 @@ textarea,input.f{width:100%;padding:9px 10px;border-radius:10px;border:1px solid
 </head>
 <body>
 <header>
-  <h1>📌 skill.AI</h1>
+  <h1 style="display:flex;justify-content:space-between;align-items:center">📌 skill.AI <button id="logout" class="btn" hidden style="font-size:13px;padding:6px 10px">Esci</button></h1>
   <input id="q" type="search" placeholder="Cerca…">
   <div class="filters" id="filters"></div>
 </header>
@@ -63,11 +63,32 @@ textarea,input.f{width:100%;padding:9px 10px;border-radius:10px;border:1px solid
 </div></div>
 <div id="toast"></div>
 
+<div id="login" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:40;align-items:center;justify-content:center;padding:20px">
+  <form id="loginForm" style="width:100%;max-width:360px;display:grid;gap:10px">
+    <h1 style="margin:0 0 6px">📌 skill.AI</h1>
+    <span style="color:var(--mut);font-size:14px">Accedi con l'account Firebase del sito (lo stesso dell'Albero). Resterai collegato su questo dispositivo.</span>
+    <input class="f" id="lEmail" type="email" placeholder="Email" autocomplete="username" required>
+    <input class="f" id="lPass" type="password" placeholder="Password" autocomplete="current-password" required>
+    <button class="btn p" type="submit">Accedi</button>
+    <span id="lErr" style="color:var(--s-drop);font-size:14px"></span>
+  </form>
+</div>
+
 <script type="module">
 /* ====== CONFIG ====== */
 // Imposta qui l'URL del Worker Cloudflare (vedi README). Se vuoto: niente descrizione automatica.
 const WORKER_URL = "";
-const FIREBASE_CONFIG = null; // incolla qui l'oggetto di config Firebase; se null usa il salvataggio locale del telefono
+// Stesso progetto Firebase dell'Albero genealogico (albero.html). Se null: salvataggio solo locale.
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBXM0o09kuJfqt5ekSqazZoTzDFKCR2WxM",
+  authDomain: "albero-ceni.firebaseapp.com",
+  projectId: "albero-ceni",
+  storageBucket: "albero-ceni.firebasestorage.app",
+  messagingSenderId: "1075803947573",
+  appId: "1:1075803947573:web:2deac571fb99e497c0a77c"
+};
+// I link stanno in utenti/{uid}/skill-ai: ognuno vede solo i propri (vedi firestore.rules)
+const SDK = "https://www.gstatic.com/firebasejs/10.12.5/";
 /* ==================== */
 
 const STATES = {todo:"📥 Da vedere", tried:"🧪 Provata", inst:"✅ Installata", drop:"❌ Scartata"};
@@ -78,16 +99,46 @@ let items = [], filter = "todo", query = "";
 /* ---------- Store (Firebase oppure localStorage) ---------- */
 async function makeStore(){
   if (FIREBASE_CONFIG){
-    const app = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
-    const fs = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-    const db = fs.getFirestore(app.initializeApp(FIREBASE_CONFIG));
-    const col = fs.collection(db, "skill-ai");
+    const app = await import(SDK + "firebase-app.js");
+    const fs = await import(SDK + "firebase-firestore.js");
+    const au = await import(SDK + "firebase-auth.js");
+    const fbApp = app.initializeApp(FIREBASE_CONFIG);
+    const auth = au.getAuth(fbApp);
+    const db = fs.getFirestore(fbApp);
+
+    // Attende l'utente: se non è già collegato mostra il login
+    const user = await new Promise(resolve => {
+      const stop = au.onAuthStateChanged(auth, u => {
+        if (u){ stop(); $("#login").style.display = "none"; resolve(u); }
+        else $("#login").style.display = "flex";
+      });
+      $("#loginForm").onsubmit = async e => {
+        e.preventDefault(); $("#lErr").textContent = "";
+        try { await au.signInWithEmailAndPassword(auth, $("#lEmail").value.trim(), $("#lPass").value); }
+        catch { $("#lErr").textContent = "Accesso non riuscito: controlla email e password."; }
+      };
+    });
+    $("#logout").hidden = false;
+    $("#logout").onclick = async () => { await au.signOut(auth); location.reload(); };
+
+    const path = ["utenti", user.uid, "skill-ai"];
+    const col = fs.collection(db, ...path);
+    const ref = id => fs.doc(db, ...path, id);
+
+    // Porta su Firestore gli eventuali link salvati prima solo sul telefono
+    try {
+      const old = JSON.parse(localStorage.getItem("skill-ai-v1") || "[]");
+      for (const {id, ...o} of old) await fs.addDoc(col, o);
+      if (old.length) localStorage.removeItem("skill-ai-v1");
+    } catch {}
+
     return {
       subscribe: cb => fs.onSnapshot(fs.query(col, fs.orderBy("createdAt","desc")),
-        snap => cb(snap.docs.map(d => ({id:d.id, ...d.data()})))),
+        snap => cb(snap.docs.map(d => ({id:d.id, ...d.data()}))),
+        () => toast("Errore di lettura: controlla le regole Firestore")),
       add: async o => (await fs.addDoc(col, o)).id,
-      update: (id,p) => fs.updateDoc(fs.doc(db,"skill-ai",id), p),
-      remove: id => fs.deleteDoc(fs.doc(db,"skill-ai",id))
+      update: (id,p) => fs.updateDoc(ref(id), p),
+      remove: id => fs.deleteDoc(ref(id))
     };
   }
   const K = "skill-ai-v1", subs = [];

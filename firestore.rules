@@ -21,6 +21,11 @@ service cloud.firestore {
       // allow write: if request.auth != null && request.auth.uid == "IL_TUO_UID";
     }
 
+    // skill.AI: link personali, ognuno legge e scrive SOLO i propri
+    match /utenti/{uid}/skill-ai/{documento} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
     // Tutto il resto: chiuso
     match /{document=**} {
       allow read, write: if false;

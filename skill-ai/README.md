@@ -11,8 +11,8 @@ PWA per salvare al volo link a repo, skill e guide visti sui social.
 1. Cloudflare > Workers & Pages > Create Worker > incolla `worker.js` > Deploy.
 2. Copia l'URL del worker in `WORKER_URL` dentro `index.html`.
 
-## Sincronizzazione tra dispositivi (facoltativa)
-Senza Firebase i dati restano nel telefono. Per sincronizzare:
-1. Console Firebase > progetto > Firestore Database > crea.
-2. Incolla l'oggetto di configurazione web in `FIREBASE_CONFIG`.
-3. Regole Firestore: limita l'accesso a te (vedi nota nella chat).
+## Dati e accesso
+I link sono su Firebase (progetto `albero-ceni`, lo stesso dell'Albero) in `utenti/{uid}/skill-ai`.
+Si accede con lo stesso account email/password dell'Albero; l'accesso resta memorizzato sul dispositivo.
+Le regole sono in `firestore.rules` alla radice del repo: vanno incollate e pubblicate in
+Console Firebase > Firestore Database > Regole.
