@@ -12,42 +12,42 @@
 --s-todo:#38bdf8;--s-tried:#fbbf24;--s-inst:#4ade80;--s-drop:#f87171}
 @media (prefers-color-scheme:light){:root{--bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--txt:#0f172a;--mut:#64748b}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.4 system-ui,sans-serif;padding-bottom:90px}
+body{margin:0;background:var(--bg);color:var(--txt);font:19px/1.45 system-ui,sans-serif;padding-bottom:90px}
 header{position:sticky;top:0;background:var(--bg);padding:12px 14px 8px;z-index:5;border-bottom:1px solid var(--line)}
-h1{margin:0 0 8px;font-size:20px}
-#q{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--txt);font-size:16px}
+h1{margin:0 0 10px;font-size:26px}
+#q{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--txt);font-size:19px}
 .filters{display:flex;gap:6px;overflow-x:auto;margin-top:8px;padding-bottom:2px}
-.filters button{flex:none;border:1px solid var(--line);background:var(--card);color:var(--txt);border-radius:999px;padding:6px 12px;font-size:14px}
+.filters button{flex:none;border:1px solid var(--line);background:var(--card);color:var(--txt);border-radius:999px;padding:8px 14px;font-size:17px}
 .filters button.on{background:var(--acc);color:#0f172a;border-color:var(--acc);font-weight:600}
 main{padding:12px 14px;display:grid;gap:10px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
 .top{display:flex;gap:8px;align-items:flex-start;justify-content:space-between}
-.title{font-weight:600;word-break:break-word;flex:1}
-.dom{color:var(--mut);font-size:13px;margin-top:2px}
-.desc{color:var(--mut);font-size:14px;margin-top:6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.title{font-weight:600;font-size:20px;word-break:break-word;flex:1}
+.dom{color:var(--mut);font-size:16px;margin-top:2px}
+.desc{color:var(--mut);font-size:17px;margin-top:6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .card.open .desc{-webkit-line-clamp:unset}
-.chip{flex:none;border:0;border-radius:999px;padding:6px 10px;font-size:13px;font-weight:600;color:#0f172a}
+.chip{flex:none;border:0;border-radius:999px;padding:8px 12px;font-size:16px;font-weight:600;color:#0f172a}
 .chip[data-s=todo]{background:var(--s-todo)}.chip[data-s=tried]{background:var(--s-tried)}
 .chip[data-s=inst]{background:var(--s-inst)}.chip[data-s=drop]{background:var(--s-drop)}
 .more{display:none;margin-top:10px;gap:8px;flex-direction:column}
 .card.open .more{display:flex}
 textarea,input.f{width:100%;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font:inherit}
 .row{display:flex;gap:8px;flex-wrap:wrap}
-.btn{border:1px solid var(--line);background:var(--card);color:var(--txt);border-radius:10px;padding:9px 14px;font-size:15px;text-decoration:none}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--txt);border-radius:10px;padding:11px 16px;font-size:18px;text-decoration:none}
 .btn.p{background:var(--acc);color:#0f172a;border-color:var(--acc);font-weight:600}
 .btn.d{color:var(--s-drop)}
 #fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));width:58px;height:58px;border-radius:50%;border:0;background:var(--acc);color:#0f172a;font-size:32px;box-shadow:0 4px 14px #0006}
 #sheet{position:fixed;inset:0;background:#000a;display:none;align-items:flex-end;z-index:20}
 #sheet.show{display:flex}
 #sheet .in{background:var(--card);width:100%;border-radius:18px 18px 0 0;padding:16px;display:grid;gap:10px}
-#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#111c;color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:30}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#111c;color:#fff;padding:10px 16px;border-radius:999px;font-size:17px;opacity:0;transition:.25s;pointer-events:none;z-index:30}
 #toast.show{opacity:1}
 .empty{text-align:center;color:var(--mut);padding:40px 10px}
 </style>
 </head>
 <body>
 <header>
-  <h1 style="display:flex;justify-content:space-between;align-items:center">📌 skill.AI <button id="logout" class="btn" hidden style="font-size:13px;padding:6px 10px">Esci</button></h1>
+  <h1 style="display:flex;justify-content:space-between;align-items:center">📌 skill.AI <button id="logout" class="btn" hidden style="font-size:16px;padding:7px 12px">Esci</button></h1>
   <input id="q" type="search" placeholder="Cerca…">
   <div class="filters" id="filters"></div>
 </header>
@@ -94,7 +94,7 @@ const SDK = "https://www.gstatic.com/firebasejs/10.12.5/";
 const STATES = {todo:"📥 Da vedere", tried:"🧪 Provata", inst:"✅ Installata", drop:"❌ Scartata"};
 const ORDER = ["todo","tried","inst","drop"];
 const $ = s => document.querySelector(s);
-let items = [], filter = "todo", query = "";
+let items = [], filter = "all", query = "";
 
 /* ---------- Store (Firebase oppure localStorage) ---------- */
 async function makeStore(){
@@ -189,13 +189,14 @@ async function addLink(url, title="", description=""){
 /* ---------- Rendering ---------- */
 function render(){
   const f = $("#filters");
-  f.innerHTML = ["todo","tried","inst","drop","all"].map(k => {
+  f.innerHTML = ["all","todo","tried","inst","drop"].map(k => {
     const n = k==="all" ? items.length : items.filter(i=>i.status===k).length;
     return `<button data-f="${k}" class="${filter===k?"on":""}">${k==="all"?"Tutte":STATES[k]} ${n}</button>`;
   }).join("");
   const q = query.toLowerCase();
   const list = items.filter(i => (filter==="all" || i.status===filter) &&
-    (!q || [i.title,i.description,i.notes,i.url].join(" ").toLowerCase().includes(q)));
+    (!q || [i.title,i.description,i.notes,i.url].join(" ").toLowerCase().includes(q)))
+    .sort((x,y) => ORDER.indexOf(x.status) - ORDER.indexOf(y.status) || y.createdAt - x.createdAt);
   $("#list").innerHTML = list.length ? list.map(i => `
     <div class="card" data-id="${i.id}">
       <div class="top">
