@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Albero Genealogico Ceni</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/vis-network@10.1.2/standalone/umd/vis-network.min.js" integrity="sha384-RDdG1CLOxjNlTHh4JYx/rnAueaMHbkBHmeHwrEyljMQw3LF0it4SkuNotIY/FPxD" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -326,10 +326,10 @@ h2,h3{font-family:'Fraunces',serif!important;}
         <div id="authModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/40 backdrop-blur-sm">
             <div class="bg-white rounded-2xl shadow-2xl w-[92%] max-w-sm p-6 space-y-4">
                 <div class="flex items-center justify-between">
-                    <h2 class="font-bold text-slate-800 text-lg">Accedi per modificare</h2>
+                    <h2 class="font-bold text-slate-800 text-lg">Accedi</h2>
                     <button onclick="closeAuthModal()" class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
                 </div>
-                <p class="text-xs text-slate-500">L'albero è visibile a tutti; per salvare le modifiche serve il tuo account.</p>
+                <p class="text-xs text-slate-500">L'albero è privato: lo vede solo chi ha un account autorizzato dalla famiglia.</p>
                 <div class="space-y-3">
                     <input id="authEmail" type="email" placeholder="Email" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                     <input id="authPass" type="password" placeholder="Password" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" onkeydown="if(event.key==='Enter') doLogin()">
@@ -341,43 +341,9 @@ h2,h3{font-family:'Fraunces',serif!important;}
     </div>
 
     <script>
-        // Initial Dataset embedded directly from albero-genealogico-ceni.json
-        const initialData = [
-            {"id":"remo_ceni","data":{"gender":"M","first name":"Remo","last name":"Ceni","nato":"","note":"","branch":"ceni"},"rels":{"parents":[],"spouses":["angelina_mattioni"],"children":["luigi_ceni"]}},
-            {"id":"angelina_mattioni","data":{"gender":"F","first name":"Angelina","last name":"Mattioni","nato":"","note":"","branch":"ceni"},"rels":{"parents":["mattioni_sr","binda_sr"],"spouses":["remo_ceni"],"children":["luigi_ceni"]}},
-            {"id":"mattioni_sr","data":{"gender":"M","first name":"Sconosciuto","last name":"Mattioni","nato":"","note":"Antenato noto solo per cognome","branch":"ceni"},"rels":{"parents":[],"spouses":["binda_sr"],"children":["angelina_mattioni"]}},
-            {"id":"binda_sr","data":{"gender":"F","first name":"Sconosciuta","last name":"Binda","nato":"","note":"Antenata nota solo per cognome","branch":"ceni"},"rels":{"parents":[],"spouses":["mattioni_sr"],"children":["angelina_mattioni"]}},
-            {"id":"luigi_ceni","data":{"gender":"M","first name":"Luigi","last name":"Ceni","nato":"n. 1936","note":"Sposato nel 1971 con Maria Luigia Vanoli","branch":"ceni"},"rels":{"parents":["remo_ceni","angelina_mattioni"],"spouses":["maria_luigia_vanoli"],"children":["lanfranco_ceni","remolo"]}},
-            {"id":"maria_luigia_vanoli","data":{"gender":"F","first name":"Maria Luigia","last name":"Vanoli","nato":"","note":"Sposata nel 1971 con Luigi Ceni","branch":"vanoli"},"rels":{"parents":["franco_vanoli","rosa_elisa_nespoli"],"spouses":["luigi_ceni"],"children":["lanfranco_ceni","remolo"]}},
-            {"id":"francesco_vanoli_fig","data":{"gender":"M","first name":"Francesco","last name":"Vanoli","nato":"","note":"Fratello di Maria Luigia Vanoli","branch":"vanoli"},"rels":{"parents":["franco_vanoli","rosa_elisa_nespoli"],"spouses":[],"children":[]}},
-            {"id":"franco_vanoli","data":{"gender":"M","first name":"Franco","last name":"Vanoli","nato":"","note":"","branch":"vanoli"},"rels":{"parents":["francesco_vanoli_sr","luigia_pellegrini"],"spouses":["rosa_elisa_nespoli"],"children":["maria_luigia_vanoli","francesco_vanoli_fig"]}},
-            {"id":"rosa_elisa_nespoli","data":{"gender":"F","first name":"Rosa Elisa","last name":"Nespoli","nato":"","note":"","branch":"vanoli"},"rels":{"parents":["pietro_nespoli","maria_brava"],"spouses":["franco_vanoli"],"children":["maria_luigia_vanoli","francesco_vanoli_fig"]}},
-            {"id":"francesco_vanoli_sr","data":{"gender":"M","first name":"Francesco","last name":"Vanoli (nonno)","nato":"","note":"Padre di Franco Vanoli","branch":"vanoli"},"rels":{"parents":[],"spouses":["luigia_pellegrini"],"children":["franco_vanoli"]}},
-            {"id":"luigia_pellegrini","data":{"gender":"F","first name":"Luigia","last name":"Pellegrini","nato":"","note":"Madre di Franco Vanoli","branch":"vanoli"},"rels":{"parents":[],"spouses":["francesco_vanoli_sr"],"children":["franco_vanoli"]}},
-            {"id":"pietro_nespoli","data":{"gender":"M","first name":"Pietro","last name":"Nespoli","nato":"","note":"","branch":"vanoli"},"rels":{"parents":[],"spouses":["maria_brava"],"children":["rosa_elisa_nespoli"]}},
-            {"id":"maria_brava","data":{"gender":"F","first name":"Maria","last name":"Brava","nato":"","note":"Cognome da verificare: Brava (file) / Bravo (immagine)","branch":"vanoli"},"rels":{"parents":["carlo_brava","carolina"],"spouses":["pietro_nespoli"],"children":["rosa_elisa_nespoli"]}},
-            {"id":"carlo_brava","data":{"gender":"M","first name":"Carlo","last name":"Brava","nato":"","note":"Cognome da verificare: Brava / Bravo","branch":"vanoli"},"rels":{"parents":[],"spouses":["carolina"],"children":["maria_brava"]}},
-            {"id":"carolina","data":{"gender":"F","first name":"Carolina","last name":"(?)","nato":"","note":"Cognome da verificare","branch":"vanoli"},"rels":{"parents":[],"spouses":["carlo_brava"],"children":["maria_brava"]}},
-            {"id":"lanfranco_ceni","data":{"gender":"M","first name":"Lanfranco","last name":"Ceni","nato":"n. 09/09/1972","note":"","branch":"ceni"},"rels":{"parents":["luigi_ceni","maria_luigia_vanoli"],"spouses":["simonetta_zocchi"],"children":[]}},
-            {"id":"simonetta_zocchi","data":{"gender":"F","first name":"Simonetta","last name":"Zocchi","nato":"","note":"","branch":"zocchi"},"rels":{"parents":[],"spouses":["lanfranco_ceni"],"children":[]}},
-            {"id":"remolo","data":{"gender":"M","first name":"Remolo Rossano","last name":"Ceni","nato":"n. 27/11/1974","note":"Persona di riferimento","branch":"ceni"},"rels":{"parents":["luigi_ceni","maria_luigia_vanoli"],"spouses":["chiara_marcheselli"],"children":["eleonora","nicolo"]}},
-            {"id":"chiara_marcheselli","data":{"gender":"F","first name":"Chiara","last name":"Marcheselli","nato":"n. 29/05/1981","note":"","branch":"marcheselli"},"rels":{"parents":["giovanni_marcheselli","marilisa_chiaravalli"],"spouses":["remolo"],"children":["eleonora","nicolo"]}},
-            {"id":"eleonora","data":{"gender":"F","first name":"Eleonora","last name":"Ceni","nato":"n. 06/06/2010","note":"","branch":"ceni"},"rels":{"parents":["remolo","chiara_marcheselli"],"spouses":[],"children":[]}},
-            {"id":"nicolo","data":{"gender":"M","first name":"Nicolò","last name":"Ceni","nato":"n. 08/09/2014","note":"","branch":"ceni"},"rels":{"parents":["remolo","chiara_marcheselli"],"spouses":[],"children":[]}},
-            {"id":"giovanni_marcheselli","data":{"gender":"M","first name":"Giovanni","last name":"Marcheselli","nato":"","note":"","branch":"marcheselli"},"rels":{"parents":[],"spouses":["marilisa_chiaravalli"],"children":["chiara_marcheselli","ilaria_marcheselli"]}},
-            {"id":"marilisa_chiaravalli","data":{"gender":"F","first name":"Marilisa","last name":"Chiaravalli","nato":"","note":"","branch":"chiaravalli"},"rels":{"parents":["chiaravalli_padre","chiaravalli_madre"],"spouses":["giovanni_marcheselli"],"children":["chiara_marcheselli","ilaria_marcheselli"]}},
-            {"id":"angelo_chiaravalli","data":{"gender":"M","first name":"Angelo","last name":"Chiaravalli","nato":"","note":"Fratello di Marilisa","branch":"chiaravalli"},"rels":{"parents":["chiaravalli_padre","chiaravalli_madre"],"spouses":[],"children":[]}},
-            {"id":"chiaravalli_padre","data":{"gender":"M","first name":"Sconosciuto","last name":"Chiaravalli","nato":"","note":"Genitore di Marilisa e Angelo (da ricostruire)","branch":"chiaravalli"},"rels":{"parents":[],"spouses":["chiaravalli_madre"],"children":["marilisa_chiaravalli","angelo_chiaravalli"]}},
-            {"id":"chiaravalli_madre","data":{"gender":"F","first name":"Sconosciuta","last name":"","nato":"","note":"Genitore di Marilisa e Angelo (da ricostruire)","branch":"chiaravalli"},"rels":{"parents":[],"spouses":["chiaravalli_padre"],"children":["marilisa_chiaravalli","angelo_chiaravalli"]}},
-            {"id":"ilaria_marcheselli","data":{"gender":"F","first name":"Ilaria","last name":"Marcheselli","nato":"","note":"Sorella di Chiara","branch":"marcheselli"},"rels":{"parents":["giovanni_marcheselli","marilisa_chiaravalli"],"spouses":["costantino_piccinelli"],"children":["aurora_piccinelli","beatrice_piccinelli"]}},
-            {"id":"costantino_piccinelli","data":{"gender":"M","first name":"Costantino","last name":"Piccinelli","nato":"","note":"","branch":"piccinelli"},"rels":{"parents":["erminio_piccinelli","clelia"],"spouses":["ilaria_marcheselli"],"children":["aurora_piccinelli","beatrice_piccinelli"]}},
-            {"id":"aurora_piccinelli","data":{"gender":"F","first name":"Aurora","last name":"Piccinelli","nato":"","note":"","branch":"piccinelli"},"rels":{"parents":["costantino_piccinelli","ilaria_marcheselli"],"spouses":[],"children":[]}},
-            {"id":"beatrice_piccinelli","data":{"gender":"F","first name":"Beatrice","last name":"Piccinelli","nato":"","note":"","branch":"piccinelli"},"rels":{"parents":["costantino_piccinelli","ilaria_marcheselli"],"spouses":[],"children":[]}},
-            {"id":"erminio_piccinelli","data":{"gender":"M","first name":"Erminio","last name":"Piccinelli","nato":"","note":"","branch":"piccinelli"},"rels":{"parents":[],"spouses":["clelia"],"children":["costantino_piccinelli","catia_piccinelli","cinzia_piccinelli"]}},
-            {"id":"clelia","data":{"gender":"F","first name":"Clelia","last name":"(?)","nato":"","note":"Cognome da verificare","branch":"piccinelli"},"rels":{"parents":[],"spouses":["erminio_piccinelli"],"children":["costantino_piccinelli","catia_piccinelli","cinzia_piccinelli"]}},
-            {"id":"catia_piccinelli","data":{"gender":"F","first name":"Catia","last name":"Piccinelli","nato":"","note":"Sorella di Costantino","branch":"piccinelli"},"rels":{"parents":["erminio_piccinelli","clelia"],"spouses":[],"children":[]}},
-            {"id":"cinzia_piccinelli","data":{"gender":"F","first name":"Cinzia","last name":"Piccinelli","nato":"","note":"Sorella di Costantino","branch":"piccinelli"},"rels":{"parents":["erminio_piccinelli","clelia"],"spouses":[],"children":[]}}
-        ];
+        // I dati dell'albero NON stanno nel codice (il repository è pubblico):
+        // arrivano da Firestore dopo l'accesso, oppure da un file JSON scelto a mano.
+        const initialData = [];
 
         let rawData = [];
         let network = null;
@@ -449,16 +415,10 @@ h2,h3{font-family:'Fraunces',serif!important;}
         // Window load listener to start render safely
         window.onload = async function() {
             // === Modalità CLOUD (Firebase/Firestore): è la fonte dati primaria se configurata ===
-            if (FIREBASE_ENABLED) {
-                if (initFirebase()) {
-                    try {
-                        await loadFromCloud();
-                        return;
-                    } catch (e) {
-                        console.error('Cloud non raggiungibile:', e);
-                        showToast('Cloud non raggiungibile, uso i dati locali', true);
-                    }
-                }
+            // I dati si caricano solo dopo l'accesso: ci pensa onAuthStateChanged (vedi initFirebase)
+            if (FIREBASE_ENABLED && initFirebase()) {
+                loadInitialTreeData([]);
+                return;
             }
 
             // 0. Ripristina il collegamento al file scelto in precedenza (File System Access API)
@@ -516,7 +476,16 @@ h2,h3{font-family:'Fraunces',serif!important;}
                 firebase.initializeApp(FIREBASE_CONFIG);
                 db = firebase.firestore();
                 fbAuth = firebase.auth();
-                fbAuth.onAuthStateChanged(function (u) { currentUser = u; updateAuthUI(); });
+                fbAuth.onAuthStateChanged(function (u) {
+                    currentUser = u;
+                    updateAuthUI();
+                    if (u) {
+                        loadFromCloud().catch(handleCloudError);
+                    } else {
+                        clearTree();
+                        openAuthModal();
+                    }
+                });
                 const btn = document.getElementById('authBtn');
                 if (btn) { btn.classList.remove('hidden'); btn.classList.add('flex'); }
                 const rl = document.getElementById('reloadCloudBtn');
@@ -528,6 +497,8 @@ h2,h3{font-family:'Fraunces',serif!important;}
             }
         }
 
+        let stopSnapshot = null;      // per staccare l'ascolto in tempo reale all'uscita
+
         async function loadFromCloud() {
             const ref = db.collection(TREE_PATH.collection).doc(TREE_PATH.doc);
             const snap = await ref.get();
@@ -536,22 +507,47 @@ h2,h3{font-family:'Fraunces',serif!important;}
                 isDirty = false;
                 showToast('Albero caricato dal cloud');
             } else {
-                // Nessun documento ancora: mostro i dati iniziali; verranno creati al primo salvataggio
-                loadInitialTreeData(initialData);
-                showToast('Nessun albero sul cloud: accedi e premi Salva per crearlo');
+                // Nessun documento ancora: si parte vuoti; verrà creato al primo salvataggio
+                loadInitialTreeData([]);
+                showToast('Nessun albero sul cloud: aggiungi le persone e premi Salva');
             }
             cloudActive = true;
             // Sincronizzazione in tempo reale tra dispositivi
-            ref.onSnapshot(function (doc) {
+            if (stopSnapshot) stopSnapshot();
+            stopSnapshot = ref.onSnapshot(function (doc) {
                 if (suppressSnapshot) return;
                 if (!doc.exists || !doc.data() || !Array.isArray(doc.data().people)) return;
                 if (isDirty) { showToast('Nuova versione disponibile sul cloud (premi Aggiorna dal cloud)'); return; }
                 loadInitialTreeData(doc.data().people);
-            });
+            }, handleCloudError);
+        }
+
+        function handleCloudError(e) {
+            console.error('Errore cloud:', e);
+            cloudActive = false;
+            if (e && e.code === 'permission-denied') {
+                clearTree();
+                showToast('Questo account non è autorizzato a vedere l\'albero', true);
+            } else {
+                showToast('Cloud non raggiungibile: ' + (e && (e.code || e.message)), true);
+            }
+        }
+
+        // Svuota l'albero a schermo e la copia nel browser (uscita o accesso negato)
+        function clearTree() {
+            if (stopSnapshot) { stopSnapshot(); stopSnapshot = null; }
+            cloudActive = false;
+            isDirty = false;
+            try { localStorage.removeItem('albero_ceni_cache'); } catch (e) {}
+            closeSidebar();
+            loadInitialTreeData([]);
         }
 
         async function saveToCloud() {
             if (!currentUser) { openAuthModal(); return; }
+            // Mai sovrascrivere il cloud se l'albero non è stato caricato da lì
+            if (!cloudActive) { showToast('Albero non caricato dal cloud: salvataggio annullato', true); return; }
+            if (rawData.length === 0 && !confirm('L\'albero è vuoto: vuoi davvero salvarlo sul cloud?')) return;
             try {
                 suppressSnapshot = true;
                 await db.collection(TREE_PATH.collection).doc(TREE_PATH.doc).set({
@@ -602,7 +598,7 @@ h2,h3{font-family:'Fraunces',serif!important;}
                 btn.title = 'Connesso come ' + (currentUser.email || 'utente') + ' — esci';
             } else {
                 label.textContent = 'Accedi';
-                btn.title = 'Accedi per poter modificare';
+                btn.title = 'Accedi per vedere l\'albero';
             }
         }
         function toggleAuth() {
@@ -629,7 +625,7 @@ h2,h3{font-family:'Fraunces',serif!important;}
                 await fbAuth.signInWithEmailAndPassword(email, pass);
                 closeAuthModal();
                 document.getElementById('authPass').value = '';
-                showToast('Accesso effettuato: ora puoi salvare');
+                showToast('Accesso effettuato');
             } catch (e) {
                 err.textContent = 'Accesso non riuscito: ' + (e.code || e.message);
                 err.classList.remove('hidden');

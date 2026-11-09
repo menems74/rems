@@ -4,9 +4,10 @@ Obiettivo: usare il sito da questo PC, dal PC di casa e dal cellulare, con i dat
 sincronizzati su **Firebase (Cloud Firestore)** e il sito ospitato su **GitHub Pages**.
 
 - **Home** (`index.html`): libera, senza login, con il pulsante *Apri Albero Genealogico*.
-- **App** (`albero.html`): tutti possono **vedere** l'albero; per **salvare** serve l'accesso
-  (email/password che crei tu). Se Firebase non è configurato, l'app continua a funzionare in
-  modalità solo-file locale (come prima).
+- **App** (`albero.html`): l'albero è **privato**. Lo **vede** solo chi accede con un'email
+  autorizzata in `firestore.rules`; lo **modifica** solo il proprietario. I dati non stanno
+  nel codice (il repository è pubblico): arrivano da Firestore dopo l'accesso. Se Firebase non
+  è configurato, l'app funziona in modalità solo-file locale (Apri File / Salva).
 
 File del progetto: `index.html`, `albero.html`, `firestore.rules`, questa guida.
 
@@ -22,6 +23,10 @@ File del progetto: `index.html`, `albero.html`, `firestore.rules`, questa guida.
    **Email/Password**.
 4. Sempre in Authentication, scheda **Users > Aggiungi utente**: crea il TUO account
    (email + password). Sarà l'unico che potrà modificare l'albero.
+   Per i familiari che devono solo **vedere**: crea anche il loro utente e aggiungi la loro
+   email all'elenco `lettoriAlbero()` in `firestore.rules` (poi ripubblica le regole).
+   Se la console lo offre, in **Authentication > Impostazioni > Azioni utente** togli la spunta a
+   *Abilita creazione (registrazione)*: così nessuno può crearsi un account da solo.
 5. Prendi la configurazione: icona **⚙️ Impostazioni progetto > Le tue app >** (se non c'è)
    aggiungi un'app **Web </>**. Copia l'oggetto `firebaseConfig`, sono valori tipo:
    ```js
@@ -34,7 +39,7 @@ File del progetto: `index.html`, `albero.html`, `firestore.rules`, questa guida.
    Copia i valori **esattamente** come li dà la console (occhio a `storageBucket`, che nei
    progetti nuovi finisce con `.firebasestorage.app` invece di `.appspot.com`).
 7. In **Firestore Database > scheda Regole**, incolla il contenuto di **`firestore.rules`**
-   e premi **Pubblica**. (Lettura libera, scrittura solo se autenticato.)
+   e premi **Pubblica**. (Lettura solo per le email in elenco, scrittura solo per il proprietario.)
 
 Fatto: da questo momento l'app legge e scrive su Firestore. La prima volta accedi con il tuo
 account e premi **Salva**: verrà creato il documento `alberi/ceni` con l'albero attuale.
