@@ -35,6 +35,37 @@
             background-size: 20px 20px;
         }
 
+        /* ---- Scheda Famiglia ---- */
+        #family-view { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; background: #faf9f6; }
+        body.family-mode #network-container,
+        body.family-mode #legendBox,
+        body.family-mode #legendReopen,
+        body.family-mode .graph-only { display: none !important; }
+        .fv-wrap { max-width: 36rem; margin: 0 auto; padding: 12px 16px 40px; }
+        .fv-bar { display: flex; gap: 8px; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .fv-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border-radius: 10px;
+                  background: #fff; border: 1px solid #e2e8f0; color: #334155; font-size: 14px; font-weight: 500; }
+        .fv-btn:disabled { opacity: .4; }
+        .fv-section { margin-top: 18px; }
+        .fv-title { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #64748b; margin: 0 2px 8px; }
+        .fv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .fv-list { display: grid; gap: 8px; }
+        .fv-card { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 56px; padding: 10px 12px; text-align: left;
+                   background: #fff; border: 1px solid #e2e8f0; border-left-width: 5px; border-radius: 12px; color: #1e293b; }
+        .fv-card:active { transform: scale(.98); }
+        .fv-av { flex: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+                 font-size: 13px; font-weight: 700; color: #1e293b; }
+        .fv-name { font-size: 15px; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
+        .fv-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
+        .fv-empty { font-size: 13px; color: #94a3b8; font-style: italic; padding: 4px 2px; }
+        .fv-focus { background: #fff; border: 1px solid #e2e8f0; border-top-width: 6px; border-radius: 16px; padding: 18px 16px; text-align: center;
+                    box-shadow: 0 6px 18px rgba(15,23,42,.06); margin-top: 18px; }
+        .fv-focus .fv-av { width: 64px; height: 64px; font-size: 22px; margin: 0 auto 10px; }
+        .fv-focus h2 { font-size: 22px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+        .fv-pill { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 999px; margin-top: 8px; border: 1px solid; }
+        .fv-note { font-size: 14px; color: #475569; margin-top: 10px; white-space: pre-line; }
+        .fv-group { font-size: 13px; font-weight: 700; color: #475569; margin: 14px 2px 6px; }
+
         #sidebar {
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -129,10 +160,11 @@ h2,h3{font-family:'Fraunces',serif!important;}
                         <option value="hierarchical-UD">🌳 Albero Gerarchico (Dall'alto)</option>
                         <option value="hierarchical-LR">➡️ Linea del Tempo (Orizzontale)</option>
                         <option value="free">🕸️ Vista Libera / Mappa</option>
+                        <option value="family">📱 Scheda Famiglia (telefono)</option>
                     </select>
 
                     <!-- Color Scheme Selector -->
-                    <select id="colorSchemeSelect" onchange="changeColorScheme(this.value)" class="py-1.5 px-3 text-sm bg-slate-100 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700" title="Cambia modalità colore">
+                    <select id="colorSchemeSelect" onchange="changeColorScheme(this.value)" class="graph-only py-1.5 px-3 text-sm bg-slate-100 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700" title="Cambia modalità colore">
                         <option value="branch">🎨 Colora per Ramo</option>
                         <option value="gender">⚧ Colora per Sesso</option>
                     </select>
@@ -166,11 +198,11 @@ h2,h3{font-family:'Fraunces',serif!important;}
                         <i class="fa-solid fa-cloud-arrow-down"></i>
                     </button>
 
-                    <button onclick="resetLayout()" class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition" title="Ripristina Vista">
+                    <button onclick="resetLayout()" class="graph-only p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition" title="Ripristina Vista">
                         <i class="fa-solid fa-compress-arrows-alt"></i>
                     </button>
 
-                    <button onclick="resetNodePositions()" class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition" title="Reimposta le posizioni spostate manualmente">
+                    <button onclick="resetNodePositions()" class="graph-only p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition" title="Reimposta le posizioni spostate manualmente">
                         <i class="fa-solid fa-arrows-to-dot"></i>
                     </button>
                 </div>
@@ -178,6 +210,9 @@ h2,h3{font-family:'Fraunces',serif!important;}
 
             <!-- Network Visualization Container -->
             <main id="network-container"></main>
+
+            <!-- Vista Scheda Famiglia (pensata per il telefono) -->
+            <main id="family-view" class="hidden" aria-live="polite"></main>
 
             <!-- Legenda e Istruzioni Overlay -->
             <div id="legendBox" class="absolute bottom-4 left-4 z-10 bg-white/90 backdrop-blur border border-slate-200 p-3 rounded-xl text-xs text-slate-700 shadow-lg max-w-xs space-y-2">
@@ -414,6 +449,8 @@ h2,h3{font-family:'Fraunces',serif!important;}
 
         // Window load listener to start render safely
         window.onload = async function() {
+            applyInitialView();
+
             // === Modalità CLOUD (Firebase/Firestore): è la fonte dati primaria se configurata ===
             // I dati si caricano solo dopo l'accesso: ci pensa onAuthStateChanged (vedi initFirebase)
             if (FIREBASE_ENABLED && initFirebase()) {
@@ -539,6 +576,8 @@ h2,h3{font-family:'Fraunces',serif!important;}
             cloudActive = false;
             isDirty = false;
             try { localStorage.removeItem('albero_ceni_cache'); } catch (e) {}
+            familyFocusId = null;
+            familyHistory = [];
             closeSidebar();
             loadInitialTreeData([]);
         }
@@ -942,6 +981,8 @@ h2,h3{font-family:'Fraunces',serif!important;}
                     showToast("Posizione salvata (premi Salva JSON per renderla definitiva)");
                 }
             });
+
+            if (familyView) renderFamilyView();
         }
 
         // Posizione salvata per la vista corrente (data._pos è indicizzato per tipo di vista)
@@ -1033,9 +1074,254 @@ h2,h3{font-family:'Fraunces',serif!important;}
         }
 
         function changeLayout(newLayout) {
+            try { localStorage.setItem('albero_vista', newLayout); } catch (e) {}
+            if (newLayout === 'family') {
+                setFamilyView(true);
+                return;
+            }
+            setFamilyView(false);
             currentLayoutMode = newLayout;
             renderGraph();
             resetLayout();
+        }
+
+
+        // ===================== VISTA SCHEDA FAMIGLIA (telefono) =====================
+        // Una persona al centro; sopra i genitori, sotto coniugi, fratelli e figli.
+        // Si tocca una scheda per spostarsi; il tasto Indietro (anche quello del telefono) torna alla precedente.
+        let familyView = false;
+        let familyFocusId = null;
+        let familyHistory = [];
+        let familyShowAll = false;
+
+        function applyInitialView() {
+            let saved = null;
+            try { saved = localStorage.getItem('albero_vista'); } catch (e) {}
+            const isPhone = window.matchMedia('(max-width: 767px)').matches;
+            const view = saved || (isPhone ? 'family' : 'hierarchical-UD');
+            const sel = document.getElementById('layoutSelect');
+            if (sel && [...sel.options].some(o => o.value === view)) sel.value = view;
+            if (view === 'family') setFamilyView(true);
+            else currentLayoutMode = view;
+        }
+
+        function setFamilyView(on) {
+            familyView = on;
+            document.body.classList.toggle('family-mode', on);
+            document.getElementById('family-view').classList.toggle('hidden', !on);
+            if (on) renderFamilyView();
+        }
+
+        function personById(id) { return rawData.find(p => p.id === id); }
+        function fullName(p) {
+            return `${p.data['first name'] || ''} ${p.data['last name'] || ''}`.trim() || 'Senza nome';
+        }
+        function initials(p) {
+            const a = (p.data['first name'] || '').trim()[0] || '';
+            const b = (p.data['last name'] || '').replace(/[^A-Za-zÀ-ÿ]/g, '')[0] || '';
+            return (a + b).toUpperCase() || '?';
+        }
+        function personColors(p) {
+            if (currentColorScheme === 'gender') {
+                return p.data.gender === 'F' ? { bg: '#fce7f3', border: '#db2777' } : { bg: '#dbeafe', border: '#2563eb' };
+            }
+            const c = branchColors[(p.data.branch || '').toLowerCase()];
+            return c ? { bg: c.bg, border: c.border } : { bg: '#f1f5f9', border: '#94a3b8' };
+        }
+        const UNKNOWN_SURNAME = 'Cognome da verificare';
+        function surnameGroup(p) {
+            const s = (p.data['last name'] || '').replace(/\(.*?\)/g, '').trim();
+            return /[A-Za-zÀ-ÿ]/.test(s) ? s : UNKNOWN_SURNAME;
+        }
+        function siblingsOf(p) {
+            const parents = p.rels.parents || [];
+            if (!parents.length) return [];
+            const ids = new Set();
+            rawData.forEach(o => {
+                if (o.id !== p.id && (o.rels.parents || []).some(x => parents.includes(x))) ids.add(o.id);
+            });
+            parents.forEach(pid => {   // figli registrati solo sul genitore
+                const par = personById(pid);
+                (par ? par.rels.children : []).forEach(c => { if (c !== p.id) ids.add(c); });
+            });
+            return [...ids].map(personById).filter(Boolean);
+        }
+        function defaultFocus() {
+            const ref = rawData.find(p => /persona di riferimento/i.test(p.data.note || ''));
+            if (ref) return ref.id;
+            let best = null, max = -1;
+            rawData.forEach(p => {
+                const n = p.rels.parents.length + p.rels.spouses.length + p.rels.children.length;
+                if (n > max) { max = n; best = p.id; }
+            });
+            return best;
+        }
+
+        function el(tag, cls, text) {
+            const e = document.createElement(tag);
+            if (cls) e.className = cls;
+            if (text != null) e.textContent = text;
+            return e;
+        }
+
+        function personCard(p, sub) {
+            const col = personColors(p);
+            const b = el('button', 'fv-card');
+            b.type = 'button';
+            b.style.borderLeftColor = col.border;
+            const av = el('span', 'fv-av', initials(p));
+            av.style.background = col.bg;
+            const txt = el('span', 'min-w-0');
+            txt.appendChild(el('div', 'fv-name', fullName(p)));
+            const line = [p.data.nato, sub].filter(Boolean).join(' · ');
+            if (line) txt.appendChild(el('div', 'fv-sub', line));
+            b.append(av, txt);
+            b.onclick = () => focusPerson(p.id);
+            return b;
+        }
+
+        function section(title, people, grid, subFn) {
+            const s = el('section', 'fv-section');
+            s.appendChild(el('h3', 'fv-title', title));
+            if (!people.length) { s.appendChild(el('div', 'fv-empty', 'Nessuno indicato')); return s; }
+            const box = el('div', grid ? 'fv-grid' : 'fv-list');
+            people.forEach(p => box.appendChild(personCard(p, subFn ? subFn(p) : '')));
+            s.appendChild(box);
+            return s;
+        }
+
+        function focusPerson(id, fromHistory) {
+            if (!personById(id)) return;
+            if (!fromHistory && familyFocusId && familyFocusId !== id) {
+                familyHistory.push(familyFocusId);
+                try { history.pushState({ albero: id }, ''); } catch (e) {}
+            }
+            familyFocusId = id;
+            familyShowAll = false;
+            const s = document.getElementById('searchInput');
+            if (s) s.value = '';
+            renderFamilyView();
+            document.getElementById('family-view').scrollTop = 0;
+        }
+
+        function familyBack() {
+            if (familyShowAll) { familyShowAll = false; renderFamilyView(); return; }
+            const prev = familyHistory.pop();
+            if (prev) focusPerson(prev, true);
+        }
+
+        // Tasto "indietro" del telefono / browser
+        window.addEventListener('popstate', function () {
+            if (familyView && (familyHistory.length || familyShowAll)) familyBack();
+        });
+
+        function renderFamilyView() {
+            const root = document.getElementById('family-view');
+            if (!root || !familyView) return;
+            root.innerHTML = '';
+            const wrap = el('div', 'fv-wrap');
+            root.appendChild(wrap);
+
+            if (!rawData.length) {
+                wrap.appendChild(el('div', 'fv-empty', currentUser ? 'Albero vuoto.' : 'Accedi per vedere l\'albero.'));
+                return;
+            }
+            if (!personById(familyFocusId)) { familyFocusId = defaultFocus(); familyHistory = []; }
+
+            const search = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+            const branch = document.getElementById('branchSelect').value;
+
+            // Barra: indietro + tutte le persone
+            const bar = el('div', 'fv-bar');
+            const back = el('button', 'fv-btn');
+            back.type = 'button';
+            back.innerHTML = '<i class="fa-solid fa-arrow-left"></i>';
+            back.appendChild(document.createTextNode(' Indietro'));
+            back.disabled = !(familyHistory.length || familyShowAll || search || branch);
+            back.onclick = () => {
+                if (search || branch) {
+                    document.getElementById('searchInput').value = '';
+                    document.getElementById('branchSelect').value = '';
+                    filterGraph();
+                    renderFamilyView();
+                } else if (familyShowAll) {
+                    familyBack();
+                } else {
+                    history.back();   // passa da popstate, così resta allineato al tasto del telefono
+                }
+            };
+            const all = el('button', 'fv-btn');
+            all.type = 'button';
+            all.innerHTML = '<i class="fa-solid fa-users"></i>';
+            all.appendChild(document.createTextNode(' Tutte le persone'));
+            all.onclick = () => { familyShowAll = true; renderFamilyView(); root.scrollTop = 0; };
+            bar.append(back, all);
+            wrap.appendChild(bar);
+
+            // Elenco: ricerca, filtro ramo o "tutte le persone"
+            if (search || branch || familyShowAll) {
+                const list = rawData.filter(p => {
+                    const n = fullName(p).toLowerCase();
+                    return (!search || n.includes(search)) && (!branch || p.data.branch === branch);
+                }).sort((a, b) =>
+                    (surnameGroup(a) === UNKNOWN_SURNAME) - (surnameGroup(b) === UNKNOWN_SURNAME) ||
+                    surnameGroup(a).localeCompare(surnameGroup(b), 'it') ||
+                    (a.data['first name'] || '').localeCompare(b.data['first name'] || '', 'it'));
+                wrap.appendChild(el('div', 'fv-title', list.length + (list.length === 1 ? ' persona' : ' persone')));
+                if (!list.length) wrap.appendChild(el('div', 'fv-empty', 'Nessun risultato'));
+                let lastGroup = null, box = null;
+                list.forEach(p => {
+                    const g = surnameGroup(p);
+                    if (g !== lastGroup) {
+                        wrap.appendChild(el('div', 'fv-group', g));
+                        box = el('div', 'fv-list');
+                        wrap.appendChild(box);
+                        lastGroup = g;
+                    }
+                    box.appendChild(personCard(p, ''));
+                });
+                return;
+            }
+
+            const p = personById(familyFocusId);
+            const ids = arr => (arr || []).map(personById).filter(Boolean);
+
+            // Genitori
+            wrap.appendChild(section('Genitori', ids(p.rels.parents), true));
+
+            // Persona al centro
+            const col = personColors(p);
+            const card = el('article', 'fv-focus');
+            card.style.borderTopColor = col.border;
+            const av = el('div', 'fv-av', initials(p));
+            av.style.background = col.bg;
+            card.appendChild(av);
+            card.appendChild(el('h2', '', fullName(p)));
+            if (p.data.nato) card.appendChild(el('div', 'fv-sub', p.data.nato));
+            if (p.data.branch) {
+                const pill = el('span', 'fv-pill', 'Ramo ' + p.data.branch.toUpperCase());
+                pill.style.background = col.bg; pill.style.borderColor = col.border;
+                card.appendChild(pill);
+            }
+            if (p.data.note) card.appendChild(el('p', 'fv-note', p.data.note));
+            const edit = el('button', 'fv-btn');
+            edit.type = 'button';
+            edit.style.marginTop = '14px';
+            edit.innerHTML = '<i class="fa-solid fa-pen"></i>';
+            edit.appendChild(document.createTextNode(' Dettagli e modifica'));
+            edit.onclick = () => openSidebar(p.id);
+            card.appendChild(edit);
+            wrap.appendChild(card);
+
+            // Coniugi, fratelli, figli
+            const spouses = ids(p.rels.spouses);
+            wrap.appendChild(section(spouses.length > 1 ? 'Coniugi / Partner' : 'Coniuge / Partner', spouses, false));
+            wrap.appendChild(section('Fratelli e sorelle', siblingsOf(p), true));
+            const childSub = c => {
+                const other = (c.rels.parents || []).filter(x => x !== p.id).map(personById).filter(Boolean);
+                return other.length && spouses.length > 1 ? 'con ' + fullName(other[0]) : '';
+            };
+            wrap.appendChild(section('Figli', ids(p.rels.children), true, childSub));
         }
 
         function changeColorScheme(newScheme) {
@@ -1083,6 +1369,7 @@ h2,h3{font-family:'Fraunces',serif!important;}
                 const isHidden = !visibleIds.includes(p.id);
                 nodesDataset.update({ id: p.id, hidden: isHidden });
             });
+            if (familyView) renderFamilyView();
         }
 
         function resetLayout() {
@@ -1128,6 +1415,7 @@ h2,h3{font-family:'Fraunces',serif!important;}
             document.getElementById('sidebar').classList.remove('sidebar-open');
             document.getElementById('sidebar').classList.add('sidebar-closed');
             currentSelectedId = null;
+            if (familyView) renderFamilyView();   // riflette nomi e legami appena modificati
         }
 
         function saveCurrentPersonDetails() {
