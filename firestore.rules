@@ -1,24 +1,33 @@
 rules_version = '2';
 
 // Regole di sicurezza per Cloud Firestore
-// - Lettura: LIBERA (chiunque può vedere l'albero, come la home)
-// - Scrittura: SOLO utenti autenticati (email/password che crei tu in Firebase Authentication)
+// - Albero: lo LEGGE solo chi ha fatto l'accesso con un'email in elenco (famiglia);
+//           lo SCRIVE solo il proprietario.
+// - Per aggiungere un familiare: crea il suo utente in Firebase Authentication
+//   (email + password) e aggiungi la sua email all'elenco in lettoriAlbero().
 //
 // Da incollare in: Console Firebase > Firestore Database > scheda "Regole" > Pubblica
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    function proprietario() {
+      return request.auth != null
+        && request.auth.token.email == 'menems@gmail.com';
+    }
+
+    function lettoriAlbero() {
+      return request.auth != null
+        && request.auth.token.email in [
+          'menems@gmail.com'
+          // , 'familiare@esempio.it'
+        ];
+    }
+
     // Documento dell'albero: alberi/ceni
     match /alberi/{documento} {
-      allow read: if true;
-      allow write: if request.auth != null;
-
-      // --- Variante più restrittiva (opzionale) ---
-      // Per permettere la scrittura SOLO al tuo account, prendi il tuo UID
-      // da Firebase Authentication (colonna "ID utente") e usa questa riga
-      // al posto di quella sopra:
-      // allow write: if request.auth != null && request.auth.uid == "IL_TUO_UID";
+      allow read: if lettoriAlbero();
+      allow write: if proprietario();
     }
 
     // skill.AI: link personali, ognuno legge e scrive SOLO i propri
